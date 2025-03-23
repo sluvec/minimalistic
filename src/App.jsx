@@ -8,6 +8,7 @@ import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import CreateNote from './pages/CreateNote'
 import EditNote from './pages/EditNote'
+import Archive from './pages/Archive'
 import NotFound from './pages/NotFound'
 
 // Components
@@ -63,6 +64,10 @@ function App() {
             <Route 
               path="/edit/:id" 
               element={session ? <EditNote /> : <Navigate to="/login" />} 
+            />
+            <Route 
+              path="/archive" 
+              element={session ? <Archive /> : <Navigate to="/login" />} 
             />
             <Route path="*" element={<NotFound />} />
           </Routes>

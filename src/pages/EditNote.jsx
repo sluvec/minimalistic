@@ -6,223 +6,334 @@ function EditNote() {
   const { id } = useParams()
   const navigate = useNavigate()
   
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
-  const [category, setCategory] = useState('')
-  const [type, setType] = useState('')
-  const [tags, setTags] = useState('')
-  const [dueDate, setDueDate] = useState('')
-  const [url, setUrl] = useState('')
-  const [priority, setPriority] = useState('')
-  const [importance, setImportance] = useState('')
+  const [formData, setFormData] = useState({
+    title: '',
+    content: '',
+    category: '',
+    type: '',
+    tags: '',
+    due_date: '',
+    url: '',
+    priority: '',
+    importance: '',
+    status: 'New',
+    isTask: false,
+    isList: false,
+    isIdea: false
+  })
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
-
+  const [saveLoading, setSaveLoading] = useState(false)
+  
   useEffect(() => {
+    const fetchNote = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('notes')
+          .select('*')
+          .eq('id', id)
+          .single()
+        
+        if (error) throw error
+        
+        if (!data) {
+          throw new Error('Note not found')
+        }
+        
+        // Process tags for form (convert array to comma-separated string)
+        const tagsString = data.tags && Array.isArray(data.tags) 
+          ? data.tags.join(', ') 
+          : ''
+        
+        setFormData({
+          title: data.title || '',
+          content: data.content || '',
+          category: data.category || '',
+          type: data.type || '',
+          tags: tagsString,
+          due_date: data.due_date || '',
+          url: data.url || '',
+          priority: data.priority || '',
+          importance: data.importance || '',
+          status: data.status || 'New',
+          isTask: data.isTask || false,
+          isList: data.isList || false,
+          isIdea: data.isIdea || false
+        })
+        
+      } catch (error) {
+        console.error('Error fetching note:', error)
+        setError('Failed to load note')
+      } finally {
+        setLoading(false)
+      }
+    }
+    
     fetchNote()
   }, [id])
-
-  const fetchNote = async () => {
-    try {
-      setLoading(true)
-      
-      const { data, error } = await supabase
-        .from('notes')
-        .select('*')
-        .eq('id', id)
-        .single()
-      
-      if (error) throw error
-      
-      if (data) {
-        setTitle(data.title)
-        setContent(data.content)
-        setCategory(data.category || '')
-        setType(data.type || '')
-        setDueDate(data.due_date || '')
-        setUrl(data.url || '')
-        setPriority(data.priority || '')
-        setImportance(data.importance || '')
-        setTags(data.tags ? data.tags.join(', ') : '')
-      }
-    } catch (error) {
-      setError('Error loading note')
-      console.error(error)
-    } finally {
-      setLoading(false)
-    }
+  
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target
+    setFormData({
+      ...formData,
+      [name]: type === 'checkbox' ? checked : value
+    })
   }
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
-    if (!content.trim()) {
-      setError('Content is required')
-      return
-    }
+    setSaveLoading(true)
+    setError(null)
     
     try {
-      setSaving(true)
-      setError(null)
+      // Validate required fields
+      if (!formData.content.trim()) {
+        throw new Error('Content is required')
+      }
       
-      // Process tags if any (convert comma-separated list to array)
-      const processedTags = tags.trim() ? tags.split(',').map(tag => tag.trim()) : null
+      // Process tags if any
+      let processedTags = null
+      if (formData.tags.trim()) {
+        processedTags = formData.tags.split(',').map(tag => tag.trim())
+      }
       
+      // Update the note
       const { error } = await supabase
         .from('notes')
         .update({
-          title,
-          content,
-          category: category || null,
-          type: type || null,
+          title: formData.title,
+          content: formData.content,
+          category: formData.category || null,
+          type: formData.type || null,
           tags: processedTags,
-          due_date: dueDate || null,
-          url: url || null,
-          priority: priority || null,
-          importance: importance || null,
-          updated_at: new Date().toISOString(),
+          due_date: formData.due_date || null,
+          url: formData.url || null,
+          priority: formData.priority || null,
+          importance: formData.importance || null,
+          status: formData.status || 'New',
+          isTask: formData.isTask,
+          isList: formData.isList,
+          isIdea: formData.isIdea,
+          updated_at: new Date().toISOString()
         })
         .eq('id', id)
       
       if (error) throw error
       
+      // Navigate back to dashboard
       navigate('/')
+      
     } catch (error) {
-      setError('Error updating note')
-      console.error(error)
+      console.error('Error updating note:', error)
+      setError(error.message || 'Failed to update note')
     } finally {
-      setSaving(false)
+      setSaveLoading(false)
     }
   }
-
-  if (loading) {
-    return <div className="loading">Loading note...</div>
-  }
-
-  return (
-    <div>
-      <h2>Edit Note</h2>
-      {error && <div className="error">{error}</div>}
+  
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this note?')) {
+      return
+    }
+    
+    try {
+      setError(null)
       
-      <div className="card">
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="title">Title (optional)</label>
+      const { error } = await supabase
+        .from('notes')
+        .delete()
+        .eq('id', id)
+      
+      if (error) throw error
+      
+      navigate('/')
+      
+    } catch (error) {
+      console.error('Error deleting note:', error)
+      setError('Failed to delete note')
+    }
+  }
+  
+  if (loading) {
+    return <div>Loading...</div>
+  }
+  
+  return (
+    <div className="edit-note">
+      <h1>Edit Note</h1>
+      
+      {error && (
+        <div className="error">{error}</div>
+      )}
+      
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label>Title</label>
+          <input
+            type="text"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            placeholder="Title (optional)"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Content*</label>
+          <textarea
+            name="content"
+            value={formData.content}
+            onChange={handleChange}
+            placeholder="Enter note content"
+            rows={5}
+            required
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Category</label>
+          <input
+            type="text"
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            placeholder="Category (optional)"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Type</label>
+          <input
+            type="text"
+            name="type"
+            value={formData.type}
+            onChange={handleChange}
+            placeholder="Type (optional)"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Tags</label>
+          <input
+            type="text"
+            name="tags"
+            value={formData.tags}
+            onChange={handleChange}
+            placeholder="Tags (comma separated)"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Due Date</label>
+          <input
+            type="date"
+            name="due_date"
+            value={formData.due_date}
+            onChange={handleChange}
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>URL</label>
+          <input
+            type="url"
+            name="url"
+            value={formData.url}
+            onChange={handleChange}
+            placeholder="URL (optional)"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Priority</label>
+          <input
+            type="text"
+            name="priority"
+            value={formData.priority}
+            onChange={handleChange}
+            placeholder="Priority (optional)"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Importance</label>
+          <input
+            type="text"
+            name="importance"
+            value={formData.importance}
+            onChange={handleChange}
+            placeholder="Importance (optional)"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Status</label>
+          <input
+            type="text"
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            placeholder="Status"
+          />
+        </div>
+        
+        <div className="form-group" style={{ display: 'flex', flexDirection: 'row', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             <input
-              id="title"
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              type="checkbox"
+              id="isTask"
+              name="isTask"
+              checked={formData.isTask}
+              onChange={handleChange}
+              style={{ marginRight: '0.5rem' }}
             />
+            <label htmlFor="isTask">Task</label>
           </div>
           
-          <div>
-            <label htmlFor="content">Content *</label>
-            <textarea
-              id="content"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows="8"
-              required
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="category">Category (Optional)</label>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             <input
-              id="category"
-              type="text"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              placeholder="e.g. Work, Personal, Ideas"
+              type="checkbox"
+              id="isList"
+              name="isList"
+              checked={formData.isList}
+              onChange={handleChange}
+              style={{ marginRight: '0.5rem' }}
             />
+            <label htmlFor="isList">List</label>
           </div>
           
-          <div>
-            <label htmlFor="type">Type (Optional)</label>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             <input
-              id="type"
-              type="text"
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              placeholder="e.g. Task, Reference, Meeting Notes"
+              type="checkbox"
+              id="isIdea"
+              name="isIdea"
+              checked={formData.isIdea}
+              onChange={handleChange}
+              style={{ marginRight: '0.5rem' }}
             />
+            <label htmlFor="isIdea">Idea</label>
           </div>
-          
+        </div>
+        
+        <div className="form-actions">
+          <button 
+            type="button" 
+            onClick={handleDelete} 
+            className="btn danger"
+            style={{ backgroundColor: '#f56565' }}
+          >
+            Delete Note
+          </button>
           <div>
-            <label htmlFor="dueDate">Due Date (Optional)</label>
-            <input
-              id="dueDate"
-              type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="url">URL (Optional)</label>
-            <input
-              id="url"
-              type="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://example.com"
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="priority">Priority (Optional)</label>
-            <input
-              id="priority"
-              type="text"
-              value={priority}
-              onChange={(e) => setPriority(e.target.value)}
-              placeholder="e.g. High, Medium, Low"
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="importance">Importance (Optional)</label>
-            <input
-              id="importance"
-              type="text"
-              value={importance}
-              onChange={(e) => setImportance(e.target.value)}
-              placeholder="e.g. Critical, Major, Minor"
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="tags">Tags (Optional, comma-separated)</label>
-            <input
-              id="tags"
-              type="text"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              placeholder="e.g. important, todo, follow-up"
-            />
-          </div>
-          
-          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-            <button 
-              type="submit" 
-              className="btn" 
-              disabled={saving}
-            >
-              {saving ? 'Saving...' : 'Update Note'}
-            </button>
-            
-            <button 
-              type="button" 
-              className="btn btn-secondary"
-              onClick={() => navigate('/')}
-            >
+            <button type="button" onClick={() => navigate('/')} className="btn secondary">
               Cancel
             </button>
+            <button type="submit" className="btn primary" disabled={saveLoading}>
+              {saveLoading ? 'Saving...' : 'Save Changes'}
+            </button>
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
     </div>
   )
 }
