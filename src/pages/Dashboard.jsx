@@ -1439,48 +1439,6 @@ function Dashboard() {
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
                   <h3 style={{ margin: 0, fontSize: '1.25rem' }}>{note.title}</h3>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button 
-                      className="delete-button"
-                      style={{
-                        backgroundColor: '#f56565',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '0.25rem',
-                        padding: '0.25rem 0.5rem',
-                        fontSize: '0.75rem',
-                        cursor: 'pointer',
-                        width: '70px',
-                        textAlign: 'center'
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        permanentlyDeleteNote(note.id)
-                      }}
-                    >
-                      Delete
-                    </button>
-                    <button 
-                      className="archive-button"
-                      style={{
-                        backgroundColor: '#ed8936',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '0.25rem',
-                        padding: '0.25rem 0.5rem',
-                        fontSize: '0.75rem',
-                        cursor: 'pointer',
-                        width: '70px',
-                        textAlign: 'center'
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        archiveNote(note.id)
-                      }}
-                    >
-                      Archive
-                    </button>
-                  </div>
                 </div>
                 
                 <p className="note-content" style={{ marginBottom: '0.75rem', fontSize: '0.875rem', color: '#4a5568' }}>
@@ -1630,24 +1588,67 @@ function Dashboard() {
                   {new Date(note.updated_at).toLocaleDateString()}
                 </span>
                 
-                {note.url && (
-                  <a 
-                    href={note.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  {note.url && (
+                    <a 
+                      href={note.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        color: '#4299e1',
+                        textDecoration: 'none',
+                        fontSize: '0.75rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.25rem'
+                      }}
+                    >
+                      <span>Open URL</span>
+                    </a>
+                  )}
+                  
+                  <button 
+                    className="delete-button"
                     style={{
-                      color: '#4299e1',
-                      textDecoration: 'none',
+                      backgroundColor: '#f56565',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '0.25rem',
+                      padding: '0.25rem 0.5rem',
                       fontSize: '0.75rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.25rem'
+                      cursor: 'pointer',
+                      width: '70px',
+                      textAlign: 'center'
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      permanentlyDeleteNote(note.id)
                     }}
                   >
-                    <span>Open URL</span>
-                  </a>
-                )}
+                    Delete
+                  </button>
+                  <button 
+                    className="archive-button"
+                    style={{
+                      backgroundColor: '#ed8936',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '0.25rem',
+                      padding: '0.25rem 0.5rem',
+                      fontSize: '0.75rem',
+                      cursor: 'pointer',
+                      width: '70px',
+                      textAlign: 'center'
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      archiveNote(note.id)
+                    }}
+                  >
+                    Archive
+                  </button>
+                </div>
               </div>
             </div>
           ))}

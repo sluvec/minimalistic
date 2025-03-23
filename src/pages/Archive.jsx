@@ -582,22 +582,21 @@ function Archive() {
           {filteredNotes.map(note => (
             <div 
               key={note.id} 
-              className="card note-card"
               style={{ 
-                backgroundColor: 'white', 
-                borderRadius: '0.5rem', 
-                boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)', 
+                backgroundColor: 'rgba(0,0,0,0.02)', 
                 padding: '1rem', 
-                display: 'flex', 
-                flexDirection: 'column', 
-                minHeight: '200px',
-                position: 'relative',
-                cursor: 'pointer'
-              }}
-              onClick={() => navigate(`/edit/${note.id}`)}
-            >
+                marginBottom: '1rem',
+                borderRadius: '0.5rem',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                minHeight: '200px'
+              }} onClick={() => navigate(`/edit/${note.id}`)}>
               <div>
-                <h3 style={{ marginTop: 0, marginBottom: '0.5rem', fontSize: '1.25rem' }}>{note.title}</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.25rem' }}>{note.title}</h3>
+                </div>
                 <p className="note-content" style={{ marginBottom: '0.75rem', fontSize: '0.875rem', color: '#4a5568' }}>
                   {note.content.length > 100 
                     ? `${note.content.substring(0, 100)}...` 
@@ -685,7 +684,7 @@ function Archive() {
                 </div>
               </div>
               
-              <div className="note-actions" style={{ marginTop: 'auto', paddingTop: '0.75rem', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ marginTop: 'auto', paddingTop: '0.75rem', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: '0.75rem', color: '#718096' }}>
                   {new Date(note.updated_at).toLocaleDateString()}
                 </span>
