@@ -1449,7 +1449,9 @@ function Dashboard() {
                         borderRadius: '0.25rem',
                         padding: '0.25rem 0.5rem',
                         fontSize: '0.75rem',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        width: '70px',
+                        textAlign: 'center'
                       }}
                       onClick={(e) => {
                         e.stopPropagation()
@@ -1467,7 +1469,9 @@ function Dashboard() {
                         borderRadius: '0.25rem',
                         padding: '0.25rem 0.5rem',
                         fontSize: '0.75rem',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        width: '70px',
+                        textAlign: 'center'
                       }}
                       onClick={(e) => {
                         e.stopPropagation()
