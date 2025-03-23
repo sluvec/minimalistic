@@ -132,7 +132,7 @@ function EditNote() {
   }
   
   const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this note?')) {
+    if (!window.confirm('Are you sure you want to delete this note? This action cannot be undone.')) {
       return
     }
     
@@ -144,13 +144,36 @@ function EditNote() {
         .delete()
         .eq('id', id)
       
-      if (error) throw error
+      if (error) {
+        throw error
+      }
       
       navigate('/')
-      
     } catch (error) {
-      console.error('Error deleting note:', error)
-      setError('Failed to delete note')
+      setError('Error deleting note: ' + error.message)
+    }
+  }
+  
+  const handleArchive = async () => {
+    if (!window.confirm('Are you sure you want to archive this note?')) {
+      return
+    }
+    
+    try {
+      setError(null)
+      
+      const { error } = await supabase
+        .from('notes')
+        .update({ archived: true })
+        .eq('id', id)
+      
+      if (error) {
+        throw error
+      }
+      
+      navigate('/')
+    } catch (error) {
+      setError('Error archiving note: ' + error.message)
     }
   }
   
@@ -315,20 +338,72 @@ function EditNote() {
           </div>
         </div>
         
-        <div className="form-actions">
-          <button 
-            type="button" 
-            onClick={handleDelete} 
-            className="btn danger"
-            style={{ backgroundColor: '#f56565' }}
-          >
-            Delete Note
-          </button>
-          <div>
-            <button type="button" onClick={() => navigate('/')} className="btn secondary">
+        <div className="form-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2rem' }}>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <button 
+              type="button" 
+              onClick={handleDelete} 
+              className="btn danger"
+              style={{ 
+                backgroundColor: '#f56565',
+                padding: '0.5rem 1.25rem',
+                borderRadius: '0.375rem',
+                border: 'none',
+                color: 'white',
+                fontWeight: '500',
+                cursor: 'pointer'
+              }}
+            >
+              Delete Note
+            </button>
+            <button 
+              type="button" 
+              onClick={handleArchive} 
+              className="btn archive"
+              style={{ 
+                backgroundColor: '#ed8936',
+                padding: '0.5rem 1.25rem',
+                borderRadius: '0.375rem',
+                border: 'none',
+                color: 'white',
+                fontWeight: '500',
+                cursor: 'pointer'
+              }}
+            >
+              Archive Note
+            </button>
+          </div>
+          <div style={{ display: 'flex', gap: '1.5rem' }}>
+            <button 
+              type="button" 
+              onClick={() => navigate('/')} 
+              className="btn secondary"
+              style={{
+                padding: '0.5rem 1.25rem',
+                borderRadius: '0.375rem',
+                border: '1px solid #e2e8f0',
+                backgroundColor: '#edf2f7',
+                color: '#4a5568',
+                fontWeight: '500',
+                cursor: 'pointer'
+              }}
+            >
               Cancel
             </button>
-            <button type="submit" className="btn primary" disabled={saveLoading}>
+            <button 
+              type="submit" 
+              className="btn primary" 
+              disabled={saveLoading}
+              style={{
+                backgroundColor: '#48bb78', 
+                padding: '0.5rem 1.25rem',
+                borderRadius: '0.375rem',
+                border: 'none',
+                color: 'white',
+                fontWeight: '500',
+                cursor: 'pointer'
+              }}
+            >
               {saveLoading ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
