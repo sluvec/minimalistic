@@ -1,23 +1,61 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { supabase } from './lib/supabaseClient'
 import { Toaster } from 'react-hot-toast'
+import queryClient from './lib/queryClient'
 
-// Pages
-import Login from './pages/Login'
-import Register from './pages/Register'
-import Dashboard from './pages/Dashboard'
-import CreateNote from './pages/CreateNote'
-import EditNote from './pages/EditNote'
-import Archive from './pages/Archive'
-import NotFound from './pages/NotFound'
+// Lazy load devtools only in development
+const ReactQueryDevtools = import.meta.env.DEV
+  ? lazy(() =>
+      import('@tanstack/react-query-devtools').then((module) => ({
+        default: module.ReactQueryDevtools,
+      }))
+    )
+  : null
 
-// Components
+// Eagerly load critical components
 import Header from './components/Header'
 import ErrorBoundary from './components/ErrorBoundary'
 
+// Lazy load pages for code splitting
+const Login = lazy(() => import('./pages/Login'))
+const Register = lazy(() => import('./pages/Register'))
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+const CreateNote = lazy(() => import('./pages/CreateNote'))
+const EditNote = lazy(() => import('./pages/EditNote'))
+const Archive = lazy(() => import('./pages/Archive'))
+const NotFound = lazy(() => import('./pages/NotFound'))
+
 // Constants
 import { TOAST_CONFIG } from './constants'
+
+// Loading fallback component
+function PageLoader() {
+  return (
+    <div className="loading" style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '50vh',
+      fontSize: '1.2rem',
+      color: '#4a5568'
+    }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ marginBottom: '1rem' }}>Loading...</div>
+        <div style={{
+          width: '40px',
+          height: '40px',
+          border: '3px solid #e2e8f0',
+          borderTop: '3px solid #4299e1',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite',
+          margin: '0 auto'
+        }} />
+      </div>
+    </div>
+  )
+}
 
 function App() {
   const [session, setSession] = useState(null)
@@ -55,52 +93,62 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <Router>
-        <a href="#main-content" className="skip-to-main">
-          Skip to main content
-        </a>
-        <Toaster
-          position={TOAST_CONFIG.POSITION}
-          toastOptions={{
-            duration: TOAST_CONFIG.DURATION_DEFAULT,
-            style: TOAST_CONFIG.STYLE,
-            success: TOAST_CONFIG.SUCCESS,
-            error: TOAST_CONFIG.ERROR,
-          }}
-        />
-        <div className="app">
-          <Header session={session} />
-          <main id="main-content" className="container" role="main">
-            <Routes>
-            <Route 
-              path="/" 
-              element={session ? <Dashboard /> : <Navigate to="/login" />} 
-            />
-            <Route 
-              path="/login" 
-              element={!session ? <Login /> : <Navigate to="/" />} 
-            />
-            <Route 
-              path="/register" 
-              element={!session ? <Register /> : <Navigate to="/" />} 
-            />
-            <Route 
-              path="/create" 
-              element={session ? <CreateNote /> : <Navigate to="/login" />} 
-            />
-            <Route 
-              path="/edit/:id" 
-              element={session ? <EditNote /> : <Navigate to="/login" />} 
-            />
-            <Route 
-              path="/archive" 
-              element={session ? <Archive /> : <Navigate to="/login" />} 
-            />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          </main>
-        </div>
-      </Router>
+      <QueryClientProvider client={queryClient}>
+        <Router>
+          <a href="#main-content" className="skip-to-main">
+            Skip to main content
+          </a>
+          <Toaster
+            position={TOAST_CONFIG.POSITION}
+            toastOptions={{
+              duration: TOAST_CONFIG.DURATION_DEFAULT,
+              style: TOAST_CONFIG.STYLE,
+              success: TOAST_CONFIG.SUCCESS,
+              error: TOAST_CONFIG.ERROR,
+            }}
+          />
+          <div className="app">
+            <Header session={session} />
+            <main id="main-content" className="container" role="main">
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  <Route
+                    path="/"
+                    element={session ? <Dashboard /> : <Navigate to="/login" />}
+                  />
+                  <Route
+                    path="/login"
+                    element={!session ? <Login /> : <Navigate to="/" />}
+                  />
+                  <Route
+                    path="/register"
+                    element={!session ? <Register /> : <Navigate to="/" />}
+                  />
+                  <Route
+                    path="/create"
+                    element={session ? <CreateNote /> : <Navigate to="/login" />}
+                  />
+                  <Route
+                    path="/edit/:id"
+                    element={session ? <EditNote /> : <Navigate to="/login" />}
+                  />
+                  <Route
+                    path="/archive"
+                    element={session ? <Archive /> : <Navigate to="/login" />}
+                  />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </main>
+          </div>
+        </Router>
+        {/* React Query Devtools - only in development */}
+        {ReactQueryDevtools && (
+          <Suspense fallback={null}>
+            <ReactQueryDevtools initialIsOpen={false} />
+          </Suspense>
+        )}
+      </QueryClientProvider>
     </ErrorBoundary>
   )
 }
