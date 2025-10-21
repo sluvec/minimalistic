@@ -577,30 +577,7 @@ function Dashboard() {
               overflow: 'hidden'
             }}
           >
-            {/* Table Header */}
-            <div
-              role="row"
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 150px 120px 120px 100px 150px',
-                gap: '1rem',
-                padding: '0.75rem 1rem',
-                backgroundColor: '#f7fafc',
-                borderBottom: '2px solid #e2e8f0',
-                fontWeight: '600',
-                fontSize: '0.875rem',
-                color: '#4a5568'
-              }}
-            >
-              <div>Title / Content</div>
-              <div>Category</div>
-              <div>Type</div>
-              <div>Status</div>
-              <div>Due Date</div>
-              <div style={{ textAlign: 'right' }}>Actions</div>
-            </div>
-
-            {/* Table Rows */}
+            {/* Notes List */}
             {filteredNotes.map(note => (
               <NoteListItem
                 key={note.id}
