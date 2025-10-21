@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { supabase } from './lib/supabaseClient'
+import { Toaster } from 'react-hot-toast'
 
 // Pages
 import Login from './pages/Login'
@@ -13,26 +14,39 @@ import NotFound from './pages/NotFound'
 
 // Components
 import Header from './components/Header'
+import ErrorBoundary from './components/ErrorBoundary'
+
+// Constants
+import { TOAST_CONFIG } from './constants'
 
 function App() {
   const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let isMounted = true
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setLoading(false)
+      if (isMounted) {
+        setSession(session)
+        setLoading(false)
+      }
     })
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
-        setSession(session)
+        if (isMounted) {
+          setSession(session)
+        }
       }
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      isMounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   if (loading) {
@@ -40,11 +54,24 @@ function App() {
   }
 
   return (
-    <Router>
-      <div className="app">
-        <Header session={session} />
-        <main className="container">
-          <Routes>
+    <ErrorBoundary>
+      <Router>
+        <a href="#main-content" className="skip-to-main">
+          Skip to main content
+        </a>
+        <Toaster
+          position={TOAST_CONFIG.POSITION}
+          toastOptions={{
+            duration: TOAST_CONFIG.DURATION_DEFAULT,
+            style: TOAST_CONFIG.STYLE,
+            success: TOAST_CONFIG.SUCCESS,
+            error: TOAST_CONFIG.ERROR,
+          }}
+        />
+        <div className="app">
+          <Header session={session} />
+          <main id="main-content" className="container" role="main">
+            <Routes>
             <Route 
               path="/" 
               element={session ? <Dashboard /> : <Navigate to="/login" />} 
@@ -71,9 +98,10 @@ function App() {
             />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </main>
-      </div>
-    </Router>
+          </main>
+        </div>
+      </Router>
+    </ErrorBoundary>
   )
 }
 

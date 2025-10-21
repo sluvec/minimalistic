@@ -2,6 +2,11 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 
+// Constants and utilities
+import { STATUS, ERROR_MESSAGES } from '../constants'
+import { parseTags, tagsToString } from '../utils/tagHelpers'
+import { validateNote } from '../utils/validation'
+
 function EditNote() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -16,7 +21,7 @@ function EditNote() {
     url: '',
     priority: '',
     importance: '',
-    status: 'New',
+    status: STATUS.NEW,
     isTask: false,
     isList: false,
     isIdea: false
@@ -37,14 +42,12 @@ function EditNote() {
         if (error) throw error
         
         if (!data) {
-          throw new Error('Note not found')
+          throw new Error(ERROR_MESSAGES.NOT_FOUND)
         }
-        
-        // Process tags for form (convert array to comma-separated string)
-        const tagsString = data.tags && Array.isArray(data.tags) 
-          ? data.tags.join(', ') 
-          : ''
-        
+
+        // Process tags for form using utility
+        const tagsString = tagsToString(data.tags)
+
         setFormData({
           title: data.title || '',
           content: data.content || '',
@@ -55,7 +58,7 @@ function EditNote() {
           url: data.url || '',
           priority: data.priority || '',
           importance: data.importance || '',
-          status: data.status || 'New',
+          status: data.status || STATUS.NEW,
           isTask: data.isTask || false,
           isList: data.isList || false,
           isIdea: data.isIdea || false
@@ -82,21 +85,24 @@ function EditNote() {
   
   const handleSubmit = async (e) => {
     e.preventDefault()
+
+    // Prevent double submission
+    if (saveLoading) return
+
     setSaveLoading(true)
     setError(null)
-    
+
     try {
-      // Validate required fields
-      if (!formData.content.trim()) {
-        throw new Error('Content is required')
+      // Validate note using utility
+      const validation = validateNote(formData)
+      if (!validation.valid) {
+        const firstError = Object.values(validation.errors)[0]
+        throw new Error(firstError)
       }
-      
-      // Process tags if any
-      let processedTags = null
-      if (formData.tags.trim()) {
-        processedTags = formData.tags.split(',').map(tag => tag.trim())
-      }
-      
+
+      // Process tags using utility
+      const processedTags = parseTags(formData.tags)
+
       // Update the note
       const { error } = await supabase
         .from('notes')
@@ -110,7 +116,7 @@ function EditNote() {
           url: formData.url || null,
           priority: formData.priority || null,
           importance: formData.importance || null,
-          status: formData.status || 'New',
+          status: formData.status || STATUS.NEW,
           isTask: formData.isTask,
           isList: formData.isList,
           isIdea: formData.isIdea,
