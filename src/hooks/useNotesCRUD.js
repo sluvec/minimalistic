@@ -1,38 +1,43 @@
 import { useState, useCallback } from 'react'
-import { supabase } from '../lib/supabaseClient'
+import {
+  useCreateNote,
+  useUpdateNote,
+  useDeleteNote,
+  useArchiveNote,
+  useRestoreNote
+} from './useNotesQuery'
 
 /**
  * Custom hook for CRUD operations on notes
- * Handles create, update, delete, archive, and restore operations
+ * Now powered by React Query with optimistic updates
+ *
+ * Performance improvements:
+ * - Optimistic updates (UI updates before server confirms)
+ * - Automatic rollback on error
+ * - Automatic cache invalidation
+ * - Background sync
  */
 export function useNotesCRUD() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
+  // Get React Query mutations
+  const createMutation = useCreateNote()
+  const updateMutation = useUpdateNote()
+  const deleteMutation = useDeleteNote()
+  const archiveMutation = useArchiveNote()
+  const restoreMutation = useRestoreNote()
+
   /**
    * Create a new note
+   * Now with optimistic updates - UI updates instantly!
    */
   const createNote = useCallback(async (noteData) => {
     setLoading(true)
     setError(null)
 
     try {
-      const user = await supabase.auth.getUser()
-      if (!user.data.user) {
-        throw new Error('You must be logged in to create a note')
-      }
-
-      const { data, error } = await supabase
-        .from('notes')
-        .insert({
-          ...noteData,
-          user_id: user.data.user.id
-        })
-        .select()
-        .single()
-
-      if (error) throw error
-
+      const data = await createMutation.mutateAsync(noteData)
       return { data, error: null }
     } catch (err) {
       console.error('Error creating note:', err)
@@ -41,28 +46,18 @@ export function useNotesCRUD() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [createMutation])
 
   /**
    * Update an existing note
+   * Now with optimistic updates - UI updates instantly!
    */
   const updateNote = useCallback(async (noteId, updates) => {
     setLoading(true)
     setError(null)
 
     try {
-      const { data, error } = await supabase
-        .from('notes')
-        .update({
-          ...updates,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', noteId)
-        .select()
-        .single()
-
-      if (error) throw error
-
+      const data = await updateMutation.mutateAsync({ id: noteId, updates })
       return { data, error: null }
     } catch (err) {
       console.error('Error updating note:', err)
@@ -71,23 +66,18 @@ export function useNotesCRUD() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [updateMutation])
 
   /**
    * Delete a note permanently
+   * Now with optimistic updates - UI updates instantly!
    */
   const deleteNote = useCallback(async (noteId) => {
     setLoading(true)
     setError(null)
 
     try {
-      const { error } = await supabase
-        .from('notes')
-        .delete()
-        .eq('id', noteId)
-
-      if (error) throw error
-
+      await deleteMutation.mutateAsync(noteId)
       return { error: null }
     } catch (err) {
       console.error('Error deleting note:', err)
@@ -96,25 +86,18 @@ export function useNotesCRUD() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [deleteMutation])
 
   /**
    * Archive a note (soft delete)
+   * Now with optimistic updates - UI updates instantly!
    */
   const archiveNote = useCallback(async (noteId) => {
     setLoading(true)
     setError(null)
 
     try {
-      const { data, error } = await supabase
-        .from('notes')
-        .update({ archived: true })
-        .eq('id', noteId)
-        .select()
-        .single()
-
-      if (error) throw error
-
+      const data = await archiveMutation.mutateAsync(noteId)
       return { data, error: null }
     } catch (err) {
       console.error('Error archiving note:', err)
@@ -123,25 +106,18 @@ export function useNotesCRUD() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [archiveMutation])
 
   /**
    * Restore an archived note
+   * Now with optimistic updates - UI updates instantly!
    */
   const restoreNote = useCallback(async (noteId) => {
     setLoading(true)
     setError(null)
 
     try {
-      const { data, error } = await supabase
-        .from('notes')
-        .update({ archived: false })
-        .eq('id', noteId)
-        .select()
-        .single()
-
-      if (error) throw error
-
+      const data = await restoreMutation.mutateAsync(noteId)
       return { data, error: null }
     } catch (err) {
       console.error('Error restoring note:', err)
@@ -150,7 +126,7 @@ export function useNotesCRUD() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [restoreMutation])
 
   return {
     loading,

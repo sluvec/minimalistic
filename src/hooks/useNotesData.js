@@ -1,94 +1,48 @@
-import { useState, useEffect, useCallback } from 'react'
-import { supabase } from '../lib/supabaseClient'
+import { useCallback } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { useNotesQuery } from './useNotesQuery'
 
 /**
  * Custom hook for fetching and managing notes data
- * Handles loading, error states, and data fetching
+ * Now powered by React Query + IndexedDB for blazing fast performance
+ *
+ * Performance improvements:
+ * - Instant navigation with cached data
+ * - Background sync
+ * - Automatic refetching on window focus
+ * - Offline support via IndexedDB
+ * - Optimistic updates
  */
 export function useNotesData(archived = false) {
-  const [notes, setNotes] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const queryClient = useQueryClient()
 
-  const fetchNotes = useCallback(async (isMounted) => {
-    try {
-      if (!isMounted()) return
-
-      setLoading(true)
-      setError(null)
-
-      const { data: { user } } = await supabase.auth.getUser()
-
-      if (!isMounted()) return
-
-      if (!user) {
-        setNotes([])
-        return
-      }
-
-      const { data, error } = await supabase
-        .from('notes')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('archived', archived)
-        .order('updated_at', { ascending: false })
-
-      if (!isMounted()) return
-
-      if (error) {
-        throw error
-      }
-
-      if (data) {
-        setNotes(data)
-      }
-    } catch (error) {
-      console.error('Error fetching notes:', error.message)
-      if (isMounted()) {
-        setError('Failed to fetch notes.')
-      }
-    } finally {
-      if (isMounted()) {
-        setLoading(false)
-      }
-    }
-  }, [archived])
-
-  useEffect(() => {
-    let mounted = true
-    const isMounted = () => mounted
-
-    fetchNotes(isMounted)
-
-    return () => {
-      mounted = false
-    }
-  }, [fetchNotes])
-
-  // Refresh notes (can be called manually)
-  const refresh = useCallback(() => {
-    // For manual refresh, we use a simple mounted check
-    let mounted = true
-    const isMounted = () => mounted
-    fetchNotes(isMounted)
-  }, [fetchNotes])
+  // Use React Query hook (with caching and background sync)
+  const { notes, loading, error, refresh, isFetching } = useNotesQuery(archived)
 
   // Update local state after mutations (optimistic updates)
+  // Now using React Query cache instead of local state
   const updateNoteInState = useCallback((noteId, updates) => {
-    setNotes(prevNotes =>
-      prevNotes.map(note =>
+    queryClient.setQueryData(['notes', archived], (oldData) => {
+      if (!oldData) return oldData
+      return oldData.map(note =>
         note.id === noteId ? { ...note, ...updates } : note
       )
-    )
-  }, [])
+    })
+  }, [queryClient, archived])
 
   const removeNoteFromState = useCallback((noteId) => {
-    setNotes(prevNotes => prevNotes.filter(note => note.id !== noteId))
-  }, [])
+    queryClient.setQueryData(['notes', archived], (oldData) => {
+      if (!oldData) return oldData
+      return oldData.filter(note => note.id !== noteId)
+    })
+  }, [queryClient, archived])
 
   const addNoteToState = useCallback((newNote) => {
-    setNotes(prevNotes => [newNote, ...prevNotes])
-  }, [])
+    queryClient.setQueryData(['notes', archived], (oldData) => {
+      if (!oldData) return [newNote]
+      return [newNote, ...oldData]
+    })
+  }, [queryClient, archived])
 
   return {
     notes,
@@ -97,6 +51,7 @@ export function useNotesData(archived = false) {
     refresh,
     updateNoteInState,
     removeNoteFromState,
-    addNoteToState
+    addNoteToState,
+    isFetching // New: shows when background fetching is happening
   }
 }
