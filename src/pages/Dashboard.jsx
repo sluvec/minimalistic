@@ -12,6 +12,7 @@ import { useNotesCRUD } from '../hooks/useNotesCRUD'
 
 // Components
 import NoteCard from '../components/notes/NoteCard'
+import NoteListItem from '../components/notes/NoteListItem'
 import NoteSearch from '../components/notes/NoteSearch'
 import NoteSorting from '../components/notes/NoteSorting'
 import NoteFilters from '../components/notes/NoteFilters'
@@ -200,14 +201,119 @@ function Dashboard() {
   }, [filterOptions.datesWithNotes])
 
   return (
-    <div>
-      {/* Quick Note Form */}
-      <section aria-labelledby="quick-note-heading" style={{ marginBottom: '2rem' }}>
-        <h2 id="quick-note-heading">Quick Note</h2>
+    <div style={{ display: 'flex', gap: '2rem' }}>
+      {/* Left Sidebar */}
+      <aside style={{
+        width: '300px',
+        flexShrink: 0,
+        position: 'sticky',
+        top: '1rem',
+        height: 'fit-content',
+        maxHeight: 'calc(100vh - 2rem)',
+        overflowY: 'auto'
+      }}>
+        {/* Calendar */}
+        <div style={{ marginBottom: '1.5rem' }}>
+          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: '#2d3748' }}>Calendar</h3>
+          <div style={{
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            borderRadius: '0.5rem',
+            overflow: 'hidden'
+          }}>
+            <style>
+              {`
+                .react-calendar {
+                  width: 100%;
+                  border: none;
+                  font-family: Arial, sans-serif;
+                }
+                .react-calendar__tile--active {
+                  background: #4299e1;
+                  color: white;
+                }
+                .has-notes {
+                  background-color: #FED7D7;
+                  font-weight: bold;
+                }
+                .react-calendar__tile--active.has-notes {
+                  background: #4299e1;
+                }
+              `}
+            </style>
+            <Calendar
+              onChange={handleCalendarChange}
+              value={filters.date}
+              tileClassName={tileClassName}
+              showNeighboringMonth={false}
+              minDetail="month"
+              maxDetail="month"
+              showFixedNumberOfWeeks={false}
+              selectRange={false}
+              next2Label={null}
+              prev2Label={null}
+            />
+            {filters.date && (
+              <div style={{
+                padding: '0.5rem 1rem',
+                backgroundColor: '#EBF8FF',
+                color: '#2C5282',
+                fontSize: '0.85rem'
+              }}>
+                <strong>Filtered:</strong> {formatDateForDisplay(filters.date)}
+                <button
+                  onClick={handleClearDateFilter}
+                  style={{
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    color: '#4299e1',
+                    fontSize: '0.75rem',
+                    marginLeft: '0.5rem',
+                    cursor: 'pointer',
+                    fontWeight: '600'
+                  }}
+                >
+                  ⨉ Clear
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
 
-        {quickNoteError && (
-          <div className="error" role="alert" aria-live="polite" style={{ marginBottom: '1rem' }}>{quickNoteError}</div>
-        )}
+        {/* Filters in Sidebar */}
+        <div style={{ marginBottom: '1.5rem' }}>
+          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: '#2d3748' }}>Filters</h3>
+          <NoteFilters
+            filters={filters}
+            filterOptions={filterOptions}
+            onToggleFilter={toggleFilter}
+            onClearFilters={clearFilters}
+            hasActiveFilters={hasActiveFilters}
+            searchTerm={searchTerm}
+            onClearSearch={() => setSearchTerm('')}
+          />
+        </div>
+
+        {/* Sorting in Sidebar */}
+        <div>
+          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: '#2d3748' }}>Sort By</h3>
+          <NoteSorting
+            sorting={sorting}
+            onSortingChange={setSorting}
+            filters={filters}
+            onFiltersChange={setFilters}
+          />
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main style={{ flex: 1, minWidth: 0 }}>
+        {/* Quick Note Form */}
+        <section aria-labelledby="quick-note-heading" style={{ marginBottom: '2rem' }}>
+          <h2 id="quick-note-heading">Quick Note</h2>
+
+          {quickNoteError && (
+            <div className="error" role="alert" aria-live="polite" style={{ marginBottom: '1rem' }}>{quickNoteError}</div>
+          )}
 
         <form onSubmit={handleQuickNoteSubmit} aria-label="Create a new note" style={{
           backgroundColor: '#f8f9fa',
@@ -399,217 +505,143 @@ function Dashboard() {
         </form>
       </section>
 
-      {/* My Notes Section */}
-      <section aria-labelledby="my-notes-heading" style={{ borderTop: '1px solid #e2e8f0', paddingTop: '1.5rem', marginBottom: '1rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 id="my-notes-heading">My Notes</h2>
-        </div>
-      </section>
+        {/* My Notes Section */}
+        <section aria-labelledby="my-notes-heading" style={{ borderTop: '1px solid #e2e8f0', paddingTop: '1.5rem', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h2 id="my-notes-heading">My Notes</h2>
+          </div>
+        </section>
 
-      {fetchError && <div className="error" role="alert" aria-live="polite">{fetchError}</div>}
+        {fetchError && <div className="error" role="alert" aria-live="polite">{fetchError}</div>}
 
-      {/* Search */}
-      <NoteSearch
-        searchTerm={searchTerm}
-        onSearchChange={(e) => setSearchTerm(e.target.value)}
-        onSearchSubmit={(e) => e.preventDefault()}
-        placeholder="Search notes by title, content, or URL..."
-      />
+        {/* Search */}
+        <NoteSearch
+          searchTerm={searchTerm}
+          onSearchChange={(e) => setSearchTerm(e.target.value)}
+          onSearchSubmit={(e) => e.preventDefault()}
+          placeholder="Search notes by title, content, or URL..."
+        />
 
-      {/* Note count */}
-      <div style={{
-        marginBottom: '1rem',
-        fontSize: '0.95rem',
-        color: '#4a5568',
-        backgroundColor: '#edf2f7',
-        padding: '0.5rem 0.75rem',
-        borderRadius: '0.375rem',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
-        <div>
-          {hasActiveFilters ? (
-            <span>Found <strong>{filteredNotes.length}</strong> {filteredNotes.length === 1 ? 'note' : 'notes'} matching your criteria</span>
-          ) : (
-            <span>Showing all <strong>{notes.length}</strong> {notes.length === 1 ? 'note' : 'notes'}</span>
-          )}
-        </div>
-        {hasActiveFilters && (
-          <button
-            onClick={clearFilters}
-            style={{
-              backgroundColor: 'transparent',
-              color: '#3182ce',
-              border: 'none',
-              padding: '0.25rem 0.5rem',
-              cursor: 'pointer',
-              fontSize: '0.875rem',
-              fontWeight: '500',
-              textDecoration: 'underline'
-            }}
-          >
-            Clear all filters
-          </button>
-        )}
-      </div>
-
-      {/* Filters */}
-      <NoteFilters
-        filters={filters}
-        filterOptions={filterOptions}
-        onToggleFilter={toggleFilter}
-        onClearFilters={clearFilters}
-        hasActiveFilters={hasActiveFilters}
-        searchTerm={searchTerm}
-        onClearSearch={() => setSearchTerm('')}
-      />
-
-      {/* Sorting */}
-      <NoteSorting
-        sorting={sorting}
-        onSortingChange={setSorting}
-        filters={filters}
-        onFiltersChange={setFilters}
-      />
-
-      {/* Calendar */}
-      <div style={{ marginBottom: '2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h3>Calendar View</h3>
-          <button
-            className="btn btn-secondary"
-            onClick={() => setShowCalendar(!showCalendar)}
-            style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }}
-          >
-            {showCalendar ? 'Hide Calendar' : 'Show Calendar'}
-          </button>
-        </div>
-
-        {showCalendar && (
-          <div style={{
-            marginBottom: '1.5rem',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-            borderRadius: '0.5rem',
-            overflow: 'hidden'
-          }}>
-            <style>
-              {`
-                .react-calendar {
-                  width: 100%;
-                  border: none;
-                  font-family: Arial, sans-serif;
-                }
-                .react-calendar__tile--active {
-                  background: #4299e1;
-                  color: white;
-                }
-                .has-notes {
-                  background-color: #FED7D7;
-                  font-weight: bold;
-                }
-                .react-calendar__tile--active.has-notes {
-                  background: #4299e1;
-                }
-              `}
-            </style>
-            <Calendar
-              onChange={handleCalendarChange}
-              value={filters.date}
-              tileClassName={tileClassName}
-              showNeighboringMonth={false}
-              minDetail="month"
-              maxDetail="month"
-              showFixedNumberOfWeeks={false}
-              selectRange={false}
-              next2Label={null}
-              prev2Label={null}
-            />
-            {filters.date && (
-              <div style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: '#EBF8FF',
-                color: '#2C5282',
-                marginTop: '0.5rem',
-                borderRadius: '0.25rem'
-              }}>
-                <strong>Filtered by date:</strong> {formatDateForDisplay(filters.date)}
-                <button
-                  onClick={handleClearDateFilter}
-                  style={{
-                    backgroundColor: 'transparent',
-                    border: 'none',
-                    color: '#4299e1',
-                    fontSize: '0.8rem',
-                    marginLeft: '0.5rem',
-                    cursor: 'pointer'
-                  }}
-                >
-                  ⨉ Clear date filter
-                </button>
-              </div>
+        {/* Note count */}
+        <div style={{
+          marginBottom: '1rem',
+          fontSize: '0.95rem',
+          color: '#4a5568',
+          backgroundColor: '#edf2f7',
+          padding: '0.5rem 0.75rem',
+          borderRadius: '0.375rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <div>
+            {hasActiveFilters ? (
+              <span>Found <strong>{filteredNotes.length}</strong> {filteredNotes.length === 1 ? 'note' : 'notes'} matching your criteria</span>
+            ) : (
+              <span>Showing all <strong>{notes.length}</strong> {notes.length === 1 ? 'note' : 'notes'}</span>
             )}
           </div>
+          {hasActiveFilters && (
+            <button
+              onClick={clearFilters}
+              style={{
+                backgroundColor: 'transparent',
+                color: '#3182ce',
+                border: 'none',
+                padding: '0.25rem 0.5rem',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                textDecoration: 'underline'
+              }}
+            >
+              Clear all filters
+            </button>
+          )}
+        </div>
+
+        {/* Notes List */}
+        {loading ? (
+          <div className="loading" role="status" aria-live="polite">
+            <span aria-label="Loading notes">Loading notes...</span>
+          </div>
+        ) : filteredNotes.length > 0 ? (
+          <div
+            role="table"
+            aria-label={`${filteredNotes.length} ${filteredNotes.length === 1 ? 'note' : 'notes'} found`}
+            style={{
+              marginTop: '1rem',
+              backgroundColor: 'white',
+              borderRadius: '0.5rem',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              overflow: 'hidden'
+            }}
+          >
+            {/* Table Header */}
+            <div
+              role="row"
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 150px 120px 120px 100px 150px',
+                gap: '1rem',
+                padding: '0.75rem 1rem',
+                backgroundColor: '#f7fafc',
+                borderBottom: '2px solid #e2e8f0',
+                fontWeight: '600',
+                fontSize: '0.875rem',
+                color: '#4a5568'
+              }}
+            >
+              <div>Title / Content</div>
+              <div>Category</div>
+              <div>Type</div>
+              <div>Status</div>
+              <div>Due Date</div>
+              <div style={{ textAlign: 'right' }}>Actions</div>
+            </div>
+
+            {/* Table Rows */}
+            {filteredNotes.map(note => (
+              <NoteListItem
+                key={note.id}
+                note={note}
+                onTagClick={toggleFilter.bind(null, 'tags')}
+                onCategoryClick={toggleFilter.bind(null, 'categories')}
+                onTypeClick={toggleFilter.bind(null, 'types')}
+                onDelete={handleDeleteNote}
+                onArchive={handleArchiveNote}
+                isArchived={false}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="no-notes" role="status" aria-live="polite">
+            {hasActiveFilters ? 'No notes match your filters.' : 'No notes yet. Create your first note above!'}
+          </div>
         )}
-      </div>
 
-      {/* Notes List */}
-      {loading ? (
-        <div className="loading" role="status" aria-live="polite">
-          <span aria-label="Loading notes">Loading notes...</span>
+        {/* Archive Link */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid #e2e8f0' }}>
+          <Link
+            to="/archive"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              padding: '0.75rem 1.25rem',
+              backgroundColor: '#edf2f7',
+              color: '#4a5568',
+              borderRadius: '0.375rem',
+              textDecoration: 'none',
+              fontSize: '1rem',
+              fontWeight: '500',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
+              transition: 'all 0.3s cubic-bezier(.25,.8,.25,1)'
+            }}
+          >
+            <span style={{ marginRight: '0.5rem' }}>📦</span> View Archive
+          </Link>
         </div>
-      ) : filteredNotes.length > 0 ? (
-        <div
-          className="note-list"
-          role="list"
-          aria-label={`${filteredNotes.length} ${filteredNotes.length === 1 ? 'note' : 'notes'} found`}
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: '1.5rem',
-            marginTop: '1rem'
-          }}
-        >
-          {filteredNotes.map(note => (
-            <NoteCard
-              key={note.id}
-              note={note}
-              onTagClick={toggleFilter.bind(null, 'tags')}
-              onCategoryClick={toggleFilter.bind(null, 'categories')}
-              onTypeClick={toggleFilter.bind(null, 'types')}
-              onDelete={handleDeleteNote}
-              onArchive={handleArchiveNote}
-              isArchived={false}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="no-notes" role="status" aria-live="polite">
-          {hasActiveFilters ? 'No notes match your filters.' : 'No notes yet. Create your first note above!'}
-        </div>
-      )}
-
-      {/* Archive Link */}
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid #e2e8f0' }}>
-        <Link
-          to="/archive"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            padding: '0.75rem 1.25rem',
-            backgroundColor: '#edf2f7',
-            color: '#4a5568',
-            borderRadius: '0.375rem',
-            textDecoration: 'none',
-            fontSize: '1rem',
-            fontWeight: '500',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
-            transition: 'all 0.3s cubic-bezier(.25,.8,.25,1)'
-          }}
-        >
-          <span style={{ marginRight: '0.5rem' }}>📦</span> View Archive
-        </Link>
-      </div>
+      </main>
     </div>
   )
 }
