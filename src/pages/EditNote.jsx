@@ -203,6 +203,17 @@ function EditNote() {
       
       <form onSubmit={handleSubmit}>
         <div className="form-group">
+          <label>Title</label>
+          <input
+            type="text"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            placeholder="Title (optional)"
+          />
+        </div>
+
+        <div className="form-group">
           <label>Content*</label>
           <textarea
             name="content"
@@ -211,17 +222,6 @@ function EditNote() {
             placeholder="Enter note content"
             rows={10}
             required
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Title</label>
-          <input
-            type="text"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            placeholder="Title (optional)"
           />
         </div>
         
