@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 import { STATUS_OPTIONS } from '../constants'
+import { useDarkModeColors } from '../hooks/useDarkModeColors'
 
 function CreateNote() {
+  const colors = useDarkModeColors()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const projectIdFromUrl = searchParams.get('project')
@@ -173,20 +175,20 @@ function CreateNote() {
             width: '100%',
             padding: '0.75rem',
             marginBottom: '1rem',
-            backgroundColor: '#f7fafc',
-            border: '1px solid #e2e8f0',
+            backgroundColor: colors.background,
+            border: `1px solid ${colors.border}`,
             borderRadius: '0.375rem',
             cursor: 'pointer',
             fontSize: '0.95rem',
             fontWeight: '500',
-            color: '#4a5568',
+            color: colors.text,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             transition: 'all 0.2s'
           }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#edf2f7'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f7fafc'}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colors.hover}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colors.background}
         >
           <span>⚙️ Advanced Options</span>
           <span style={{ fontSize: '1.2rem' }}>{showAdvanced ? '▲' : '▼'}</span>
@@ -195,10 +197,10 @@ function CreateNote() {
         {showAdvanced && (
           <div style={{
             padding: '1rem',
-            backgroundColor: '#f7fafc',
+            backgroundColor: colors.background,
             borderRadius: '0.5rem',
             marginBottom: '1rem',
-            border: '1px solid #e2e8f0'
+            border: `1px solid ${colors.border}`
           }}>
             <div className="form-group">
               <label>Project</label>

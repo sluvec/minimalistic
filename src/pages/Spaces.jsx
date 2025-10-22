@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import toast from 'react-hot-toast'
+import { useDarkModeColors } from '../hooks/useDarkModeColors'
 
 function Spaces() {
+  const colors = useDarkModeColors()
   const [spaces, setSpaces] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -134,7 +136,7 @@ function Spaces() {
 
   const styles = {
     card: {
-      backgroundColor: '#ffffff',
+      backgroundColor: colors.cardBackground,
       borderRadius: '0.5rem',
       padding: '1.5rem',
       marginBottom: '1.5rem',
@@ -150,39 +152,43 @@ function Spaces() {
       transition: 'all 0.2s'
     },
     buttonPrimary: {
-      backgroundColor: '#3b82f6',
+      backgroundColor: colors.primary,
       color: 'white'
     },
     buttonDanger: {
-      backgroundColor: '#ef4444',
+      backgroundColor: colors.danger,
       color: 'white'
     },
     buttonSecondary: {
-      backgroundColor: '#e2e8f0',
-      color: '#4a5568'
+      backgroundColor: colors.secondaryButtonBackground,
+      color: colors.textSecondary
     },
     input: {
       width: '100%',
       padding: '0.5rem',
       borderRadius: '0.375rem',
-      border: '1px solid #e2e8f0',
-      fontSize: '0.875rem'
+      border: `1px solid ${colors.border}`,
+      fontSize: '0.875rem',
+      backgroundColor: colors.inputBackground,
+      color: colors.textPrimary
     },
     textarea: {
       width: '100%',
       padding: '0.5rem',
       borderRadius: '0.375rem',
-      border: '1px solid #e2e8f0',
+      border: `1px solid ${colors.border}`,
       fontSize: '0.875rem',
       minHeight: '80px',
-      resize: 'vertical'
+      resize: 'vertical',
+      backgroundColor: colors.inputBackground,
+      color: colors.textPrimary
     },
     label: {
       display: 'block',
       marginBottom: '1rem',
       fontSize: '0.875rem',
       fontWeight: '500',
-      color: '#4a5568'
+      color: colors.textSecondary
     },
     colorPicker: {
       display: 'flex',
@@ -192,7 +198,7 @@ function Spaces() {
     colorInput: {
       width: '50px',
       height: '40px',
-      border: '1px solid #e2e8f0',
+      border: `1px solid ${colors.border}`,
       borderRadius: '0.375rem',
       cursor: 'pointer'
     },
@@ -201,7 +207,7 @@ function Spaces() {
       justifyContent: 'space-between',
       alignItems: 'flex-start',
       padding: '1rem',
-      borderBottom: '1px solid #e2e8f0'
+      borderBottom: `1px solid ${colors.border}`
     },
     badge: (color) => ({
       backgroundColor: color + '20',
@@ -214,14 +220,14 @@ function Spaces() {
     emptyState: {
       textAlign: 'center',
       padding: '3rem 1rem',
-      color: '#718096'
+      color: colors.textMuted
     }
   }
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h1 style={{ fontSize: '1.875rem', fontWeight: '600' }}>Spaces Management</h1>
+        <h1 style={{ fontSize: '1.875rem', fontWeight: '600', color: colors.textPrimary }}>Spaces Management</h1>
         <button
           onClick={() => {
             setShowSpaceForm(!showSpaceForm)
@@ -236,7 +242,7 @@ function Spaces() {
 
       {showSpaceForm && (
         <div style={styles.card}>
-          <h3 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600' }}>
+          <h3 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600', color: colors.textPrimary }}>
             {editingSpace ? 'Edit Space' : 'Create New Space'}
           </h3>
           <form onSubmit={handleSpaceSubmit}>
@@ -284,7 +290,7 @@ function Spaces() {
                     onChange={(e) => setSpaceForm({ ...spaceForm, color: e.target.value })}
                     style={styles.colorInput}
                   />
-                  <span>{spaceForm.color}</span>
+                  <span style={{ color: colors.textPrimary }}>{spaceForm.color}</span>
                 </div>
               </label>
             </div>
@@ -324,12 +330,12 @@ function Spaces() {
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                   <span style={{ fontSize: '1.5rem' }}>{space.icon}</span>
-                  <span style={{ fontWeight: '600', fontSize: '1.125rem' }}>{space.name}</span>
+                  <span style={{ fontWeight: '600', fontSize: '1.125rem', color: colors.textPrimary }}>{space.name}</span>
                   <span style={styles.badge(space.color)}>{space.projectCount} projects</span>
                   <span style={styles.badge(space.color)}>{space.noteCount} notes</span>
                 </div>
                 {space.description && (
-                  <p style={{ color: '#718096', fontSize: '0.875rem', marginLeft: '2rem' }}>
+                  <p style={{ color: colors.textMuted, fontSize: '0.875rem', marginLeft: '2rem' }}>
                     {space.description}
                   </p>
                 )}

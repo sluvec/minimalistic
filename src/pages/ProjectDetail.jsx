@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
+import { useDarkModeColors } from '../hooks/useDarkModeColors'
 
 function ProjectDetail() {
+  const colors = useDarkModeColors()
   const { id } = useParams()
   const navigate = useNavigate()
   const [project, setProject] = useState(null)
@@ -100,14 +102,14 @@ function ProjectDetail() {
   }
 
   if (loading) {
-    return <div style={{ padding: '2rem' }}>Loading project...</div>
+    return <div style={{ padding: '2rem', color: colors.textPrimary }}>Loading project...</div>
   }
 
   if (error || !project) {
     return (
       <div style={{ padding: '2rem' }}>
-        <div style={{ color: '#e53e3e' }}>{error || 'Project not found'}</div>
-        <button onClick={() => navigate('/projects')} style={{ marginTop: '1rem' }}>
+        <div style={{ color: colors.errorText }}>{error || 'Project not found'}</div>
+        <button onClick={() => navigate('/projects')} style={{ marginTop: '1rem', backgroundColor: colors.secondaryButtonBackground, color: colors.textPrimary, border: 'none', padding: '0.5rem 1rem', borderRadius: '0.375rem', cursor: 'pointer' }}>
           Back to Projects
         </button>
       </div>
@@ -125,7 +127,8 @@ function ProjectDetail() {
           onClick={() => navigate('/projects')}
           style={{
             padding: '0.5rem 1rem',
-            backgroundColor: '#edf2f7',
+            backgroundColor: colors.secondaryButtonBackground,
+            color: colors.textPrimary,
             border: 'none',
             borderRadius: '0.375rem',
             cursor: 'pointer',
@@ -150,10 +153,10 @@ function ProjectDetail() {
                 borderRadius: '50%',
                 backgroundColor: project.color
               }}></div>
-              <h1 style={{ margin: 0 }}>{project.name}</h1>
+              <h1 style={{ margin: 0, color: colors.textPrimary }}>{project.name}</h1>
             </div>
             {project.description && (
-              <p style={{ color: '#718096', marginTop: '0.5rem' }}>{project.description}</p>
+              <p style={{ color: colors.textMuted, marginTop: '0.5rem' }}>{project.description}</p>
             )}
             {(project.categories || project.project_tags?.length > 0) && (
               <div style={{
@@ -214,10 +217,10 @@ function ProjectDetail() {
 
       {/* Progress Section */}
       <div style={{
-        backgroundColor: 'white',
+        backgroundColor: colors.cardBackground,
         padding: '1.5rem',
         borderRadius: '0.5rem',
-        border: '1px solid #e2e8f0',
+        border: `1px solid ${colors.border}`,
         marginBottom: '2rem'
       }}>
         <div style={{
@@ -229,7 +232,7 @@ function ProjectDetail() {
           gap: '1rem'
         }}>
           <div>
-            <h3 style={{ margin: 0, marginBottom: '0.5rem' }}>Project Progress</h3>
+            <h3 style={{ margin: 0, marginBottom: '0.5rem', color: colors.textPrimary }}>Project Progress</h3>
             <div style={{ fontSize: '2rem', fontWeight: 'bold', color: project.color }}>
               {project.progress}%
             </div>
@@ -237,8 +240,8 @@ function ProjectDetail() {
 
           {project.deadline && (
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '0.875rem', color: '#718096' }}>Deadline</div>
-              <div style={{ fontSize: '1.125rem', fontWeight: '600' }}>
+              <div style={{ fontSize: '0.875rem', color: colors.textMuted }}>Deadline</div>
+              <div style={{ fontSize: '1.125rem', fontWeight: '600', color: colors.textPrimary }}>
                 {new Date(project.deadline).toLocaleDateString()}
               </div>
             </div>
@@ -260,7 +263,7 @@ function ProjectDetail() {
           display: 'flex',
           gap: '2rem',
           fontSize: '0.875rem',
-          color: '#718096',
+          color: colors.textMuted,
           flexWrap: 'wrap'
         }}>
           <div>
@@ -290,7 +293,7 @@ function ProjectDetail() {
           alignItems: 'center',
           marginBottom: '1rem'
         }}>
-          <h2>Project Items ({notes.length})</h2>
+          <h2 style={{ color: colors.textPrimary }}>Project Items ({notes.length})</h2>
           <Link
             to={`/create?project=${id}`}
             style={{
@@ -311,9 +314,9 @@ function ProjectDetail() {
           <div style={{
             textAlign: 'center',
             padding: '3rem',
-            backgroundColor: '#f7fafc',
+            backgroundColor: colors.cardBackground,
             borderRadius: '0.5rem',
-            color: '#718096'
+            color: colors.textMuted
           }}>
             <p>No items in this project yet.</p>
             <p>Add notes, tasks, or ideas to get started!</p>
@@ -326,8 +329,8 @@ function ProjectDetail() {
                 <div
                   key={note.id}
                   style={{
-                    backgroundColor: 'white',
-                    border: '1px solid #e2e8f0',
+                    backgroundColor: colors.cardBackground,
+                    border: `1px solid ${colors.border}`,
                     borderRadius: '0.5rem',
                     padding: '1.5rem',
                     cursor: 'pointer',
@@ -340,11 +343,11 @@ function ProjectDetail() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem' }}>
                     <div style={{ flex: 1 }}>
                       {note.title && (
-                        <h3 style={{ margin: 0, marginBottom: '0.5rem' }}>{note.title}</h3>
+                        <h3 style={{ margin: 0, marginBottom: '0.5rem', color: colors.textPrimary }}>{note.title}</h3>
                       )}
                       <p style={{
                         margin: 0,
-                        color: '#4a5568',
+                        color: colors.textSecondary,
                         lineHeight: '1.5',
                         whiteSpace: 'pre-wrap'
                       }}>
@@ -432,7 +435,8 @@ function ProjectDetail() {
                         onClick={() => navigate(`/edit/${note.id}`)}
                         style={{
                           padding: '0.5rem 1rem',
-                          backgroundColor: '#edf2f7',
+                          backgroundColor: colors.secondaryButtonBackground,
+                          color: colors.textPrimary,
                           border: 'none',
                           borderRadius: '0.375rem',
                           cursor: 'pointer',
@@ -445,7 +449,8 @@ function ProjectDetail() {
                         onClick={() => handleRemoveNote(note.id)}
                         style={{
                           padding: '0.5rem 1rem',
-                          backgroundColor: '#fed7d7',
+                          backgroundColor: colors.dangerButtonBackground,
+                          color: colors.dangerButtonText,
                           border: 'none',
                           borderRadius: '0.375rem',
                           cursor: 'pointer',

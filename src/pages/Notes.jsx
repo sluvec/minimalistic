@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { useNotesData } from '../hooks/useNotesData'
 import { supabase } from '../lib/supabaseClient'
 import { format } from 'date-fns'
+import { useDarkModeColors } from '../hooks/useDarkModeColors'
 
 function Notes() {
   const navigate = useNavigate()
+  const colors = useDarkModeColors()
   const { notes, loading, error: fetchError } = useNotesData(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [sortConfig, setSortConfig] = useState({
@@ -219,20 +221,22 @@ function Notes() {
       maxWidth: '600px',
       padding: '0.75rem',
       fontSize: '1rem',
-      border: '1px solid #e2e8f0',
+      border: `1px solid ${colors.border}`,
       borderRadius: '0.5rem',
-      marginBottom: '1rem'
+      marginBottom: '1rem',
+      backgroundColor: colors.cardBackground,
+      color: colors.textPrimary
     },
     filterSection: {
       position: 'sticky',
       top: 0,
       zIndex: 20,
-      backgroundColor: 'white',
+      backgroundColor: colors.cardBackground,
       padding: '1rem',
       borderRadius: '0.5rem',
       marginBottom: '1rem',
       boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-      border: '1px solid #e2e8f0'
+      border: `1px solid ${colors.border}`
     },
     filterRow: {
       marginBottom: '0.75rem'
@@ -240,7 +244,7 @@ function Notes() {
     filterLabel: {
       fontWeight: '600',
       fontSize: '0.875rem',
-      color: '#4a5568',
+      color: colors.textSecondary,
       marginBottom: '0.5rem',
       display: 'block'
     },
@@ -257,9 +261,9 @@ function Notes() {
       fontSize: '0.875rem',
       borderRadius: '9999px',
       border: '1px solid',
-      borderColor: isSelected ? '#3b82f6' : '#e2e8f0',
-      backgroundColor: isSelected ? '#dbeafe' : 'white',
-      color: isSelected ? '#1e40af' : '#4a5568',
+      borderColor: isSelected ? colors.primary : colors.border,
+      backgroundColor: isSelected ? colors.chipBackgroundActive : colors.chipBackground,
+      color: isSelected ? colors.chipTextActive : colors.chipText,
       cursor: 'pointer',
       transition: 'all 0.2s',
       userSelect: 'none'
@@ -269,7 +273,7 @@ function Notes() {
       fontSize: '0.875rem',
       fontWeight: '500',
       color: '#ef4444',
-      backgroundColor: 'white',
+      backgroundColor: colors.cardBackground,
       border: '1px solid #ef4444',
       borderRadius: '0.375rem',
       cursor: 'pointer',
@@ -278,8 +282,8 @@ function Notes() {
     mobileToggle: {
       width: '100%',
       padding: '0.75rem',
-      backgroundColor: '#3b82f6',
-      color: 'white',
+      backgroundColor: colors.primary,
+      color: colors.background,
       border: 'none',
       borderRadius: '0.5rem',
       cursor: 'pointer',
@@ -289,7 +293,7 @@ function Notes() {
     },
     tableContainer: {
       overflowX: 'auto',
-      backgroundColor: 'white',
+      backgroundColor: colors.cardBackground,
       borderRadius: '0.5rem',
       boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
     },
@@ -301,12 +305,12 @@ function Notes() {
     th: {
       position: 'sticky',
       top: 0,
-      backgroundColor: '#f7fafc',
+      backgroundColor: colors.tableHeaderBackground,
       padding: '1rem 0.75rem',
       textAlign: 'left',
       fontWeight: '600',
-      color: '#2d3748',
-      borderBottom: '2px solid #e2e8f0',
+      color: colors.textPrimary,
+      borderBottom: `2px solid ${colors.border}`,
       cursor: 'pointer',
       userSelect: 'none',
       whiteSpace: 'nowrap',
@@ -314,7 +318,7 @@ function Notes() {
     },
     td: {
       padding: '0.75rem',
-      borderBottom: '1px solid #e2e8f0',
+      borderBottom: `1px solid ${colors.border}`,
       verticalAlign: 'top'
     },
     tr: {
@@ -327,15 +331,15 @@ function Notes() {
       maxWidth: '250px'
     },
     previewCell: {
-      color: '#718096',
+      color: colors.textMuted,
       minWidth: '300px',
       maxWidth: '400px',
       lineHeight: '1.5'
     },
     tagBadge: {
       display: 'inline-block',
-      backgroundColor: '#edf2f7',
-      color: '#4a5568',
+      backgroundColor: colors.darkerBackground,
+      color: colors.textSecondary,
       padding: '0.25rem 0.5rem',
       borderRadius: '0.25rem',
       fontSize: '0.75rem',
@@ -345,13 +349,13 @@ function Notes() {
     emptyState: {
       textAlign: 'center',
       padding: '3rem 1rem',
-      color: '#718096'
+      color: colors.textMuted
     },
     statsBar: {
       marginBottom: '1rem',
       fontSize: '0.9rem',
-      color: '#4a5568',
-      backgroundColor: '#edf2f7',
+      color: colors.textSecondary,
+      backgroundColor: colors.darkerBackground,
       padding: '0.5rem 0.75rem',
       borderRadius: '0.375rem'
     }
@@ -400,7 +404,7 @@ function Notes() {
               </button>
             ))
           ) : (
-            <span style={{ fontSize: '0.875rem', color: '#a0aec0' }}>No projects available</span>
+            <span style={{ fontSize: '0.875rem', color: colors.textMuted }}>No projects available</span>
           )}
         </div>
       </div>
@@ -421,7 +425,7 @@ function Notes() {
               </button>
             ))
           ) : (
-            <span style={{ fontSize: '0.875rem', color: '#a0aec0' }}>No spaces available</span>
+            <span style={{ fontSize: '0.875rem', color: colors.textMuted }}>No spaces available</span>
           )}
         </div>
       </div>
@@ -511,18 +515,18 @@ function Notes() {
                   key={note.id}
                   style={{
                     ...styles.tr,
-                    backgroundColor: index % 2 === 0 ? 'white' : '#f7fafc'
+                    backgroundColor: index % 2 === 0 ? colors.tableRowEven : colors.tableRowOdd
                   }}
                   onClick={() => handleRowClick(note.id)}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#edf2f7'
+                    e.currentTarget.style.backgroundColor = colors.tableRowHover
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = index % 2 === 0 ? 'white' : '#f7fafc'
+                    e.currentTarget.style.backgroundColor = index % 2 === 0 ? colors.tableRowEven : colors.tableRowOdd
                   }}
                 >
                   <td style={{ ...styles.td, ...styles.titleCell }}>
-                    {note.title || <em style={{ color: '#a0aec0' }}>Untitled</em>}
+                    {note.title || <em style={{ color: colors.textMuted }}>Untitled</em>}
                   </td>
                   <td style={{ ...styles.td, ...styles.previewCell }}>
                     {truncateContent(note.content)}
@@ -538,7 +542,7 @@ function Notes() {
                         ))
                       ) : '-'}
                       {note.tags && note.tags.length > 2 && (
-                        <span style={{ ...styles.tagBadge, backgroundColor: '#cbd5e0' }}>
+                        <span style={{ ...styles.tagBadge, backgroundColor: colors.borderLight }}>
                           +{note.tags.length - 2}
                         </span>
                       )}

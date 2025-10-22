@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
+import { useDarkModeColors } from '../hooks/useDarkModeColors'
 
 // Constants and utilities
 import { STATUS, STATUS_OPTIONS, ERROR_MESSAGES } from '../constants'
@@ -8,6 +9,7 @@ import { parseTags, tagsToString } from '../utils/tagHelpers'
 import { validateNote } from '../utils/validation'
 
 function EditNote() {
+  const colors = useDarkModeColors()
   const { id } = useParams()
   const navigate = useNavigate()
   
@@ -284,20 +286,20 @@ function EditNote() {
             width: '100%',
             padding: '0.75rem',
             marginBottom: '1rem',
-            backgroundColor: '#f7fafc',
-            border: '1px solid #e2e8f0',
+            backgroundColor: colors.background,
+            border: `1px solid ${colors.border}`,
             borderRadius: '0.375rem',
             cursor: 'pointer',
             fontSize: '0.95rem',
             fontWeight: '500',
-            color: '#4a5568',
+            color: colors.textSecondary,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             transition: 'all 0.2s'
           }}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#edf2f7'}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f7fafc'}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colors.hoverBackground}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colors.background}
         >
           <span>⚙️ Advanced Options</span>
           <span style={{ fontSize: '1.2rem' }}>{showAdvanced ? '▲' : '▼'}</span>
@@ -306,10 +308,10 @@ function EditNote() {
         {showAdvanced && (
           <div style={{
             padding: '1rem',
-            backgroundColor: '#f7fafc',
+            backgroundColor: colors.background,
             borderRadius: '0.5rem',
             marginBottom: '1rem',
-            border: '1px solid #e2e8f0'
+            border: `1px solid ${colors.border}`
           }}>
             <div className="form-group">
               <label>Project</label>
@@ -572,12 +574,12 @@ function EditNote() {
 
         <div className="form-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2rem' }}>
           <div style={{ display: 'flex', gap: '1rem' }}>
-            <button 
-              type="button" 
-              onClick={handleDelete} 
+            <button
+              type="button"
+              onClick={handleDelete}
               className="btn danger"
-              style={{ 
-                backgroundColor: '#f56565',
+              style={{
+                backgroundColor: colors.danger,
                 padding: '0.5rem 1.25rem',
                 borderRadius: '0.375rem',
                 border: 'none',
@@ -588,12 +590,12 @@ function EditNote() {
             >
               Delete Note
             </button>
-            <button 
-              type="button" 
-              onClick={handleArchive} 
+            <button
+              type="button"
+              onClick={handleArchive}
               className="btn archive"
-              style={{ 
-                backgroundColor: '#ed8936',
+              style={{
+                backgroundColor: colors.warning,
                 padding: '0.5rem 1.25rem',
                 borderRadius: '0.375rem',
                 border: 'none',
@@ -606,28 +608,28 @@ function EditNote() {
             </button>
           </div>
           <div style={{ display: 'flex', gap: '1.5rem' }}>
-            <button 
-              type="button" 
-              onClick={() => navigate('/')} 
+            <button
+              type="button"
+              onClick={() => navigate('/')}
               className="btn secondary"
               style={{
                 padding: '0.5rem 1.25rem',
                 borderRadius: '0.375rem',
-                border: '1px solid #e2e8f0',
-                backgroundColor: '#edf2f7',
-                color: '#4a5568',
+                border: `1px solid ${colors.border}`,
+                backgroundColor: colors.darkerBackground,
+                color: colors.textSecondary,
                 fontWeight: '500',
                 cursor: 'pointer'
               }}
             >
               Cancel
             </button>
-            <button 
-              type="submit" 
-              className="btn primary" 
+            <button
+              type="submit"
+              className="btn primary"
               disabled={saveLoading}
               style={{
-                backgroundColor: '#48bb78', 
+                backgroundColor: colors.success,
                 padding: '0.5rem 1.25rem',
                 borderRadius: '0.375rem',
                 border: 'none',

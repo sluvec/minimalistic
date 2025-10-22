@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabaseClient'
+import { useDarkModeColors } from '../hooks/useDarkModeColors'
 
 function Settings() {
+  const colors = useDarkModeColors()
   // State for active tab
   const [activeTab, setActiveTab] = useState('stats')
 
@@ -708,25 +710,25 @@ function Settings() {
       fontSize: '2rem',
       fontWeight: '600',
       marginBottom: '0.5rem',
-      color: '#1a202c'
+      color: colors.textPrimary
     },
     subtitle: {
-      color: '#718096',
+      color: colors.textMuted,
       fontSize: '1rem'
     },
     tabs: {
       display: 'flex',
       gap: '0.5rem',
       marginBottom: '2rem',
-      borderBottom: '2px solid #e2e8f0',
+      borderBottom: `2px solid ${colors.border}`,
       overflowX: 'auto'
     },
     tab: (active) => ({
       padding: '0.75rem 1.5rem',
       backgroundColor: 'transparent',
       border: 'none',
-      borderBottom: active ? '2px solid #3b82f6' : '2px solid transparent',
-      color: active ? '#3b82f6' : '#718096',
+      borderBottom: active ? `2px solid ${colors.primary}` : '2px solid transparent',
+      color: active ? colors.primary : colors.textMuted,
       fontWeight: active ? '600' : '500',
       cursor: 'pointer',
       fontSize: '0.95rem',
@@ -734,7 +736,7 @@ function Settings() {
       whiteSpace: 'nowrap'
     }),
     card: {
-      backgroundColor: '#ffffff',
+      backgroundColor: colors.cardBackground,
       borderRadius: '0.5rem',
       padding: '1.5rem',
       marginBottom: '1.5rem',
@@ -747,7 +749,7 @@ function Settings() {
       marginBottom: '2rem'
     },
     statCard: (color) => ({
-      backgroundColor: '#ffffff',
+      backgroundColor: colors.cardBackground,
       borderRadius: '0.5rem',
       padding: '1.5rem',
       boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
@@ -755,7 +757,7 @@ function Settings() {
     }),
     statLabel: {
       fontSize: '0.875rem',
-      color: '#718096',
+      color: colors.textMuted,
       marginBottom: '0.5rem',
       textTransform: 'uppercase',
       letterSpacing: '0.05em'
@@ -763,11 +765,11 @@ function Settings() {
     statValue: {
       fontSize: '2rem',
       fontWeight: '700',
-      color: '#2d3748'
+      color: colors.textPrimary
     },
     statSubtext: {
       fontSize: '0.75rem',
-      color: '#a0aec0',
+      color: colors.textMuted,
       marginTop: '0.25rem'
     },
     button: {
@@ -780,44 +782,48 @@ function Settings() {
       transition: 'all 0.2s'
     },
     buttonPrimary: {
-      backgroundColor: '#3b82f6',
+      backgroundColor: colors.primary,
       color: 'white'
     },
     buttonSuccess: {
-      backgroundColor: '#10b981',
+      backgroundColor: colors.success,
       color: 'white'
     },
     buttonDanger: {
-      backgroundColor: '#ef4444',
+      backgroundColor: colors.danger,
       color: 'white'
     },
     buttonSecondary: {
-      backgroundColor: '#e2e8f0',
-      color: '#4a5568'
+      backgroundColor: colors.secondaryButtonBackground,
+      color: colors.textSecondary
     },
     input: {
       width: '100%',
       padding: '0.75rem',
-      border: '1px solid #e2e8f0',
+      border: `1px solid ${colors.border}`,
       borderRadius: '0.375rem',
       fontSize: '1rem',
-      marginBottom: '1rem'
+      marginBottom: '1rem',
+      backgroundColor: colors.inputBackground,
+      color: colors.textPrimary
     },
     textarea: {
       width: '100%',
       padding: '0.75rem',
-      border: '1px solid #e2e8f0',
+      border: `1px solid ${colors.border}`,
       borderRadius: '0.375rem',
       fontSize: '1rem',
       marginBottom: '1rem',
       minHeight: '80px',
-      fontFamily: 'inherit'
+      fontFamily: 'inherit',
+      backgroundColor: colors.inputBackground,
+      color: colors.textPrimary
     },
     label: {
       display: 'block',
       marginBottom: '0.5rem',
       fontWeight: '500',
-      color: '#2d3748',
+      color: colors.textSecondary,
       fontSize: '0.875rem'
     },
     listItem: {
@@ -825,7 +831,7 @@ function Settings() {
       alignItems: 'center',
       justifyContent: 'space-between',
       padding: '1rem',
-      borderBottom: '1px solid #e2e8f0',
+      borderBottom: `1px solid ${colors.border}`,
       gap: '1rem'
     },
     badge: (color) => ({
@@ -841,13 +847,13 @@ function Settings() {
       padding: '1rem',
       borderRadius: '0.375rem',
       marginBottom: '1rem',
-      backgroundColor: type === 'error' ? '#fed7d7' : '#c6f6d5',
-      color: type === 'error' ? '#c53030' : '#22543d'
+      backgroundColor: type === 'error' ? colors.errorBackground : colors.successBackground,
+      color: type === 'error' ? colors.errorText : colors.successText
     }),
     emptyState: {
       textAlign: 'center',
       padding: '3rem',
-      color: '#a0aec0'
+      color: colors.textMuted
     },
     colorPicker: {
       display: 'flex',
@@ -857,7 +863,7 @@ function Settings() {
     colorInput: {
       width: '60px',
       height: '40px',
-      border: '1px solid #e2e8f0',
+      border: `1px solid ${colors.border}`,
       borderRadius: '0.375rem',
       cursor: 'pointer'
     }
@@ -866,7 +872,7 @@ function Settings() {
   // Render Statistics Dashboard
   const renderStats = () => (
     <div>
-      <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1.5rem' }}>
+      <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1.5rem', color: colors.textPrimary }}>
         Statistics Dashboard
       </h2>
 
@@ -910,7 +916,7 @@ function Settings() {
   const renderSpaces = () => (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '600' }}>Spaces Management</h2>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: colors.textPrimary }}>Spaces Management</h2>
         <button
           onClick={() => {
             setShowSpaceForm(!showSpaceForm)
@@ -925,7 +931,7 @@ function Settings() {
 
       {showSpaceForm && (
         <div style={styles.card}>
-          <h3 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600' }}>
+          <h3 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600', color: colors.textPrimary }}>
             {editingSpace ? 'Edit Space' : 'Create New Space'}
           </h3>
           <form onSubmit={handleSpaceSubmit}>
@@ -973,7 +979,7 @@ function Settings() {
                     onChange={(e) => setSpaceForm({ ...spaceForm, color: e.target.value })}
                     style={styles.colorInput}
                   />
-                  <span>{spaceForm.color}</span>
+                  <span style={{ color: colors.textPrimary }}>{spaceForm.color}</span>
                 </div>
               </label>
             </div>
@@ -1009,12 +1015,12 @@ function Settings() {
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                   <span style={{ fontSize: '1.5rem' }}>{space.icon}</span>
-                  <span style={{ fontWeight: '600', fontSize: '1.125rem' }}>{space.name}</span>
+                  <span style={{ fontWeight: '600', fontSize: '1.125rem', color: colors.textPrimary }}>{space.name}</span>
                   <span style={styles.badge(space.color)}>{space.projectCount} projects</span>
                   <span style={styles.badge(space.color)}>{space.noteCount} notes</span>
                 </div>
                 {space.description && (
-                  <p style={{ color: '#718096', fontSize: '0.875rem', marginLeft: '2rem' }}>
+                  <p style={{ color: colors.textMuted, fontSize: '0.875rem', marginLeft: '2rem' }}>
                     {space.description}
                   </p>
                 )}
@@ -1053,7 +1059,7 @@ function Settings() {
   const renderCategories = () => (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '600' }}>Categories Management</h2>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: colors.textPrimary }}>Categories Management</h2>
         <button
           onClick={() => {
             setShowCategoryForm(!showCategoryForm)
@@ -1068,7 +1074,7 @@ function Settings() {
 
       {showCategoryForm && (
         <div style={styles.card}>
-          <h3 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600' }}>
+          <h3 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600', color: colors.textPrimary }}>
             {editingCategory ? 'Edit Category' : 'Create New Category'}
           </h3>
           <form onSubmit={handleCategorySubmit}>
@@ -1137,11 +1143,11 @@ function Settings() {
             <div key={category.id} style={styles.listItem}>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                  <span style={{ fontWeight: '600', fontSize: '1.125rem' }}>{category.name}</span>
+                  <span style={{ fontWeight: '600', fontSize: '1.125rem', color: colors.textPrimary }}>{category.name}</span>
                   <span style={styles.badge(category.color)}>{category.noteCount} notes</span>
                 </div>
                 {category.description && (
-                  <p style={{ color: '#718096', fontSize: '0.875rem' }}>
+                  <p style={{ color: colors.textMuted, fontSize: '0.875rem' }}>
                     {category.description}
                   </p>
                 )}
@@ -1179,7 +1185,7 @@ function Settings() {
   const renderTags = () => (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '600' }}>Tags Management</h2>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: colors.textPrimary }}>Tags Management</h2>
         <button
           onClick={() => {
             setShowTagForm(!showTagForm)
@@ -1194,7 +1200,7 @@ function Settings() {
 
       {showTagForm && (
         <div style={styles.card}>
-          <h3 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600' }}>
+          <h3 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600', color: colors.textPrimary }}>
             {editingTag ? 'Edit Tag' : 'Create New Tag'}
           </h3>
           <form onSubmit={handleTagSubmit}>
@@ -1254,7 +1260,7 @@ function Settings() {
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <span style={styles.badge(tag.color)}>{tag.name}</span>
-                  <span style={{ color: '#a0aec0', fontSize: '0.875rem' }}>
+                  <span style={{ color: colors.textMuted, fontSize: '0.875rem' }}>
                     {tag.noteCount} notes
                   </span>
                 </div>
@@ -1291,7 +1297,7 @@ function Settings() {
   const renderProjects = () => (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '600' }}>Projects Management</h2>
+        <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: colors.textPrimary }}>Projects Management</h2>
         <button
           onClick={() => {
             setShowProjectForm(!showProjectForm)
@@ -1306,7 +1312,7 @@ function Settings() {
 
       {showProjectForm && (
         <div style={styles.card}>
-          <h3 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600' }}>
+          <h3 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600', color: colors.textPrimary }}>
             {editingProject ? 'Edit Project' : 'Create New Project'}
           </h3>
           <form onSubmit={handleProjectSubmit}>
@@ -1358,7 +1364,7 @@ function Settings() {
                     onChange={(e) => setProjectForm({ ...projectForm, color: e.target.value })}
                     style={styles.colorInput}
                   />
-                  <span>{projectForm.color}</span>
+                  <span style={{ color: colors.textPrimary }}>{projectForm.color}</span>
                 </div>
               </label>
             </div>
@@ -1447,12 +1453,12 @@ function Settings() {
   // Render Export Section
   const renderExport = () => (
     <div>
-      <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1.5rem' }}>
+      <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1.5rem', color: colors.textPrimary }}>
         Data Export
       </h2>
 
       <div style={styles.card}>
-        <p style={{ marginBottom: '1.5rem', color: '#4a5568', lineHeight: '1.6' }}>
+        <p style={{ marginBottom: '1.5rem', color: colors.textSecondary, lineHeight: '1.6' }}>
           Export all your notes and projects to a file. Choose your preferred format below.
         </p>
 
@@ -1461,22 +1467,23 @@ function Settings() {
           gap: '1rem',
           marginBottom: '1.5rem',
           padding: '1rem',
-          backgroundColor: '#f7fafc',
-          borderRadius: '0.375rem'
+          backgroundColor: colors.background,
+          borderRadius: '0.375rem',
+          border: `1px solid ${colors.border}`
         }}>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: '0.875rem', color: '#718096', marginBottom: '0.25rem' }}>
+            <div style={{ fontSize: '0.875rem', color: colors.textMuted, marginBottom: '0.25rem' }}>
               Total Notes
             </div>
-            <div style={{ fontSize: '1.5rem', fontWeight: '600', color: '#2d3748' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: '600', color: colors.textPrimary }}>
               {stats.totalNotes}
             </div>
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: '0.875rem', color: '#718096', marginBottom: '0.25rem' }}>
+            <div style={{ fontSize: '0.875rem', color: colors.textMuted, marginBottom: '0.25rem' }}>
               Total Projects
             </div>
-            <div style={{ fontSize: '1.5rem', fontWeight: '600', color: '#2d3748' }}>
+            <div style={{ fontSize: '1.5rem', fontWeight: '600', color: colors.textPrimary }}>
               {stats.totalProjects}
             </div>
           </div>
@@ -1498,11 +1505,12 @@ function Settings() {
 
         <div style={{
           padding: '1rem',
-          backgroundColor: '#edf2f7',
+          backgroundColor: colors.background,
+          border: `1px solid ${colors.border}`,
           borderRadius: '0.375rem',
           marginBottom: '1.5rem',
           fontSize: '0.875rem',
-          color: '#4a5568'
+          color: colors.textSecondary
         }}>
           {exportFormat === 'json' && (
             <>

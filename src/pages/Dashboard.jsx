@@ -9,6 +9,7 @@ import toast from 'react-hot-toast'
 import { useNotesData } from '../hooks/useNotesData'
 import { useNoteFilters } from '../hooks/useNoteFilters'
 import { useNotesCRUD } from '../hooks/useNotesCRUD'
+import { useDarkModeColors } from '../hooks/useDarkModeColors'
 
 // Components
 import NoteCard from '../components/notes/NoteCard'
@@ -24,6 +25,8 @@ import { validateNote } from '../utils/validation'
 import { formatDateForDisplay } from '../utils/dateHelpers'
 
 function Dashboard() {
+  const colors = useDarkModeColors()
+
   // Use custom hooks
   const { notes, loading, error: fetchError, refresh, removeNoteFromState } = useNotesData(false)
   const {
@@ -259,8 +262,8 @@ function Dashboard() {
           onClick={() => setShowMobileFilters(!showMobileFilters)}
           style={{
             padding: '0.75rem',
-            backgroundColor: '#4299e1',
-            color: 'white',
+            backgroundColor: colors.primary,
+            color: colors.chipTextActive,
             border: 'none',
             borderRadius: '0.5rem',
             cursor: 'pointer',
@@ -282,17 +285,17 @@ function Dashboard() {
         style={{
           width: '300px',
           flexShrink: 0,
-          backgroundColor: showMobileFilters && isMobile ? 'white' : 'transparent',
+          backgroundColor: showMobileFilters && isMobile ? colors.cardBackground : 'transparent',
           borderRadius: showMobileFilters && isMobile ? '0.5rem' : '0',
-          boxShadow: showMobileFilters && isMobile ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
+          boxShadow: showMobileFilters && isMobile ? colors.shadow : 'none',
           padding: showMobileFilters && isMobile ? '1rem' : '0',
           marginBottom: showMobileFilters && isMobile ? '1rem' : '0'
         }}>
         {/* Calendar */}
         <div style={{ marginBottom: '1.5rem' }}>
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: '#2d3748' }}>Calendar</h3>
+          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: colors.textPrimary }}>Calendar</h3>
           <div style={{
-            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            boxShadow: colors.shadow,
             borderRadius: '0.5rem',
             overflow: 'hidden'
           }}>
@@ -302,17 +305,32 @@ function Dashboard() {
                   width: 100%;
                   border: none;
                   font-family: Arial, sans-serif;
+                  background-color: ${colors.cardBackground};
+                  color: ${colors.textPrimary};
                 }
                 .react-calendar__tile--active {
-                  background: #4299e1;
-                  color: white;
+                  background: ${colors.primary};
+                  color: ${colors.chipTextActive};
                 }
                 .has-notes {
-                  background-color: #FED7D7;
+                  background-color: ${colors.danger}40;
                   font-weight: bold;
                 }
                 .react-calendar__tile--active.has-notes {
-                  background: #4299e1;
+                  background: ${colors.primary};
+                }
+                .react-calendar__navigation button {
+                  color: ${colors.textPrimary};
+                }
+                .react-calendar__month-view__weekdays {
+                  color: ${colors.textSecondary};
+                }
+                .react-calendar__tile {
+                  color: ${colors.textPrimary};
+                }
+                .react-calendar__tile:enabled:hover,
+                .react-calendar__tile:enabled:focus {
+                  background-color: ${colors.hoverBackground};
                 }
               `}
             </style>
@@ -331,8 +349,8 @@ function Dashboard() {
             {filters.date && (
               <div style={{
                 padding: '0.5rem 1rem',
-                backgroundColor: '#EBF8FF',
-                color: '#2C5282',
+                backgroundColor: colors.lightBackground,
+                color: colors.textSecondary,
                 fontSize: '0.85rem'
               }}>
                 <strong>Filtered:</strong> {formatDateForDisplay(filters.date)}
@@ -341,7 +359,7 @@ function Dashboard() {
                   style={{
                     backgroundColor: 'transparent',
                     border: 'none',
-                    color: '#4299e1',
+                    color: colors.primary,
                     fontSize: '0.75rem',
                     marginLeft: '0.5rem',
                     cursor: 'pointer',
@@ -357,7 +375,7 @@ function Dashboard() {
 
         {/* Filters in Sidebar */}
         <div style={{ marginBottom: '1.5rem' }}>
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: '#2d3748' }}>Filters</h3>
+          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: colors.textPrimary }}>Filters</h3>
           <NoteFilters
             filters={filters}
             filterOptions={filterOptions}
@@ -371,7 +389,7 @@ function Dashboard() {
 
         {/* Sorting in Sidebar */}
         <div>
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: '#2d3748' }}>Sort By</h3>
+          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: colors.textPrimary }}>Sort By</h3>
           <NoteSorting
             sorting={sorting}
             onSortingChange={setSorting}
@@ -392,10 +410,10 @@ function Dashboard() {
           )}
 
         <form onSubmit={handleQuickNoteSubmit} aria-label="Create a new note" style={{
-          backgroundColor: '#f8f9fa',
+          backgroundColor: colors.lightBackground,
           padding: '1rem',
           borderRadius: '0.5rem',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+          boxShadow: colors.shadow
         }}>
           <div style={{ marginBottom: '0.75rem' }}>
             <label htmlFor="quick-title">Title (optional)</label>
@@ -681,7 +699,7 @@ function Dashboard() {
       </section>
 
         {/* My Notes Section */}
-        <section aria-labelledby="my-notes-heading" style={{ borderTop: '1px solid #e2e8f0', paddingTop: '1.5rem', marginBottom: '1rem' }}>
+        <section aria-labelledby="my-notes-heading" style={{ borderTop: `1px solid ${colors.border}`, paddingTop: '1.5rem', marginBottom: '1rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h2 id="my-notes-heading">My Notes</h2>
           </div>
@@ -701,8 +719,8 @@ function Dashboard() {
         <div style={{
           marginBottom: '1rem',
           fontSize: '0.95rem',
-          color: '#4a5568',
-          backgroundColor: '#edf2f7',
+          color: colors.textSecondary,
+          backgroundColor: colors.darkerBackground,
           padding: '0.5rem 0.75rem',
           borderRadius: '0.375rem',
           display: 'flex',
@@ -721,7 +739,7 @@ function Dashboard() {
               onClick={clearFilters}
               style={{
                 backgroundColor: 'transparent',
-                color: '#3182ce',
+                color: colors.primaryHover,
                 border: 'none',
                 padding: '0.25rem 0.5rem',
                 cursor: 'pointer',
@@ -746,9 +764,9 @@ function Dashboard() {
             aria-label={`${filteredNotes.length} ${filteredNotes.length === 1 ? 'note' : 'notes'} found`}
             style={{
               marginTop: '1rem',
-              backgroundColor: 'white',
+              backgroundColor: colors.cardBackground,
               borderRadius: '0.5rem',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              boxShadow: colors.shadow,
               overflow: 'hidden'
             }}
           >
@@ -773,20 +791,20 @@ function Dashboard() {
         )}
 
         {/* Archive Link */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem', paddingTop: '1rem', borderTop: `1px solid ${colors.border}` }}>
           <Link
             to="/archive"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               padding: '0.75rem 1.25rem',
-              backgroundColor: '#edf2f7',
-              color: '#4a5568',
+              backgroundColor: colors.darkerBackground,
+              color: colors.textSecondary,
               borderRadius: '0.375rem',
               textDecoration: 'none',
               fontSize: '1rem',
               fontWeight: '500',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
+              boxShadow: colors.shadow,
               transition: 'all 0.3s cubic-bezier(.25,.8,.25,1)'
             }}
           >

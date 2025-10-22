@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
+import { useDarkModeColors } from '../hooks/useDarkModeColors'
 
 function Projects() {
+  const colors = useDarkModeColors()
   const navigate = useNavigate()
   const [projects, setProjects] = useState([])
   const [loading, setLoading] = useState(true)
@@ -217,13 +219,13 @@ function Projects() {
   }
 
   if (loading) {
-    return <div style={{ padding: '2rem' }}>Loading projects...</div>
+    return <div style={{ padding: '2rem', color: colors.textPrimary }}>Loading projects...</div>
   }
 
   return (
     <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h1>Projects</h1>
+        <h1 style={{ color: colors.textPrimary }}>Projects</h1>
         <button
           onClick={() => setShowCreateForm(!showCreateForm)}
           style={{
@@ -243,8 +245,8 @@ function Projects() {
       {error && (
         <div style={{
           padding: '1rem',
-          backgroundColor: '#fed7d7',
-          color: '#c53030',
+          backgroundColor: colors.errorBackground,
+          color: colors.errorText,
           borderRadius: '0.375rem',
           marginBottom: '1rem'
         }}>
@@ -255,16 +257,16 @@ function Projects() {
       {/* Create/Edit Form */}
       {showCreateForm && (
         <div style={{
-          backgroundColor: '#f7fafc',
+          backgroundColor: colors.cardBackground,
           padding: '1.5rem',
           borderRadius: '0.5rem',
           marginBottom: '2rem',
-          border: '1px solid #e2e8f0'
+          border: `1px solid ${colors.border}`
         }}>
-          <h2>{editingProject ? 'Edit Project' : 'Create New Project'}</h2>
+          <h2 style={{ color: colors.textPrimary }}>{editingProject ? 'Edit Project' : 'Create New Project'}</h2>
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: colors.textPrimary }}>
                 Project Name*
               </label>
               <input
@@ -276,14 +278,16 @@ function Projects() {
                 style={{
                   width: '100%',
                   padding: '0.5rem',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '0.375rem'
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: '0.375rem',
+                  backgroundColor: colors.inputBackground,
+                  color: colors.textPrimary
                 }}
               />
             </div>
 
             <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: colors.textPrimary }}>
                 Description
               </label>
               <textarea
@@ -294,15 +298,17 @@ function Projects() {
                 style={{
                   width: '100%',
                   padding: '0.5rem',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '0.375rem'
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: '0.375rem',
+                  backgroundColor: colors.inputBackground,
+                  color: colors.textPrimary
                 }}
               />
             </div>
 
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
               <div style={{ flex: '1 1 200px' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: colors.textPrimary }}>
                   Color
                 </label>
                 <input
@@ -313,14 +319,14 @@ function Projects() {
                   style={{
                     width: '100%',
                     height: '40px',
-                    border: '1px solid #e2e8f0',
+                    border: `1px solid ${colors.border}`,
                     borderRadius: '0.375rem'
                   }}
                 />
               </div>
 
               <div style={{ flex: '1 1 200px' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: colors.textPrimary }}>
                   Progress: {formData.progress}%
                 </label>
                 <input
@@ -335,7 +341,7 @@ function Projects() {
               </div>
 
               <div style={{ flex: '1 1 200px' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: colors.textPrimary }}>
                   Deadline
                 </label>
                 <input
@@ -346,15 +352,17 @@ function Projects() {
                   style={{
                     width: '100%',
                     padding: '0.5rem',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '0.375rem'
+                    border: `1px solid ${colors.border}`,
+                    borderRadius: '0.375rem',
+                    backgroundColor: colors.inputBackground,
+                    color: colors.textPrimary
                   }}
                 />
               </div>
             </div>
 
             <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: colors.textPrimary }}>
                 Category
               </label>
               <select
@@ -364,8 +372,10 @@ function Projects() {
                 style={{
                   width: '100%',
                   padding: '0.5rem',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '0.375rem'
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: '0.375rem',
+                  backgroundColor: colors.inputBackground,
+                  color: colors.textPrimary
                 }}
               >
                 <option value="">No Category</option>
@@ -376,7 +386,7 @@ function Projects() {
             </div>
 
             <div style={{ marginBottom: '1rem' }}>
-              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: colors.textPrimary }}>
                 Tags
               </label>
               <div style={{
@@ -384,12 +394,12 @@ function Projects() {
                 flexWrap: 'wrap',
                 gap: '0.75rem',
                 padding: '0.75rem',
-                border: '1px solid #e2e8f0',
+                border: `1px solid ${colors.border}`,
                 borderRadius: '0.375rem',
-                backgroundColor: 'white'
+                backgroundColor: colors.background
               }}>
                 {tags.length === 0 ? (
-                  <span style={{ color: '#a0aec0', fontSize: '0.875rem' }}>No tags available</span>
+                  <span style={{ color: colors.textMuted, fontSize: '0.875rem' }}>No tags available</span>
                 ) : (
                   tags.map(tag => (
                     <label
@@ -401,8 +411,8 @@ function Projects() {
                         cursor: 'pointer',
                         padding: '0.375rem 0.75rem',
                         borderRadius: '0.25rem',
-                        backgroundColor: formData.tag_ids.includes(tag.id) ? tag.color + '20' : '#f7fafc',
-                        border: `1px solid ${formData.tag_ids.includes(tag.id) ? tag.color : '#e2e8f0'}`,
+                        backgroundColor: formData.tag_ids.includes(tag.id) ? tag.color + '20' : colors.cardBackground,
+                        border: `1px solid ${formData.tag_ids.includes(tag.id) ? tag.color : colors.border}`,
                         transition: 'all 0.2s'
                       }}
                     >
@@ -421,7 +431,7 @@ function Projects() {
                       <span style={{
                         fontSize: '0.875rem',
                         fontWeight: '500',
-                        color: formData.tag_ids.includes(tag.id) ? tag.color : '#4a5568'
+                        color: formData.tag_ids.includes(tag.id) ? tag.color : colors.textSecondary
                       }}>
                         {tag.name}
                       </span>
@@ -451,8 +461,8 @@ function Projects() {
                 onClick={cancelEdit}
                 style={{
                   padding: '0.75rem 1.5rem',
-                  backgroundColor: '#e2e8f0',
-                  color: '#4a5568',
+                  backgroundColor: colors.secondaryButtonBackground,
+                  color: colors.textSecondary,
                   border: 'none',
                   borderRadius: '0.375rem',
                   cursor: 'pointer',
@@ -471,9 +481,9 @@ function Projects() {
         <div style={{
           textAlign: 'center',
           padding: '3rem',
-          backgroundColor: '#f7fafc',
+          backgroundColor: colors.cardBackground,
           borderRadius: '0.5rem',
-          color: '#718096'
+          color: colors.textMuted
         }}>
           <p>No projects yet. Create your first project to get started!</p>
         </div>
@@ -487,8 +497,8 @@ function Projects() {
             <div
               key={project.id}
               style={{
-                backgroundColor: 'white',
-                border: '1px solid #e2e8f0',
+                backgroundColor: colors.cardBackground,
+                border: `1px solid ${colors.border}`,
                 borderRadius: '0.5rem',
                 padding: '1.5rem',
                 borderTop: `4px solid ${project.color}`,
@@ -504,7 +514,7 @@ function Projects() {
               {project.description && (
                 <p style={{
                   fontSize: '0.9rem',
-                  color: '#718096',
+                  color: colors.textMuted,
                   marginBottom: '1rem',
                   lineHeight: '1.5'
                 }}>
@@ -517,7 +527,8 @@ function Projects() {
                   display: 'flex',
                   justifyContent: 'space-between',
                   marginBottom: '0.5rem',
-                  fontSize: '0.875rem'
+                  fontSize: '0.875rem',
+                  color: colors.textPrimary
                 }}>
                   <span>Progress</span>
                   <span style={{ fontWeight: '600' }}>{project.progress}%</span>
@@ -525,7 +536,7 @@ function Projects() {
                 <div style={{
                   width: '100%',
                   height: '8px',
-                  backgroundColor: '#e2e8f0',
+                  backgroundColor: colors.progressBackground,
                   borderRadius: '4px',
                   overflow: 'hidden'
                 }}>
@@ -582,7 +593,7 @@ function Projects() {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 fontSize: '0.875rem',
-                color: '#718096',
+                color: colors.textMuted,
                 marginBottom: '1rem'
               }}>
                 <span>{project.notes?.length || 0} items</span>
@@ -600,7 +611,8 @@ function Projects() {
                   style={{
                     flex: 1,
                     padding: '0.5rem',
-                    backgroundColor: '#edf2f7',
+                    backgroundColor: colors.secondaryButtonBackground,
+                    color: colors.textPrimary,
                     border: 'none',
                     borderRadius: '0.375rem',
                     cursor: 'pointer',
@@ -614,7 +626,8 @@ function Projects() {
                   style={{
                     flex: 1,
                     padding: '0.5rem',
-                    backgroundColor: '#fed7d7',
+                    backgroundColor: colors.dangerButtonBackground,
+                    color: colors.dangerButtonText,
                     border: 'none',
                     borderRadius: '0.375rem',
                     cursor: 'pointer',
