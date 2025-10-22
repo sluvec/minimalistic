@@ -168,10 +168,9 @@ function Dashboard() {
     const { error } = await deleteNote(id)
     if (!error) {
       removeNoteFromState(id)
-      toast.success(SUCCESS_MESSAGES.NOTE_DELETED)
-    } else {
-      toast.error(ERROR_MESSAGES.NOTE_DELETE_FAILED)
+      // Toast is handled by useNotesQuery
     }
+    // Error toast is also handled by useNotesQuery
   }, [deleteNote, removeNoteFromState])
 
   // Handle note archiving
@@ -181,10 +180,9 @@ function Dashboard() {
     const { error } = await archiveNote(id)
     if (!error) {
       removeNoteFromState(id)
-      toast.success(SUCCESS_MESSAGES.NOTE_ARCHIVED)
-    } else {
-      toast.error(ERROR_MESSAGES.NOTE_ARCHIVE_FAILED)
+      // Toast is handled by useNotesQuery
     }
+    // Error toast is also handled by useNotesQuery
   }, [archiveNote, removeNoteFromState])
 
   // Calendar handlers
