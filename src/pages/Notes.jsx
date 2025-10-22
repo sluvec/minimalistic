@@ -1,6 +1,7 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useNotesData } from '../hooks/useNotesData'
+import { supabase } from '../lib/supabaseClient'
 import { format } from 'date-fns'
 
 function Notes() {
@@ -12,15 +13,68 @@ function Notes() {
     direction: 'desc'
   })
 
-  // Helper function to get note type icon
-  const getNoteTypeIcon = (note) => {
-    if (note.note_type === 'task' || note.isTask) return '✅'
-    if (note.note_type === 'idea' || note.isIdea) return '💡'
-    if (note.note_type === 'list' || note.isList) return '📋'
-    if (note.note_type === 'prompt') return '🤖'
-    if (note.note_type === 'question') return '❓'
-    if (note.note_type === 'reflection') return '💭'
-    return '📝'
+  // Filter states
+  const [selectedTypes, setSelectedTypes] = useState([])
+  const [selectedProjects, setSelectedProjects] = useState([])
+  const [selectedSpaces, setSelectedSpaces] = useState([])
+  const [projects, setProjects] = useState([])
+  const [spaces, setSpaces] = useState([])
+  const [showMobileFilters, setShowMobileFilters] = useState(false)
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
+
+  // Note types
+  const noteTypes = [
+    { value: 'note', label: 'Note', icon: '📝' },
+    { value: 'idea', label: 'Idea', icon: '💡' },
+    { value: 'task', label: 'Task', icon: '✅' },
+    { value: 'list', label: 'List', icon: '📋' },
+    { value: 'prompt', label: 'Prompt', icon: '🤖' },
+    { value: 'question', label: 'Question', icon: '❓' },
+    { value: 'reflection', label: 'Reflection', icon: '💭' }
+  ]
+
+  // Fetch projects and spaces
+  useEffect(() => {
+    const fetchFilterData = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const [projectsResult, spacesResult] = await Promise.all([
+        supabase
+          .from('projects')
+          .select('id, name, color')
+          .eq('user_id', user.id)
+          .eq('archived', false)
+          .order('name'),
+        supabase
+          .from('spaces')
+          .select('id, name, icon, color')
+          .eq('user_id', user.id)
+          .eq('archived', false)
+          .order('name')
+      ])
+
+      if (projectsResult.data) setProjects(projectsResult.data)
+      if (spacesResult.data) setSpaces(spacesResult.data)
+    }
+
+    fetchFilterData()
+  }, [])
+
+  // Handle mobile resize
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768)
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  // Helper function to get note type
+  const getNoteType = (note) => {
+    if (note.note_type) return note.note_type
+    if (note.isTask) return 'task'
+    if (note.isIdea) return 'idea'
+    if (note.isList) return 'list'
+    return 'note'
   }
 
   // Helper function to truncate content to 120 chars
@@ -31,14 +85,35 @@ function Notes() {
     return plainText.substring(0, 120) + '...'
   }
 
-  // Helper function to format tags
-  const formatTags = (tags) => {
-    if (!tags || tags.length === 0) return '-'
-    if (Array.isArray(tags)) {
-      return tags.slice(0, 3).join(', ') + (tags.length > 3 ? '...' : '')
-    }
-    return tags
+  // Toggle filter selection
+  const toggleTypeFilter = (type) => {
+    setSelectedTypes(prev =>
+      prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
+    )
   }
+
+  const toggleProjectFilter = (projectId) => {
+    setSelectedProjects(prev =>
+      prev.includes(projectId) ? prev.filter(p => p !== projectId) : [...prev, projectId]
+    )
+  }
+
+  const toggleSpaceFilter = (spaceId) => {
+    setSelectedSpaces(prev =>
+      prev.includes(spaceId) ? prev.filter(s => s !== spaceId) : [...prev, spaceId]
+    )
+  }
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSelectedTypes([])
+    setSelectedProjects([])
+    setSelectedSpaces([])
+    setSearchTerm('')
+  }
+
+  // Check if any filters are active
+  const hasActiveFilters = selectedTypes.length > 0 || selectedProjects.length > 0 || selectedSpaces.length > 0 || searchTerm.length > 0
 
   // Sorting logic
   const handleSort = useCallback((key) => {
@@ -48,7 +123,7 @@ function Notes() {
     }))
   }, [])
 
-  // Filter and sort notes
+  // Filter and sort notes (AND logic)
   const filteredAndSortedNotes = useMemo(() => {
     let filtered = notes
 
@@ -63,37 +138,55 @@ function Notes() {
       )
     }
 
+    // Apply type filter (AND logic - must match selected types)
+    if (selectedTypes.length > 0) {
+      filtered = filtered.filter(note => {
+        const noteType = getNoteType(note)
+        return selectedTypes.includes(noteType)
+      })
+    }
+
+    // Apply project filter (AND logic - must match selected projects)
+    if (selectedProjects.length > 0) {
+      filtered = filtered.filter(note =>
+        note.project_id && selectedProjects.includes(note.project_id)
+      )
+    }
+
+    // Apply space filter (AND logic - must match selected spaces)
+    if (selectedSpaces.length > 0) {
+      filtered = filtered.filter(note =>
+        note.space_id && selectedSpaces.includes(note.space_id)
+      )
+    }
+
     // Apply sorting
     const sorted = [...filtered].sort((a, b) => {
       const aVal = a[sortConfig.key]
       const bVal = b[sortConfig.key]
 
-      // Handle null/undefined values
       if (!aVal && !bVal) return 0
       if (!aVal) return 1
       if (!bVal) return -1
 
-      // String comparison
       if (typeof aVal === 'string' && typeof bVal === 'string') {
         const comparison = aVal.localeCompare(bVal)
         return sortConfig.direction === 'asc' ? comparison : -comparison
       }
 
-      // Date comparison
       if (sortConfig.key.includes('date') || sortConfig.key.includes('at')) {
         const dateA = new Date(aVal)
         const dateB = new Date(bVal)
         return sortConfig.direction === 'asc' ? dateA - dateB : dateB - dateA
       }
 
-      // Default comparison
       if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1
       if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1
       return 0
     })
 
     return sorted
-  }, [notes, searchTerm, sortConfig])
+  }, [notes, searchTerm, selectedTypes, selectedProjects, selectedSpaces, sortConfig])
 
   // Handle row click
   const handleRowClick = useCallback((noteId) => {
@@ -119,7 +212,7 @@ function Notes() {
       margin: '0 auto'
     },
     header: {
-      marginBottom: '1.5rem'
+      marginBottom: '1rem'
     },
     searchBar: {
       width: '100%',
@@ -128,6 +221,70 @@ function Notes() {
       fontSize: '1rem',
       border: '1px solid #e2e8f0',
       borderRadius: '0.5rem',
+      marginBottom: '1rem'
+    },
+    filterSection: {
+      position: 'sticky',
+      top: 0,
+      zIndex: 20,
+      backgroundColor: 'white',
+      padding: '1rem',
+      borderRadius: '0.5rem',
+      marginBottom: '1rem',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+      border: '1px solid #e2e8f0'
+    },
+    filterRow: {
+      marginBottom: '0.75rem'
+    },
+    filterLabel: {
+      fontWeight: '600',
+      fontSize: '0.875rem',
+      color: '#4a5568',
+      marginBottom: '0.5rem',
+      display: 'block'
+    },
+    filterChips: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: '0.5rem'
+    },
+    chip: (isSelected) => ({
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '0.25rem',
+      padding: '0.5rem 0.75rem',
+      fontSize: '0.875rem',
+      borderRadius: '9999px',
+      border: '1px solid',
+      borderColor: isSelected ? '#3b82f6' : '#e2e8f0',
+      backgroundColor: isSelected ? '#dbeafe' : 'white',
+      color: isSelected ? '#1e40af' : '#4a5568',
+      cursor: 'pointer',
+      transition: 'all 0.2s',
+      userSelect: 'none'
+    }),
+    clearButton: {
+      padding: '0.5rem 1rem',
+      fontSize: '0.875rem',
+      fontWeight: '500',
+      color: '#ef4444',
+      backgroundColor: 'white',
+      border: '1px solid #ef4444',
+      borderRadius: '0.375rem',
+      cursor: 'pointer',
+      transition: 'all 0.2s'
+    },
+    mobileToggle: {
+      width: '100%',
+      padding: '0.75rem',
+      backgroundColor: '#3b82f6',
+      color: 'white',
+      border: 'none',
+      borderRadius: '0.5rem',
+      cursor: 'pointer',
+      fontSize: '0.95rem',
+      fontWeight: '500',
       marginBottom: '1rem'
     },
     tableContainer: {
@@ -163,11 +320,6 @@ function Notes() {
     tr: {
       cursor: 'pointer',
       transition: 'background-color 0.15s'
-    },
-    typeCell: {
-      fontSize: '1.2rem',
-      width: '40px',
-      textAlign: 'center'
     },
     titleCell: {
       fontWeight: '500',
@@ -205,6 +357,86 @@ function Notes() {
     }
   }
 
+  const FilterPanel = () => (
+    <div style={styles.filterSection}>
+      {/* Type Filter */}
+      <div style={styles.filterRow}>
+        <label style={styles.filterLabel}>Type</label>
+        <div style={styles.filterChips}>
+          {noteTypes.map(type => (
+            <button
+              key={type.value}
+              onClick={() => toggleTypeFilter(type.value)}
+              style={styles.chip(selectedTypes.includes(type.value))}
+            >
+              <span>{type.icon}</span>
+              <span>{type.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Project Filter */}
+      <div style={styles.filterRow}>
+        <label style={styles.filterLabel}>Project</label>
+        <div style={styles.filterChips}>
+          {projects.length > 0 ? (
+            projects.map(project => (
+              <button
+                key={project.id}
+                onClick={() => toggleProjectFilter(project.id)}
+                style={styles.chip(selectedProjects.includes(project.id))}
+              >
+                <span
+                  style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    backgroundColor: project.color,
+                    display: 'inline-block'
+                  }}
+                />
+                <span>{project.name}</span>
+              </button>
+            ))
+          ) : (
+            <span style={{ fontSize: '0.875rem', color: '#a0aec0' }}>No projects available</span>
+          )}
+        </div>
+      </div>
+
+      {/* Space Filter */}
+      <div style={styles.filterRow}>
+        <label style={styles.filterLabel}>Space</label>
+        <div style={styles.filterChips}>
+          {spaces.length > 0 ? (
+            spaces.map(space => (
+              <button
+                key={space.id}
+                onClick={() => toggleSpaceFilter(space.id)}
+                style={styles.chip(selectedSpaces.includes(space.id))}
+              >
+                <span>{space.icon}</span>
+                <span>{space.name}</span>
+              </button>
+            ))
+          ) : (
+            <span style={{ fontSize: '0.875rem', color: '#a0aec0' }}>No spaces available</span>
+          )}
+        </div>
+      </div>
+
+      {/* Clear Filters Button */}
+      {hasActiveFilters && (
+        <div style={{ marginTop: '1rem', textAlign: 'right' }}>
+          <button onClick={clearAllFilters} style={styles.clearButton}>
+            Clear All Filters
+          </button>
+        </div>
+      )}
+    </div>
+  )
+
   return (
     <div style={styles.container}>
       <div style={styles.header}>
@@ -218,12 +450,25 @@ function Notes() {
           onChange={(e) => setSearchTerm(e.target.value)}
           style={styles.searchBar}
         />
+      </div>
 
-        {/* Stats Bar */}
-        <div style={styles.statsBar}>
-          Showing <strong>{filteredAndSortedNotes.length}</strong> {filteredAndSortedNotes.length === 1 ? 'note' : 'notes'}
-          {searchTerm && ` matching "${searchTerm}"`}
-        </div>
+      {/* Mobile Filter Toggle */}
+      {isMobile && (
+        <button
+          onClick={() => setShowMobileFilters(!showMobileFilters)}
+          style={styles.mobileToggle}
+        >
+          {showMobileFilters ? '✕ Hide Filters' : '☰ Show Filters'}
+        </button>
+      )}
+
+      {/* Filter Panel */}
+      {(!isMobile || showMobileFilters) && <FilterPanel />}
+
+      {/* Stats Bar */}
+      <div style={styles.statsBar}>
+        Showing <strong>{filteredAndSortedNotes.length}</strong> of <strong>{notes.length}</strong> {filteredAndSortedNotes.length === 1 ? 'note' : 'notes'}
+        {hasActiveFilters && ' (filtered)'}
       </div>
 
       {fetchError && <div className="error" role="alert">{fetchError}</div>}
@@ -234,14 +479,13 @@ function Notes() {
         </div>
       ) : filteredAndSortedNotes.length === 0 ? (
         <div style={styles.emptyState}>
-          {searchTerm ? `No notes match "${searchTerm}"` : 'No notes yet.'}
+          {hasActiveFilters ? 'No notes match your filters. Try adjusting your selection.' : 'No notes yet.'}
         </div>
       ) : (
         <div style={styles.tableContainer}>
           <table style={styles.table}>
             <thead>
               <tr>
-                <th style={{ ...styles.th, ...styles.typeCell }}>Type</th>
                 <th style={{ ...styles.th, ...styles.titleCell }} onClick={() => handleSort('title')}>
                   Title <SortIcon columnKey="title" />
                 </th>
@@ -277,9 +521,6 @@ function Notes() {
                     e.currentTarget.style.backgroundColor = index % 2 === 0 ? 'white' : '#f7fafc'
                   }}
                 >
-                  <td style={{ ...styles.td, ...styles.typeCell }}>
-                    {getNoteTypeIcon(note)}
-                  </td>
                   <td style={{ ...styles.td, ...styles.titleCell }}>
                     {note.title || <em style={{ color: '#a0aec0' }}>Untitled</em>}
                   </td>
