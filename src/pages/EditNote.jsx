@@ -31,6 +31,7 @@ function EditNote() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [saveLoading, setSaveLoading] = useState(false)
+  const [showAdvanced, setShowAdvanced] = useState(false)
   
   useEffect(() => {
     const fetchNote = async () => {
@@ -224,17 +225,52 @@ function EditNote() {
             required
           />
         </div>
-        
-        <div className="form-group">
-          <label>Category</label>
-          <input
-            type="text"
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            placeholder="Category (optional)"
-          />
-        </div>
+
+        {/* Toggle Advanced Options */}
+        <button
+          type="button"
+          onClick={() => setShowAdvanced(!showAdvanced)}
+          style={{
+            width: '100%',
+            padding: '0.75rem',
+            marginBottom: '1rem',
+            backgroundColor: '#f7fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '0.375rem',
+            cursor: 'pointer',
+            fontSize: '0.95rem',
+            fontWeight: '500',
+            color: '#4a5568',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#edf2f7'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f7fafc'}
+        >
+          <span>⚙️ Advanced Options</span>
+          <span style={{ fontSize: '1.2rem' }}>{showAdvanced ? '▲' : '▼'}</span>
+        </button>
+
+        {showAdvanced && (
+          <div style={{
+            padding: '1rem',
+            backgroundColor: '#f7fafc',
+            borderRadius: '0.5rem',
+            marginBottom: '1rem',
+            border: '1px solid #e2e8f0'
+          }}>
+            <div className="form-group">
+              <label>Category</label>
+              <input
+                type="text"
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                placeholder="Category (optional)"
+              />
+            </div>
         
         <div className="form-group">
           <label>Type</label>
@@ -387,7 +423,9 @@ function EditNote() {
             <label htmlFor="isIdea">Idea</label>
           </div>
         </div>
-        
+          </div>
+        )}
+
         <div className="form-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2rem' }}>
           <div style={{ display: 'flex', gap: '1rem' }}>
             <button 
