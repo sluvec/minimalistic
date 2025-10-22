@@ -26,6 +26,14 @@ dist-ssr
 # Environment variables
 .env
 .env.local
+.env.production
+.env.*.local
+
+# Sensitive configuration files
+.claude/project-rules.md
+**/secrets/**
+**/*.key
+**/*.pem
 
 # Supabase
 .supabase/
@@ -33,3 +41,10 @@ supabase/.branches/
 supabase/.temp/
 supabase/config.toml
 !supabase/migrations/
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Build artifacts
+*.tsbuildinfo

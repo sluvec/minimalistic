@@ -27,9 +27,10 @@
    - Check that tables/columns were created successfully
 
 5. **NEVER ask user to run migrations manually**:
-   - User has provided access token: `sbp_19cf52856f7e2c721815e31f7206c3e4d5ff9bbb`
+   - Access token should be stored in environment variable: `SUPABASE_ACCESS_TOKEN`
+   - Never commit access tokens to git
    - Always use it for automated migrations
-   - Store in environment variable: `SUPABASE_ACCESS_TOKEN`
+   - Token should be set in CI/CD secrets for automation
 
 ## Git Workflow
 
