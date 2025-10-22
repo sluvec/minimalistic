@@ -81,23 +81,27 @@ CREATE POLICY "Users can delete their own notes" ON notes
 CREATE INDEX notes_user_id_idx ON notes (user_id);
 ```
 
-### 4. Run Database Migrations (Optional but Recommended)
+### 4. Run Database Migrations
 
-Run the following migrations in your Supabase SQL editor for additional features:
+**Using Supabase CLI (Recommended - Automated):**
 
-**Add Archive Feature:**
+See [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) for detailed instructions.
+
+Quick start:
 ```bash
-# Run production_migration.sql in Supabase SQL editor
+# One-time setup (3 commands)
+supabase login
+supabase link --project-ref YOUR_PROJECT_REF_ID
+
+# Run migrations
+npm run db:push
 ```
 
-**Add Estimated Duration Fields:**
-```bash
-# Run add_estimated_duration_migration.sql in Supabase SQL editor
-```
+**Manual Method (Alternative):**
 
-These migrations add:
-- `archived` column for archiving notes
-- `estimated_hours` and `estimated_minutes` columns for tracking estimated task duration
+Run the following migrations in your Supabase SQL editor:
+- `production_migration.sql` - Adds archive feature
+- `supabase/migrations/20241022_add_estimated_duration.sql` - Adds estimated duration fields
 
 ### 5. Run the Application
 
