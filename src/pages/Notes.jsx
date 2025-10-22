@@ -1,213 +1,323 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useNotesData } from '../hooks/useNotesData'
-import { useNoteFilters } from '../hooks/useNoteFilters'
-import { useNotesCRUD } from '../hooks/useNotesCRUD'
-import NoteListItem from '../components/notes/NoteListItem'
-import NoteSearch from '../components/notes/NoteSearch'
-import NoteSorting from '../components/notes/NoteSorting'
-import NoteFilters from '../components/notes/NoteFilters'
-import { CONFIRM_MESSAGES } from '../constants'
+import { format } from 'date-fns'
 
 function Notes() {
-  const { notes, loading, error: fetchError, removeNoteFromState } = useNotesData(false)
-  const {
-    filters,
-    setFilters,
-    searchTerm,
-    setSearchTerm,
-    sorting,
-    setSorting,
-    filteredNotes,
-    filterOptions,
-    toggleFilter,
-    clearFilters,
-    hasActiveFilters
-  } = useNoteFilters(notes)
+  const navigate = useNavigate()
+  const { notes, loading, error: fetchError } = useNotesData(false)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [sortConfig, setSortConfig] = useState({
+    key: 'updated_at',
+    direction: 'desc'
+  })
 
-  const { deleteNote, archiveNote } = useNotesCRUD()
+  // Helper function to get note type icon
+  const getNoteTypeIcon = (note) => {
+    if (note.note_type === 'task' || note.isTask) return '✅'
+    if (note.note_type === 'idea' || note.isIdea) return '💡'
+    if (note.note_type === 'list' || note.isList) return '📋'
+    if (note.note_type === 'prompt') return '🤖'
+    if (note.note_type === 'question') return '❓'
+    if (note.note_type === 'reflection') return '💭'
+    return '📝'
+  }
 
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
-  const [showMobileFilters, setShowMobileFilters] = useState(false)
+  // Helper function to truncate content to 120 chars
+  const truncateContent = (content) => {
+    if (!content) return ''
+    const plainText = content.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
+    if (plainText.length <= 120) return plainText
+    return plainText.substring(0, 120) + '...'
+  }
 
-  // Handle note deletion
-  const handleDeleteNote = useCallback(async (id) => {
-    if (!window.confirm(CONFIRM_MESSAGES.DELETE_NOTE)) return
-
-    const { error } = await deleteNote(id)
-    if (!error) {
-      removeNoteFromState(id)
+  // Helper function to format tags
+  const formatTags = (tags) => {
+    if (!tags || tags.length === 0) return '-'
+    if (Array.isArray(tags)) {
+      return tags.slice(0, 3).join(', ') + (tags.length > 3 ? '...' : '')
     }
-  }, [deleteNote, removeNoteFromState])
+    return tags
+  }
 
-  // Handle note archiving
-  const handleArchiveNote = useCallback(async (id) => {
-    if (!window.confirm(CONFIRM_MESSAGES.ARCHIVE_NOTE)) return
+  // Sorting logic
+  const handleSort = useCallback((key) => {
+    setSortConfig(prevConfig => ({
+      key,
+      direction: prevConfig.key === key && prevConfig.direction === 'asc' ? 'desc' : 'asc'
+    }))
+  }, [])
 
-    const { error } = await archiveNote(id)
-    if (!error) {
-      removeNoteFromState(id)
+  // Filter and sort notes
+  const filteredAndSortedNotes = useMemo(() => {
+    let filtered = notes
+
+    // Apply search filter
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase()
+      filtered = filtered.filter(note =>
+        note.title?.toLowerCase().includes(term) ||
+        note.content?.toLowerCase().includes(term) ||
+        note.category?.toLowerCase().includes(term) ||
+        (Array.isArray(note.tags) && note.tags.some(tag => tag.toLowerCase().includes(term)))
+      )
     }
-  }, [archiveNote, removeNoteFromState])
+
+    // Apply sorting
+    const sorted = [...filtered].sort((a, b) => {
+      const aVal = a[sortConfig.key]
+      const bVal = b[sortConfig.key]
+
+      // Handle null/undefined values
+      if (!aVal && !bVal) return 0
+      if (!aVal) return 1
+      if (!bVal) return -1
+
+      // String comparison
+      if (typeof aVal === 'string' && typeof bVal === 'string') {
+        const comparison = aVal.localeCompare(bVal)
+        return sortConfig.direction === 'asc' ? comparison : -comparison
+      }
+
+      // Date comparison
+      if (sortConfig.key.includes('date') || sortConfig.key.includes('at')) {
+        const dateA = new Date(aVal)
+        const dateB = new Date(bVal)
+        return sortConfig.direction === 'asc' ? dateA - dateB : dateB - dateA
+      }
+
+      // Default comparison
+      if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1
+      if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1
+      return 0
+    })
+
+    return sorted
+  }, [notes, searchTerm, sortConfig])
+
+  // Handle row click
+  const handleRowClick = useCallback((noteId) => {
+    navigate(`/edit/${noteId}`)
+  }, [navigate])
+
+  // Render sort icon
+  const SortIcon = ({ columnKey }) => {
+    if (sortConfig.key !== columnKey) {
+      return <span style={{ opacity: 0.3, marginLeft: '4px' }}>↕</span>
+    }
+    return (
+      <span style={{ marginLeft: '4px' }}>
+        {sortConfig.direction === 'asc' ? '↑' : '↓'}
+      </span>
+    )
+  }
+
+  const styles = {
+    container: {
+      maxWidth: '100%',
+      padding: '1.5rem',
+      margin: '0 auto'
+    },
+    header: {
+      marginBottom: '1.5rem'
+    },
+    searchBar: {
+      width: '100%',
+      maxWidth: '600px',
+      padding: '0.75rem',
+      fontSize: '1rem',
+      border: '1px solid #e2e8f0',
+      borderRadius: '0.5rem',
+      marginBottom: '1rem'
+    },
+    tableContainer: {
+      overflowX: 'auto',
+      backgroundColor: 'white',
+      borderRadius: '0.5rem',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+    },
+    table: {
+      width: '100%',
+      borderCollapse: 'collapse',
+      fontSize: '0.875rem'
+    },
+    th: {
+      position: 'sticky',
+      top: 0,
+      backgroundColor: '#f7fafc',
+      padding: '1rem 0.75rem',
+      textAlign: 'left',
+      fontWeight: '600',
+      color: '#2d3748',
+      borderBottom: '2px solid #e2e8f0',
+      cursor: 'pointer',
+      userSelect: 'none',
+      whiteSpace: 'nowrap',
+      zIndex: 10
+    },
+    td: {
+      padding: '0.75rem',
+      borderBottom: '1px solid #e2e8f0',
+      verticalAlign: 'top'
+    },
+    tr: {
+      cursor: 'pointer',
+      transition: 'background-color 0.15s'
+    },
+    typeCell: {
+      fontSize: '1.2rem',
+      width: '40px',
+      textAlign: 'center'
+    },
+    titleCell: {
+      fontWeight: '500',
+      minWidth: '150px',
+      maxWidth: '250px'
+    },
+    previewCell: {
+      color: '#718096',
+      minWidth: '300px',
+      maxWidth: '400px',
+      lineHeight: '1.5'
+    },
+    tagBadge: {
+      display: 'inline-block',
+      backgroundColor: '#edf2f7',
+      color: '#4a5568',
+      padding: '0.25rem 0.5rem',
+      borderRadius: '0.25rem',
+      fontSize: '0.75rem',
+      marginRight: '0.25rem',
+      marginBottom: '0.25rem'
+    },
+    emptyState: {
+      textAlign: 'center',
+      padding: '3rem 1rem',
+      color: '#718096'
+    },
+    statsBar: {
+      marginBottom: '1rem',
+      fontSize: '0.9rem',
+      color: '#4a5568',
+      backgroundColor: '#edf2f7',
+      padding: '0.5rem 0.75rem',
+      borderRadius: '0.375rem'
+    }
+  }
 
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: isMobile ? 'column' : 'row',
-      gap: isMobile ? '1rem' : '2rem'
-    }}>
-      {/* Mobile: Filters Toggle Button */}
-      {isMobile && (
-        <button
-          onClick={() => setShowMobileFilters(!showMobileFilters)}
-          style={{
-            padding: '0.75rem',
-            backgroundColor: '#4299e1',
-            color: 'white',
-            border: 'none',
-            borderRadius: '0.5rem',
-            cursor: 'pointer',
-            fontSize: '0.95rem',
-            fontWeight: '500',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.5rem'
-          }}
-        >
-          {showMobileFilters ? '✕ Hide Filters' : '☰ Show Filters'}
-        </button>
-      )}
+    <div style={styles.container}>
+      <div style={styles.header}>
+        <h1 style={{ marginBottom: '1rem' }}>All Notes</h1>
 
-      {/* Left Sidebar - Filters */}
-      <aside
-        className={`notes-sidebar ${showMobileFilters ? 'mobile-visible' : ''}`}
-        style={{
-          width: '300px',
-          flexShrink: 0,
-          backgroundColor: showMobileFilters && isMobile ? 'white' : 'transparent',
-          borderRadius: showMobileFilters && isMobile ? '0.5rem' : '0',
-          boxShadow: showMobileFilters && isMobile ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
-          padding: showMobileFilters && isMobile ? '1rem' : '0',
-          marginBottom: showMobileFilters && isMobile ? '1rem' : '0',
-          display: isMobile && !showMobileFilters ? 'none' : 'block'
-        }}>
+        {/* Search Bar */}
+        <input
+          type="text"
+          placeholder="Search notes by title, content, category, or tags..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={styles.searchBar}
+        />
 
-        {/* Filters */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: '#2d3748' }}>Filters</h3>
-          <NoteFilters
-            filters={filters}
-            filterOptions={filterOptions}
-            onToggleFilter={toggleFilter}
-            onClearFilters={clearFilters}
-            hasActiveFilters={hasActiveFilters}
-            searchTerm={searchTerm}
-            onClearSearch={() => setSearchTerm('')}
-          />
+        {/* Stats Bar */}
+        <div style={styles.statsBar}>
+          Showing <strong>{filteredAndSortedNotes.length}</strong> {filteredAndSortedNotes.length === 1 ? 'note' : 'notes'}
+          {searchTerm && ` matching "${searchTerm}"`}
         </div>
+      </div>
 
-        {/* Sorting */}
-        <div>
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: '#2d3748' }}>Sort By</h3>
-          <NoteSorting
-            sorting={sorting}
-            onSortingChange={setSorting}
-            filters={filters}
-            onFiltersChange={setFilters}
-          />
+      {fetchError && <div className="error" role="alert">{fetchError}</div>}
+
+      {loading ? (
+        <div className="loading" style={{ textAlign: 'center', padding: '2rem' }}>
+          Loading notes...
         </div>
-      </aside>
-
-      {/* Main Content */}
-      <main style={{ flex: 1, minWidth: 0 }}>
-        <section aria-labelledby="all-notes-heading">
-          <h1 id="all-notes-heading" style={{ marginBottom: '1.5rem' }}>All Notes</h1>
-
-          {fetchError && <div className="error" role="alert" aria-live="polite">{fetchError}</div>}
-
-          {/* Search */}
-          <NoteSearch
-            searchTerm={searchTerm}
-            onSearchChange={(e) => setSearchTerm(e.target.value)}
-            onSearchSubmit={(e) => e.preventDefault()}
-            placeholder="Search notes by title, content, or URL..."
-          />
-
-          {/* Note count */}
-          <div style={{
-            marginBottom: '1rem',
-            fontSize: '0.95rem',
-            color: '#4a5568',
-            backgroundColor: '#edf2f7',
-            padding: '0.5rem 0.75rem',
-            borderRadius: '0.375rem',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}>
-            <div>
-              {hasActiveFilters ? (
-                <span>Found <strong>{filteredNotes.length}</strong> {filteredNotes.length === 1 ? 'note' : 'notes'} matching your criteria</span>
-              ) : (
-                <span>Showing all <strong>{notes.length}</strong> {notes.length === 1 ? 'note' : 'notes'}</span>
-              )}
-            </div>
-            {hasActiveFilters && (
-              <button
-                onClick={clearFilters}
-                style={{
-                  backgroundColor: 'transparent',
-                  color: '#3182ce',
-                  border: 'none',
-                  padding: '0.25rem 0.5rem',
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  textDecoration: 'underline'
-                }}
-              >
-                Clear all filters
-              </button>
-            )}
-          </div>
-
-          {/* Notes List */}
-          {loading ? (
-            <div className="loading" role="status" aria-live="polite">
-              <span aria-label="Loading notes">Loading notes...</span>
-            </div>
-          ) : filteredNotes.length > 0 ? (
-            <div
-              role="table"
-              aria-label={`${filteredNotes.length} ${filteredNotes.length === 1 ? 'note' : 'notes'} found`}
-              style={{
-                marginTop: '1rem',
-                backgroundColor: 'white',
-                borderRadius: '0.5rem',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                overflow: 'hidden'
-              }}
-            >
-              {filteredNotes.map(note => (
-                <NoteListItem
+      ) : filteredAndSortedNotes.length === 0 ? (
+        <div style={styles.emptyState}>
+          {searchTerm ? `No notes match "${searchTerm}"` : 'No notes yet.'}
+        </div>
+      ) : (
+        <div style={styles.tableContainer}>
+          <table style={styles.table}>
+            <thead>
+              <tr>
+                <th style={{ ...styles.th, ...styles.typeCell }}>Type</th>
+                <th style={{ ...styles.th, ...styles.titleCell }} onClick={() => handleSort('title')}>
+                  Title <SortIcon columnKey="title" />
+                </th>
+                <th style={{ ...styles.th, ...styles.previewCell }}>Preview</th>
+                <th style={styles.th} onClick={() => handleSort('category')}>
+                  Category <SortIcon columnKey="category" />
+                </th>
+                <th style={styles.th}>Tags</th>
+                <th style={styles.th} onClick={() => handleSort('project_id')}>
+                  Project <SortIcon columnKey="project_id" />
+                </th>
+                <th style={styles.th} onClick={() => handleSort('space_id')}>
+                  Space <SortIcon columnKey="space_id" />
+                </th>
+                <th style={styles.th} onClick={() => handleSort('updated_at')}>
+                  Updated <SortIcon columnKey="updated_at" />
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredAndSortedNotes.map((note, index) => (
+                <tr
                   key={note.id}
-                  note={note}
-                  onTagClick={toggleFilter.bind(null, 'tags')}
-                  onCategoryClick={toggleFilter.bind(null, 'categories')}
-                  onTypeClick={toggleFilter.bind(null, 'types')}
-                  onDelete={handleDeleteNote}
-                  onArchive={handleArchiveNote}
-                  isArchived={false}
-                />
+                  style={{
+                    ...styles.tr,
+                    backgroundColor: index % 2 === 0 ? 'white' : '#f7fafc'
+                  }}
+                  onClick={() => handleRowClick(note.id)}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#edf2f7'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = index % 2 === 0 ? 'white' : '#f7fafc'
+                  }}
+                >
+                  <td style={{ ...styles.td, ...styles.typeCell }}>
+                    {getNoteTypeIcon(note)}
+                  </td>
+                  <td style={{ ...styles.td, ...styles.titleCell }}>
+                    {note.title || <em style={{ color: '#a0aec0' }}>Untitled</em>}
+                  </td>
+                  <td style={{ ...styles.td, ...styles.previewCell }}>
+                    {truncateContent(note.content)}
+                  </td>
+                  <td style={styles.td}>
+                    {note.category || '-'}
+                  </td>
+                  <td style={styles.td}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
+                      {note.tags && note.tags.length > 0 ? (
+                        note.tags.slice(0, 2).map((tag, idx) => (
+                          <span key={idx} style={styles.tagBadge}>{tag}</span>
+                        ))
+                      ) : '-'}
+                      {note.tags && note.tags.length > 2 && (
+                        <span style={{ ...styles.tagBadge, backgroundColor: '#cbd5e0' }}>
+                          +{note.tags.length - 2}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td style={styles.td}>
+                    {note.projects?.name || '-'}
+                  </td>
+                  <td style={styles.td}>
+                    {note.spaces?.name ? `${note.spaces.icon || '📁'} ${note.spaces.name}` : '-'}
+                  </td>
+                  <td style={styles.td}>
+                    {note.updated_at ? format(new Date(note.updated_at), 'MMM d, yyyy') : '-'}
+                  </td>
+                </tr>
               ))}
-            </div>
-          ) : (
-            <div className="no-notes" role="status" aria-live="polite">
-              {hasActiveFilters ? 'No notes match your filters.' : 'No notes yet.'}
-            </div>
-          )}
-        </section>
-      </main>
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }
