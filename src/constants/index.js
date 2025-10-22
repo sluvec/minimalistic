@@ -73,9 +73,22 @@ export const STATUS = {
   NEW: 'New',
   IN_PROGRESS: 'In Progress',
   DONE: 'Done',
-  PAUSED: 'Paused',
-  CANCELLED: 'Cancelled'
+  ON_HOLD: 'On Hold',
+  CANCELLED: 'Cancelled',
+  ABANDONED: 'Abandoned',
+  NA: 'N/A'
 }
+
+// Status options array for dropdowns
+export const STATUS_OPTIONS = [
+  { value: STATUS.NEW, label: 'New' },
+  { value: STATUS.IN_PROGRESS, label: 'In Progress' },
+  { value: STATUS.DONE, label: 'Done' },
+  { value: STATUS.ON_HOLD, label: 'On Hold' },
+  { value: STATUS.CANCELLED, label: 'Cancelled' },
+  { value: STATUS.ABANDONED, label: 'Abandoned' },
+  { value: STATUS.NA, label: 'N/A' }
+]
 
 // Priority values
 export const PRIORITY = {

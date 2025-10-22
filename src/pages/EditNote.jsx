@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 
 // Constants and utilities
-import { STATUS, ERROR_MESSAGES } from '../constants'
+import { STATUS, STATUS_OPTIONS, ERROR_MESSAGES } from '../constants'
 import { parseTags, tagsToString } from '../utils/tagHelpers'
 import { validateNote } from '../utils/validation'
 
@@ -459,13 +459,17 @@ function EditNote() {
         
         <div className="form-group">
           <label>Status</label>
-          <input
-            type="text"
+          <select
             name="status"
             value={formData.status}
             onChange={handleChange}
-            placeholder="Status"
-          />
+          >
+            {STATUS_OPTIONS.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
         
         <div className="form-group">

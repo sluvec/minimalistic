@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
+import { STATUS_OPTIONS } from '../constants'
 
 function CreateNote() {
   const navigate = useNavigate()
@@ -347,13 +348,17 @@ function CreateNote() {
         
         <div className="form-group">
           <label>Status</label>
-          <input
-            type="text"
+          <select
             name="status"
             value={formData.status}
             onChange={handleChange}
-            placeholder="Status"
-          />
+          >
+            {STATUS_OPTIONS.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
         
         <div className="form-group">

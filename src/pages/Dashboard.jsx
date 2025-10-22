@@ -18,7 +18,7 @@ import NoteSorting from '../components/notes/NoteSorting'
 import NoteFilters from '../components/notes/NoteFilters'
 
 // Constants and utilities
-import { SUCCESS_MESSAGES, ERROR_MESSAGES, CONFIRM_MESSAGES, STATUS } from '../constants'
+import { SUCCESS_MESSAGES, ERROR_MESSAGES, CONFIRM_MESSAGES, STATUS, STATUS_OPTIONS } from '../constants'
 import { parseTags } from '../utils/tagHelpers'
 import { validateNote } from '../utils/validation'
 import { formatDateForDisplay } from '../utils/dateHelpers'
@@ -558,14 +558,18 @@ function Dashboard() {
             </div>
 
             <div style={{ flex: '1 1 25%', minWidth: '120px' }}>
-              <input
-                type="text"
+              <select
                 name="status"
-                placeholder="Status"
                 value={quickNote.status}
                 onChange={handleQuickNoteChange}
                 style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
-              />
+              >
+                {STATUS_OPTIONS.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
