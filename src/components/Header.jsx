@@ -1,9 +1,11 @@
 import PropTypes from 'prop-types'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
+import { useDarkMode } from '../contexts/DarkModeContext'
 
 function Header({ session }) {
   const navigate = useNavigate()
+  const { isDarkMode, toggleDarkMode } = useDarkMode()
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -39,6 +41,16 @@ function Header({ session }) {
               </li>
               <li>
                 <Link to="/settings">Settings</Link>
+              </li>
+              <li>
+                <button
+                  className="btn dark-mode-toggle"
+                  onClick={toggleDarkMode}
+                  aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+                  title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+                >
+                  {isDarkMode ? '☀️' : '🌙'}
+                </button>
               </li>
               <li>
                 <button className="btn" onClick={handleSignOut}>

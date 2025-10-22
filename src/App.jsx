@@ -4,6 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { supabase } from './lib/supabaseClient'
 import { Toaster } from 'react-hot-toast'
 import queryClient from './lib/queryClient'
+import { DarkModeProvider } from './contexts/DarkModeContext'
 
 // Lazy load devtools only in development
 const ReactQueryDevtools = import.meta.env.DEV
@@ -99,8 +100,9 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <Router>
+      <DarkModeProvider>
+        <QueryClientProvider client={queryClient}>
+          <Router>
           <a href="#main-content" className="skip-to-main">
             Skip to main content
           </a>
@@ -178,7 +180,8 @@ function App() {
             <ReactQueryDevtools initialIsOpen={false} />
           </Suspense>
         )}
-      </QueryClientProvider>
+        </QueryClientProvider>
+      </DarkModeProvider>
     </ErrorBoundary>
   )
 }
