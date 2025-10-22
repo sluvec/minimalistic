@@ -388,112 +388,112 @@ function Dashboard() {
             ></textarea>
           </div>
 
-          <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-            <div style={{ flex: '1 1 20%', minWidth: '150px' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap', opacity: 0.6 }}>
+            <div style={{ flex: '1 1 20%', minWidth: '120px' }}>
               <label htmlFor="quick-category" className="sr-only">Category</label>
               <input
                 id="quick-category"
                 type="text"
                 name="category"
-                placeholder="Category (optional)"
+                placeholder="Category"
                 value={quickNote.category}
                 onChange={handleQuickNoteChange}
                 aria-label="Note category"
-                style={{ width: '100%' }}
+                style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
               />
             </div>
 
-            <div style={{ flex: '1 1 20%', minWidth: '150px' }}>
+            <div style={{ flex: '1 1 20%', minWidth: '120px' }}>
               <label htmlFor="quick-type" className="sr-only">Type</label>
               <input
                 id="quick-type"
                 type="text"
                 name="type"
-                placeholder="Type (optional)"
+                placeholder="Type"
                 value={quickNote.type}
                 onChange={handleQuickNoteChange}
                 aria-label="Note type"
-                style={{ width: '100%' }}
+                style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
               />
             </div>
 
-            <div style={{ flex: '1 1 20%', minWidth: '150px' }}>
+            <div style={{ flex: '1 1 20%', minWidth: '120px' }}>
               <label htmlFor="quick-due-date" className="sr-only">Due Date</label>
               <input
                 id="quick-due-date"
                 type="date"
                 name="due_date"
-                placeholder="Due Date (optional)"
+                placeholder="Due Date"
                 value={quickNote.due_date}
                 onChange={handleQuickNoteChange}
                 aria-label="Note due date"
-                style={{ width: '100%' }}
+                style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
               />
             </div>
 
-            <div style={{ flex: '1 1 40%', minWidth: '150px' }}>
+            <div style={{ flex: '1 1 40%', minWidth: '120px' }}>
               <label htmlFor="quick-tags" className="sr-only">Tags</label>
               <input
                 id="quick-tags"
                 type="text"
                 name="tags"
-                placeholder="Tags (comma separated, optional)"
+                placeholder="Tags"
                 value={quickNote.tags}
                 onChange={handleQuickNoteChange}
                 aria-label="Note tags, comma separated"
-                style={{ width: '100%' }}
+                style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
               />
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-            <div style={{ flex: '1 1 25%', minWidth: '150px' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap', opacity: 0.6 }}>
+            <div style={{ flex: '1 1 25%', minWidth: '120px' }}>
               <input
                 type="text"
                 name="priority"
-                placeholder="Priority (optional)"
+                placeholder="Priority"
                 value={quickNote.priority}
                 onChange={handleQuickNoteChange}
-                style={{ width: '100%' }}
+                style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
               />
             </div>
 
-            <div style={{ flex: '1 1 25%', minWidth: '150px' }}>
+            <div style={{ flex: '1 1 25%', minWidth: '120px' }}>
               <input
                 type="text"
                 name="importance"
-                placeholder="Importance (optional)"
+                placeholder="Importance"
                 value={quickNote.importance}
                 onChange={handleQuickNoteChange}
-                style={{ width: '100%' }}
+                style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
               />
             </div>
 
-            <div style={{ flex: '1 1 25%', minWidth: '150px' }}>
+            <div style={{ flex: '1 1 25%', minWidth: '120px' }}>
               <input
                 type="url"
                 name="url"
-                placeholder="URL (optional)"
+                placeholder="URL"
                 value={quickNote.url}
                 onChange={handleQuickNoteChange}
-                style={{ width: '100%' }}
+                style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
               />
             </div>
 
-            <div style={{ flex: '1 1 25%', minWidth: '150px' }}>
+            <div style={{ flex: '1 1 25%', minWidth: '120px' }}>
               <input
                 type="text"
                 name="status"
                 placeholder="Status"
                 value={quickNote.status}
                 onChange={handleQuickNoteChange}
-                style={{ width: '100%' }}
+                style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
               />
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginRight: '1rem' }}>
+          <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.75rem', flexWrap: 'wrap', opacity: 0.6 }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
               <input
                 type="checkbox"
                 id="quickIsTask"
@@ -502,10 +502,10 @@ function Dashboard() {
                 onChange={handleQuickNoteChange}
                 style={{ marginRight: '0.3rem' }}
               />
-              <label htmlFor="quickIsTask">Task</label>
+              <label htmlFor="quickIsTask" style={{ fontSize: '0.85rem' }}>Task</label>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', marginRight: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
               <input
                 type="checkbox"
                 id="quickIsList"
@@ -514,10 +514,10 @@ function Dashboard() {
                 onChange={handleQuickNoteChange}
                 style={{ marginRight: '0.3rem' }}
               />
-              <label htmlFor="quickIsList">List</label>
+              <label htmlFor="quickIsList" style={{ fontSize: '0.85rem' }}>List</label>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', marginRight: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
               <input
                 type="checkbox"
                 id="quickIsIdea"
@@ -526,7 +526,7 @@ function Dashboard() {
                 onChange={handleQuickNoteChange}
                 style={{ marginRight: '0.3rem' }}
               />
-              <label htmlFor="quickIsIdea">Idea</label>
+              <label htmlFor="quickIsIdea" style={{ fontSize: '0.85rem' }}>Idea</label>
             </div>
           </div>
 
