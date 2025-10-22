@@ -24,7 +24,9 @@ function EditNote() {
     status: STATUS.NEW,
     isTask: false,
     isList: false,
-    isIdea: false
+    isIdea: false,
+    estimated_hours: '',
+    estimated_minutes: ''
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -61,7 +63,9 @@ function EditNote() {
           status: data.status || STATUS.NEW,
           isTask: data.isTask || false,
           isList: data.isList || false,
-          isIdea: data.isIdea || false
+          isIdea: data.isIdea || false,
+          estimated_hours: data.estimated_hours || '',
+          estimated_minutes: data.estimated_minutes || ''
         })
         
       } catch (error) {
@@ -120,6 +124,8 @@ function EditNote() {
           isTask: formData.isTask,
           isList: formData.isList,
           isIdea: formData.isIdea,
+          estimated_hours: formData.estimated_hours ? parseInt(formData.estimated_hours) : null,
+          estimated_minutes: formData.estimated_minutes ? parseInt(formData.estimated_minutes) : null,
           updated_at: new Date().toISOString()
         })
         .eq('id', id)
@@ -197,6 +203,18 @@ function EditNote() {
       
       <form onSubmit={handleSubmit}>
         <div className="form-group">
+          <label>Content*</label>
+          <textarea
+            name="content"
+            value={formData.content}
+            onChange={handleChange}
+            placeholder="Enter note content"
+            rows={10}
+            required
+          />
+        </div>
+
+        <div className="form-group">
           <label>Title</label>
           <input
             type="text"
@@ -204,18 +222,6 @@ function EditNote() {
             value={formData.title}
             onChange={handleChange}
             placeholder="Title (optional)"
-          />
-        </div>
-        
-        <div className="form-group">
-          <label>Content*</label>
-          <textarea
-            name="content"
-            value={formData.content}
-            onChange={handleChange}
-            placeholder="Enter note content"
-            rows={5}
-            required
           />
         </div>
         
@@ -261,7 +267,39 @@ function EditNote() {
             onChange={handleChange}
           />
         </div>
-        
+
+        <div className="form-group">
+          <label>Estimated Duration (optional)</label>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <input
+                type="number"
+                name="estimated_hours"
+                value={formData.estimated_hours}
+                onChange={handleChange}
+                placeholder="0"
+                min="0"
+                max="999"
+                style={{ width: '80px' }}
+              />
+              <span>hours</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <input
+                type="number"
+                name="estimated_minutes"
+                value={formData.estimated_minutes}
+                onChange={handleChange}
+                placeholder="0"
+                min="0"
+                max="59"
+                style={{ width: '80px' }}
+              />
+              <span>minutes</span>
+            </div>
+          </div>
+        </div>
+
         <div className="form-group">
           <label>URL</label>
           <input

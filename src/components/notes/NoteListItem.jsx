@@ -183,6 +183,13 @@ function NoteListItem({ note, onTagClick, onCategoryClick, onTypeClick, onDelete
           </MetadataBadge>
         )}
 
+        {/* Estimated Duration */}
+        {(note.estimated_hours || note.estimated_minutes) && (
+          <MetadataBadge color="#553c9a" bgColor="#e9d8fd">
+            ⏱️ {note.estimated_hours ? `${note.estimated_hours}h` : ''}{note.estimated_hours && note.estimated_minutes ? ' ' : ''}{note.estimated_minutes ? `${note.estimated_minutes}m` : ''}
+          </MetadataBadge>
+        )}
+
         {/* Boolean flags */}
         {note.isTask && <MetadataBadge color="#2d3748" bgColor="#cbd5e0">✓ Task</MetadataBadge>}
         {note.isList && <MetadataBadge color="#2d3748" bgColor="#cbd5e0">📋 List</MetadataBadge>}
@@ -320,6 +327,8 @@ NoteListItem.propTypes = {
     isList: PropTypes.bool,
     isIdea: PropTypes.bool,
     archived: PropTypes.bool,
+    estimated_hours: PropTypes.number,
+    estimated_minutes: PropTypes.number,
     created_at: PropTypes.string,
     updated_at: PropTypes.string
   }).isRequired,
