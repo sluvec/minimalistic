@@ -104,20 +104,21 @@ function Archive() {
       )}
 
       {/* Left Sidebar - Hidden on mobile unless toggled */}
-      {(!isMobile || showMobileFilters) && (
-        <aside style={{
-          width: isMobile ? '100%' : '300px',
+      <aside
+        className={`archive-sidebar ${showMobileFilters ? 'mobile-visible' : ''}`}
+        style={{
+          width: '300px',
           flexShrink: 0,
-          position: isMobile ? 'relative' : 'sticky',
-          top: isMobile ? '0' : '1rem',
+          position: 'sticky',
+          top: '1rem',
           height: 'fit-content',
-          maxHeight: isMobile ? 'none' : 'calc(100vh - 2rem)',
-          overflowY: isMobile ? 'visible' : 'auto',
-          backgroundColor: isMobile ? 'white' : 'transparent',
-          borderRadius: isMobile ? '0.5rem' : '0',
-          boxShadow: isMobile ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
-          padding: isMobile ? '1rem' : '0',
-          marginBottom: isMobile ? '1rem' : '0'
+          maxHeight: 'calc(100vh - 2rem)',
+          overflowY: 'auto',
+          backgroundColor: showMobileFilters && isMobile ? 'white' : 'transparent',
+          borderRadius: showMobileFilters && isMobile ? '0.5rem' : '0',
+          boxShadow: showMobileFilters && isMobile ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
+          padding: showMobileFilters && isMobile ? '1rem' : '0',
+          marginBottom: showMobileFilters && isMobile ? '1rem' : '0'
         }}>
           {/* Filters in Sidebar */}
           <div style={{ marginBottom: '1.5rem' }}>
@@ -144,7 +145,6 @@ function Archive() {
             />
           </div>
         </aside>
-      )}
 
       {/* Main Content */}
       <main style={{ flex: 1, minWidth: 0 }}>

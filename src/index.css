@@ -248,6 +248,22 @@ nav a {
   .note-list {
     grid-template-columns: 1fr;
   }
+
+  /* CRITICAL: Hide sidebar by default on mobile */
+  .dashboard-sidebar,
+  .archive-sidebar {
+    display: none !important;
+  }
+
+  /* Show sidebar when mobile filters are visible */
+  .dashboard-sidebar.mobile-visible,
+  .archive-sidebar.mobile-visible {
+    display: block !important;
+    width: 100% !important;
+    position: relative !important;
+    top: auto !important;
+    max-height: none !important;
+  }
 }
 
 /* Mobile phones (480px and below) */
