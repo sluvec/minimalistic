@@ -26,26 +26,45 @@ CREATE INDEX IF NOT EXISTS idx_notes_project ON notes(project_id);
 -- Enable Row Level Security
 ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
 
--- Create RLS policies for projects
--- Users can view their own projects
-CREATE POLICY "Users can view own projects"
-  ON projects FOR SELECT
-  USING (auth.uid() = user_id);
+-- Create RLS policies for projects (skip if exist)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE tablename = 'projects' AND policyname = 'Users can view own projects'
+  ) THEN
+    CREATE POLICY "Users can view own projects"
+      ON projects FOR SELECT
+      USING (auth.uid() = user_id);
+  END IF;
 
--- Users can insert their own projects
-CREATE POLICY "Users can insert own projects"
-  ON projects FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE tablename = 'projects' AND policyname = 'Users can insert own projects'
+  ) THEN
+    CREATE POLICY "Users can insert own projects"
+      ON projects FOR INSERT
+      WITH CHECK (auth.uid() = user_id);
+  END IF;
 
--- Users can update their own projects
-CREATE POLICY "Users can update own projects"
-  ON projects FOR UPDATE
-  USING (auth.uid() = user_id);
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE tablename = 'projects' AND policyname = 'Users can update own projects'
+  ) THEN
+    CREATE POLICY "Users can update own projects"
+      ON projects FOR UPDATE
+      USING (auth.uid() = user_id);
+  END IF;
 
--- Users can delete their own projects
-CREATE POLICY "Users can delete own projects"
-  ON projects FOR DELETE
-  USING (auth.uid() = user_id);
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE tablename = 'projects' AND policyname = 'Users can delete own projects'
+  ) THEN
+    CREATE POLICY "Users can delete own projects"
+      ON projects FOR DELETE
+      USING (auth.uid() = user_id);
+  END IF;
+END $$;
 
 -- Add comment for documentation
 COMMENT ON TABLE projects IS 'Projects that can contain multiple notes, tasks, and ideas';
