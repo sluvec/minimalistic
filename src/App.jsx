@@ -28,6 +28,7 @@ const Archive = lazy(() => import('./pages/Archive'))
 const Projects = lazy(() => import('./pages/Projects'))
 const ProjectDetail = lazy(() => import('./pages/ProjectDetail'))
 const Analytics = lazy(() => import('./pages/Analytics'))
+const Settings = lazy(() => import('./pages/Settings'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 // Constants
@@ -150,6 +151,10 @@ function App() {
                   <Route
                     path="/analytics"
                     element={session ? <Analytics /> : <Navigate to="/login" />}
+                  />
+                  <Route
+                    path="/settings"
+                    element={session ? <Settings /> : <Navigate to="/login" />}
                   />
                   <Route path="*" element={<NotFound />} />
                 </Routes>

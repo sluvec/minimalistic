@@ -32,6 +32,9 @@ function Header({ session }) {
                 <Link to="/create">New Note</Link>
               </li>
               <li>
+                <Link to="/settings">Settings</Link>
+              </li>
+              <li>
                 <button className="btn" onClick={handleSignOut}>
                   Sign Out
                 </button>
