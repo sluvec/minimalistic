@@ -42,6 +42,9 @@ function Dashboard() {
 
   const { deleteNote, archiveNote } = useNotesCRUD()
 
+  // Projects state
+  const [projects, setProjects] = useState([])
+
   // Quick note form state
   const [quickNote, setQuickNote] = useState({
     title: '',
@@ -56,7 +59,8 @@ function Dashboard() {
     status: STATUS.NEW,
     isTask: false,
     isList: false,
-    isIdea: false
+    isIdea: false,
+    project_id: ''
   })
   const [quickNoteError, setQuickNoteError] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -65,6 +69,23 @@ function Dashboard() {
   // Mobile detection
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
   const [showMobileFilters, setShowMobileFilters] = useState(false)
+
+  // Fetch projects on mount
+  useEffect(() => {
+    const fetchProjects = async () => {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('id, name, color')
+        .eq('archived', false)
+        .order('name')
+
+      if (!error && data) {
+        setProjects(data)
+      }
+    }
+
+    fetchProjects()
+  }, [])
 
   useEffect(() => {
     const handleResize = () => {
@@ -127,6 +148,7 @@ function Dashboard() {
           isTask: quickNote.isTask,
           isList: quickNote.isList,
           isIdea: quickNote.isIdea,
+          project_id: quickNote.project_id || null,
           user_id: user.data.user.id
         })
 
@@ -146,7 +168,8 @@ function Dashboard() {
         status: STATUS.NEW,
         isTask: false,
         isList: false,
-        isIdea: false
+        isIdea: false,
+        project_id: ''
       })
 
       toast.success(SUCCESS_MESSAGES.NOTE_CREATED)
@@ -443,6 +466,27 @@ function Dashboard() {
                 aria-label="Note tags, comma separated"
                 style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
               />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap', opacity: 0.6 }}>
+            <div style={{ flex: '1 1 100%', minWidth: '120px' }}>
+              <label htmlFor="quick-project" className="sr-only">Project</label>
+              <select
+                id="quick-project"
+                name="project_id"
+                value={quickNote.project_id}
+                onChange={handleQuickNoteChange}
+                aria-label="Note project"
+                style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
+              >
+                <option value="">No Project</option>
+                {projects.map(project => (
+                  <option key={project.id} value={project.id}>
+                    {project.name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 

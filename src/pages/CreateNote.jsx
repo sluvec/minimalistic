@@ -1,9 +1,12 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabaseClient'
 
 function CreateNote() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const projectIdFromUrl = searchParams.get('project')
+
   const [formData, setFormData] = useState({
     title: '',
     content: '',
@@ -19,11 +22,32 @@ function CreateNote() {
     isList: false,
     isIdea: false,
     estimated_hours: '',
-    estimated_minutes: ''
+    estimated_minutes: '',
+    project_id: projectIdFromUrl || ''
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [showAdvanced, setShowAdvanced] = useState(false)
+  const [projects, setProjects] = useState([])
+
+  useEffect(() => {
+    fetchProjects()
+  }, [])
+
+  const fetchProjects = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('id, name, color')
+        .eq('archived', false)
+        .order('name')
+
+      if (error) throw error
+      setProjects(data || [])
+    } catch (error) {
+      console.error('Error fetching projects:', error)
+    }
+  }
   
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -74,6 +98,7 @@ function CreateNote() {
           isIdea: formData.isIdea,
           estimated_hours: formData.estimated_hours ? parseInt(formData.estimated_hours) : null,
           estimated_minutes: formData.estimated_minutes ? parseInt(formData.estimated_minutes) : null,
+          project_id: formData.project_id || null,
           user_id: user.data.user.id
         })
       
@@ -156,6 +181,22 @@ function CreateNote() {
             marginBottom: '1rem',
             border: '1px solid #e2e8f0'
           }}>
+            <div className="form-group">
+              <label>Project</label>
+              <select
+                name="project_id"
+                value={formData.project_id}
+                onChange={handleChange}
+              >
+                <option value="">No Project</option>
+                {projects.map(project => (
+                  <option key={project.id} value={project.id}>
+                    {project.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div className="form-group">
               <label>Category</label>
               <input

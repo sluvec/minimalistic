@@ -29,7 +29,7 @@ export const notesApi = {
       // 2. Fetch from Supabase (optimized query with pagination)
       const { data, error, count } = await supabase
         .from('notes')
-        .select('*', { count: 'exact' })
+        .select('*, projects(id, name, color)', { count: 'exact' })
         .eq('user_id', user.id)
         .eq('archived', archived)
         .order('updated_at', { ascending: false })
@@ -69,7 +69,7 @@ export const notesApi = {
 
       const { data, error } = await supabase
         .from('notes')
-        .select('*')
+        .select('*, projects(id, name, color)')
         .eq('user_id', user.id)
         .eq('archived', archived)
         .order('updated_at', { ascending: false })

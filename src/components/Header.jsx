@@ -20,6 +20,15 @@ function Header({ session }) {
           {session ? (
             <>
               <li>
+                <Link to="/">Dashboard</Link>
+              </li>
+              <li>
+                <Link to="/projects">Projects</Link>
+              </li>
+              <li>
+                <Link to="/analytics">Analytics</Link>
+              </li>
+              <li>
                 <Link to="/create">New Note</Link>
               </li>
               <li>

@@ -202,6 +202,21 @@ function NoteListItem({ note, onTagClick, onCategoryClick, onTypeClick, onDelete
           </MetadataBadge>
         )}
 
+        {/* Project */}
+        {note.projects && (
+          <span style={{
+            padding: '0.25rem 0.75rem',
+            borderRadius: '0.25rem',
+            fontSize: '0.875rem',
+            backgroundColor: note.projects.color + '20',
+            color: note.projects.color,
+            fontWeight: '500',
+            border: `1px solid ${note.projects.color}`
+          }}>
+            📁 {note.projects.name}
+          </span>
+        )}
+
         {/* Actions on the right */}
         <div style={{
           marginLeft: 'auto',
@@ -330,7 +345,12 @@ NoteListItem.propTypes = {
     estimated_hours: PropTypes.number,
     estimated_minutes: PropTypes.number,
     created_at: PropTypes.string,
-    updated_at: PropTypes.string
+    updated_at: PropTypes.string,
+    projects: PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      name: PropTypes.string,
+      color: PropTypes.string
+    })
   }).isRequired,
   onTagClick: PropTypes.func,
   onCategoryClick: PropTypes.func,
