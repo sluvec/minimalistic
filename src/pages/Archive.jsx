@@ -109,11 +109,6 @@ function Archive() {
         style={{
           width: '300px',
           flexShrink: 0,
-          position: 'sticky',
-          top: '1rem',
-          height: 'fit-content',
-          maxHeight: 'calc(100vh - 2rem)',
-          overflowY: 'auto',
           backgroundColor: showMobileFilters && isMobile ? 'white' : 'transparent',
           borderRadius: showMobileFilters && isMobile ? '0.5rem' : '0',
           boxShadow: showMobileFilters && isMobile ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
