@@ -12,8 +12,8 @@ function CreateNote() {
     tags: '',
     due_date: '',
     url: '',
-    priority: '',
-    importance: '',
+    priority: 'NA',
+    importance: 'NA',
     status: 'New',
     isTask: false,
     isList: false,
@@ -208,24 +208,30 @@ function CreateNote() {
         
         <div className="form-group">
           <label>Priority</label>
-          <input
-            type="text"
+          <select
             name="priority"
             value={formData.priority}
             onChange={handleChange}
-            placeholder="Priority (optional)"
-          />
+          >
+            <option value="NA">NA</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
         </div>
-        
+
         <div className="form-group">
           <label>Importance</label>
-          <input
-            type="text"
+          <select
             name="importance"
             value={formData.importance}
             onChange={handleChange}
-            placeholder="Importance (optional)"
-          />
+          >
+            <option value="NA">NA</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
         </div>
         
         <div className="form-group">

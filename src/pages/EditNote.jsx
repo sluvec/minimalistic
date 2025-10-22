@@ -58,8 +58,8 @@ function EditNote() {
           tags: tagsString,
           due_date: data.due_date || '',
           url: data.url || '',
-          priority: data.priority || '',
-          importance: data.importance || '',
+          priority: data.priority || 'NA',
+          importance: data.importance || 'NA',
           status: data.status || STATUS.NEW,
           isTask: data.isTask || false,
           isList: data.isList || false,
@@ -313,24 +313,30 @@ function EditNote() {
         
         <div className="form-group">
           <label>Priority</label>
-          <input
-            type="text"
+          <select
             name="priority"
             value={formData.priority}
             onChange={handleChange}
-            placeholder="Priority (optional)"
-          />
+          >
+            <option value="NA">NA</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
         </div>
-        
+
         <div className="form-group">
           <label>Importance</label>
-          <input
-            type="text"
+          <select
             name="importance"
             value={formData.importance}
             onChange={handleChange}
-            placeholder="Importance (optional)"
-          />
+          >
+            <option value="NA">NA</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
         </div>
         
         <div className="form-group">
