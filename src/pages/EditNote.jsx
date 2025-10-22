@@ -31,7 +31,7 @@ function EditNote() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [saveLoading, setSaveLoading] = useState(false)
-  const [showAdvanced, setShowAdvanced] = useState(false)
+  const [showAdvanced, setShowAdvanced] = useState(true)
   const [projects, setProjects] = useState([])
   const [spaces, setSpaces] = useState([])
 
