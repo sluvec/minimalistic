@@ -22,6 +22,8 @@ import ErrorBoundary from './components/ErrorBoundary'
 const Login = lazy(() => import('./pages/Login'))
 const Register = lazy(() => import('./pages/Register'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
+const Notes = lazy(() => import('./pages/Notes'))
+const Spaces = lazy(() => import('./pages/Spaces'))
 const CreateNote = lazy(() => import('./pages/CreateNote'))
 const EditNote = lazy(() => import('./pages/EditNote'))
 const Archive = lazy(() => import('./pages/Archive'))
@@ -127,6 +129,14 @@ function App() {
                   <Route
                     path="/register"
                     element={!session ? <Register /> : <Navigate to="/" />}
+                  />
+                  <Route
+                    path="/notes"
+                    element={session ? <Notes /> : <Navigate to="/login" />}
+                  />
+                  <Route
+                    path="/spaces"
+                    element={session ? <Spaces /> : <Navigate to="/login" />}
                   />
                   <Route
                     path="/create"

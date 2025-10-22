@@ -23,6 +23,12 @@ function Header({ session }) {
                 <Link to="/">Dashboard</Link>
               </li>
               <li>
+                <Link to="/notes">Notes</Link>
+              </li>
+              <li>
+                <Link to="/spaces">Spaces</Link>
+              </li>
+              <li>
                 <Link to="/projects">Projects</Link>
               </li>
               <li>
