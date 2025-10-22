@@ -8,9 +8,23 @@ ALTER TABLE notes ADD COLUMN IF NOT EXISTS estimated_hours INTEGER;
 ALTER TABLE notes ADD COLUMN IF NOT EXISTS estimated_minutes INTEGER;
 
 -- Add check constraint to ensure minutes are between 0 and 59
-ALTER TABLE notes ADD CONSTRAINT IF NOT EXISTS check_minutes_range
-  CHECK (estimated_minutes IS NULL OR (estimated_minutes >= 0 AND estimated_minutes <= 59));
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'check_minutes_range'
+  ) THEN
+    ALTER TABLE notes ADD CONSTRAINT check_minutes_range
+      CHECK (estimated_minutes IS NULL OR (estimated_minutes >= 0 AND estimated_minutes <= 59));
+  END IF;
+END $$;
 
 -- Add check constraint to ensure hours are non-negative
-ALTER TABLE notes ADD CONSTRAINT IF NOT EXISTS check_hours_positive
-  CHECK (estimated_hours IS NULL OR estimated_hours >= 0);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'check_hours_positive'
+  ) THEN
+    ALTER TABLE notes ADD CONSTRAINT check_hours_positive
+      CHECK (estimated_hours IS NULL OR estimated_hours >= 0);
+  END IF;
+END $$;
