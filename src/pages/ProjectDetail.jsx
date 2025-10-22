@@ -21,7 +21,11 @@ function ProjectDetail() {
       // Fetch project
       const { data: projectData, error: projectError } = await supabase
         .from('projects')
-        .select('*')
+        .select(`
+          *,
+          categories(id, name, color),
+          project_tags(tag_id, tags(id, name, color))
+        `)
         .eq('id', id)
         .single()
 
@@ -150,6 +154,44 @@ function ProjectDetail() {
             </div>
             {project.description && (
               <p style={{ color: '#718096', marginTop: '0.5rem' }}>{project.description}</p>
+            )}
+            {(project.categories || project.project_tags?.length > 0) && (
+              <div style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '0.5rem',
+                marginTop: '1rem'
+              }}>
+                {project.categories && (
+                  <span style={{
+                    padding: '0.375rem 0.875rem',
+                    borderRadius: '0.25rem',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    backgroundColor: project.categories.color + '20',
+                    color: project.categories.color,
+                    border: `1px solid ${project.categories.color}`
+                  }}>
+                    {project.categories.name}
+                  </span>
+                )}
+                {project.project_tags?.map(pt => pt.tags && (
+                  <span
+                    key={pt.tag_id}
+                    style={{
+                      padding: '0.375rem 0.875rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.875rem',
+                      fontWeight: '500',
+                      backgroundColor: pt.tags.color + '20',
+                      color: pt.tags.color,
+                      border: `1px solid ${pt.tags.color}`
+                    }}
+                  >
+                    {pt.tags.name}
+                  </span>
+                ))}
+              </div>
             )}
           </div>
 

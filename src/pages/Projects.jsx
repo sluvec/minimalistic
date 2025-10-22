@@ -9,17 +9,22 @@ function Projects() {
   const [error, setError] = useState(null)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [editingProject, setEditingProject] = useState(null)
+  const [categories, setCategories] = useState([])
+  const [tags, setTags] = useState([])
 
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     color: '#3b82f6',
     progress: 0,
-    deadline: ''
+    deadline: '',
+    category_id: '',
+    tag_ids: []
   })
 
   useEffect(() => {
     fetchProjects()
+    fetchCategoriesAndTags()
   }, [])
 
   const fetchProjects = async () => {
@@ -27,7 +32,12 @@ function Projects() {
       setLoading(true)
       const { data, error } = await supabase
         .from('projects')
-        .select('*, notes(id)')
+        .select(`
+          *,
+          notes(id),
+          categories(id, name, color),
+          project_tags(tag_id, tags(id, name, color))
+        `)
         .eq('archived', false)
         .order('created_at', { ascending: false })
 
@@ -38,6 +48,27 @@ function Projects() {
       setError('Failed to load projects')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchCategoriesAndTags = async () => {
+    try {
+      const { data: categoriesData } = await supabase
+        .from('categories')
+        .select('id, name, color')
+        .eq('archived', false)
+        .order('name')
+
+      const { data: tagsData } = await supabase
+        .from('tags')
+        .select('id, name, color')
+        .eq('archived', false)
+        .order('name')
+
+      setCategories(categoriesData || [])
+      setTags(tagsData || [])
+    } catch (error) {
+      console.error('Error fetching categories and tags:', error)
     }
   }
 
@@ -70,14 +101,31 @@ function Projects() {
             color: formData.color,
             progress: parseInt(formData.progress),
             deadline: formData.deadline || null,
+            category_id: formData.category_id || null,
             updated_at: new Date().toISOString()
           })
           .eq('id', editingProject.id)
 
         if (error) throw error
+
+        // Update project tags
+        // First, delete existing tags
+        await supabase
+          .from('project_tags')
+          .delete()
+          .eq('project_id', editingProject.id)
+
+        // Then insert new tags
+        if (formData.tag_ids.length > 0) {
+          const projectTags = formData.tag_ids.map(tag_id => ({
+            project_id: editingProject.id,
+            tag_id: tag_id
+          }))
+          await supabase.from('project_tags').insert(projectTags)
+        }
       } else {
         // Create new project
-        const { error } = await supabase
+        const { data: project, error } = await supabase
           .from('projects')
           .insert({
             name: formData.name,
@@ -85,14 +133,26 @@ function Projects() {
             color: formData.color,
             progress: parseInt(formData.progress),
             deadline: formData.deadline || null,
+            category_id: formData.category_id || null,
             user_id: user.data.user.id
           })
+          .select()
+          .single()
 
         if (error) throw error
+
+        // Save project_tags (if tags selected)
+        if (formData.tag_ids.length > 0 && project) {
+          const projectTags = formData.tag_ids.map(tag_id => ({
+            project_id: project.id,
+            tag_id: tag_id
+          }))
+          await supabase.from('project_tags').insert(projectTags)
+        }
       }
 
       // Reset form and refresh
-      setFormData({ name: '', description: '', color: '#3b82f6', progress: 0, deadline: '' })
+      setFormData({ name: '', description: '', color: '#3b82f6', progress: 0, deadline: '', category_id: '', tag_ids: [] })
       setShowCreateForm(false)
       setEditingProject(null)
       fetchProjects()
@@ -109,7 +169,9 @@ function Projects() {
       description: project.description || '',
       color: project.color || '#3b82f6',
       progress: project.progress || 0,
-      deadline: project.deadline || ''
+      deadline: project.deadline || '',
+      category_id: project.category_id || '',
+      tag_ids: project.project_tags?.map(pt => pt.tag_id) || []
     })
     setShowCreateForm(true)
   }
@@ -149,7 +211,7 @@ function Projects() {
   }
 
   const cancelEdit = () => {
-    setFormData({ name: '', description: '', color: '#3b82f6', progress: 0, deadline: '' })
+    setFormData({ name: '', description: '', color: '#3b82f6', progress: 0, deadline: '', category_id: '', tag_ids: [] })
     setShowCreateForm(false)
     setEditingProject(null)
   }
@@ -291,6 +353,84 @@ function Projects() {
               </div>
             </div>
 
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                Category
+              </label>
+              <select
+                name="category_id"
+                value={formData.category_id}
+                onChange={handleChange}
+                style={{
+                  width: '100%',
+                  padding: '0.5rem',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '0.375rem'
+                }}
+              >
+                <option value="">No Category</option>
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+                Tags
+              </label>
+              <div style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '0.75rem',
+                padding: '0.75rem',
+                border: '1px solid #e2e8f0',
+                borderRadius: '0.375rem',
+                backgroundColor: 'white'
+              }}>
+                {tags.length === 0 ? (
+                  <span style={{ color: '#a0aec0', fontSize: '0.875rem' }}>No tags available</span>
+                ) : (
+                  tags.map(tag => (
+                    <label
+                      key={tag.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        cursor: 'pointer',
+                        padding: '0.375rem 0.75rem',
+                        borderRadius: '0.25rem',
+                        backgroundColor: formData.tag_ids.includes(tag.id) ? tag.color + '20' : '#f7fafc',
+                        border: `1px solid ${formData.tag_ids.includes(tag.id) ? tag.color : '#e2e8f0'}`,
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={formData.tag_ids.includes(tag.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setFormData({...formData, tag_ids: [...formData.tag_ids, tag.id]})
+                          } else {
+                            setFormData({...formData, tag_ids: formData.tag_ids.filter(id => id !== tag.id)})
+                          }
+                        }}
+                        style={{ cursor: 'pointer' }}
+                      />
+                      <span style={{
+                        fontSize: '0.875rem',
+                        fontWeight: '500',
+                        color: formData.tag_ids.includes(tag.id) ? tag.color : '#4a5568'
+                      }}>
+                        {tag.name}
+                      </span>
+                    </label>
+                  ))
+                )}
+              </div>
+            </div>
+
             <div style={{ display: 'flex', gap: '1rem' }}>
               <button
                 type="submit"
@@ -397,6 +537,45 @@ function Projects() {
                   }}></div>
                 </div>
               </div>
+
+              {(project.categories || project.project_tags?.length > 0) && (
+                <div style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: '0.5rem',
+                  marginBottom: '1rem'
+                }}>
+                  {project.categories && (
+                    <span style={{
+                      padding: '0.25rem 0.75rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.75rem',
+                      fontWeight: '500',
+                      backgroundColor: project.categories.color + '20',
+                      color: project.categories.color,
+                      border: `1px solid ${project.categories.color}`
+                    }}>
+                      {project.categories.name}
+                    </span>
+                  )}
+                  {project.project_tags?.map(pt => pt.tags && (
+                    <span
+                      key={pt.tag_id}
+                      style={{
+                        padding: '0.25rem 0.75rem',
+                        borderRadius: '0.25rem',
+                        fontSize: '0.75rem',
+                        fontWeight: '500',
+                        backgroundColor: pt.tags.color + '20',
+                        color: pt.tags.color,
+                        border: `1px solid ${pt.tags.color}`
+                      }}
+                    >
+                      {pt.tags.name}
+                    </span>
+                  ))}
+                </div>
+              )}
 
               <div style={{
                 display: 'flex',

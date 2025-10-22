@@ -18,9 +18,7 @@ function CreateNote() {
     priority: 'NA',
     importance: 'NA',
     status: 'New',
-    isTask: false,
-    isList: false,
-    isIdea: false,
+    note_type: 'note',
     estimated_hours: '',
     estimated_minutes: '',
     project_id: projectIdFromUrl || ''
@@ -50,10 +48,10 @@ function CreateNote() {
   }
   
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target
+    const { name, value } = e.target
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: value
     })
   }
   
@@ -93,9 +91,10 @@ function CreateNote() {
           priority: formData.priority || null,
           importance: formData.importance || null,
           status: formData.status || 'New',
-          isTask: formData.isTask,
-          isList: formData.isList,
-          isIdea: formData.isIdea,
+          note_type: formData.note_type,
+          isTask: formData.note_type === 'task',
+          isList: formData.note_type === 'list',
+          isIdea: formData.note_type === 'idea',
           estimated_hours: formData.estimated_hours ? parseInt(formData.estimated_hours) : null,
           estimated_minutes: formData.estimated_minutes ? parseInt(formData.estimated_minutes) : null,
           project_id: formData.project_id || null,
@@ -322,41 +321,99 @@ function CreateNote() {
           />
         </div>
         
-        <div className="form-group" style={{ display: 'flex', flexDirection: 'row', gap: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <input
-              type="checkbox"
-              id="isTask"
-              name="isTask"
-              checked={formData.isTask}
-              onChange={handleChange}
-              style={{ marginRight: '0.5rem' }}
-            />
-            <label htmlFor="isTask">Task</label>
-          </div>
-          
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <input
-              type="checkbox"
-              id="isList"
-              name="isList"
-              checked={formData.isList}
-              onChange={handleChange}
-              style={{ marginRight: '0.5rem' }}
-            />
-            <label htmlFor="isList">List</label>
-          </div>
-          
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <input
-              type="checkbox"
-              id="isIdea"
-              name="isIdea"
-              checked={formData.isIdea}
-              onChange={handleChange}
-              style={{ marginRight: '0.5rem' }}
-            />
-            <label htmlFor="isIdea">Idea</label>
+        <div className="form-group">
+          <label>Note Type</label>
+          <div style={{ display: 'flex', flexDirection: 'row', gap: '1rem', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <input
+                type="radio"
+                id="note_type_note"
+                name="note_type"
+                value="note"
+                checked={formData.note_type === 'note'}
+                onChange={handleChange}
+                style={{ marginRight: '0.5rem' }}
+              />
+              <label htmlFor="note_type_note">📝 Note</label>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <input
+                type="radio"
+                id="note_type_task"
+                name="note_type"
+                value="task"
+                checked={formData.note_type === 'task'}
+                onChange={handleChange}
+                style={{ marginRight: '0.5rem' }}
+              />
+              <label htmlFor="note_type_task">✅ Task</label>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <input
+                type="radio"
+                id="note_type_idea"
+                name="note_type"
+                value="idea"
+                checked={formData.note_type === 'idea'}
+                onChange={handleChange}
+                style={{ marginRight: '0.5rem' }}
+              />
+              <label htmlFor="note_type_idea">💡 Idea</label>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <input
+                type="radio"
+                id="note_type_list"
+                name="note_type"
+                value="list"
+                checked={formData.note_type === 'list'}
+                onChange={handleChange}
+                style={{ marginRight: '0.5rem' }}
+              />
+              <label htmlFor="note_type_list">📋 List</label>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <input
+                type="radio"
+                id="note_type_prompt"
+                name="note_type"
+                value="prompt"
+                checked={formData.note_type === 'prompt'}
+                onChange={handleChange}
+                style={{ marginRight: '0.5rem' }}
+              />
+              <label htmlFor="note_type_prompt">🤖 Prompt</label>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <input
+                type="radio"
+                id="note_type_question"
+                name="note_type"
+                value="question"
+                checked={formData.note_type === 'question'}
+                onChange={handleChange}
+                style={{ marginRight: '0.5rem' }}
+              />
+              <label htmlFor="note_type_question">❓ Question</label>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <input
+                type="radio"
+                id="note_type_reflection"
+                name="note_type"
+                value="reflection"
+                checked={formData.note_type === 'reflection'}
+                onChange={handleChange}
+                style={{ marginRight: '0.5rem' }}
+              />
+              <label htmlFor="note_type_reflection">💭 Reflection</label>
+            </div>
           </div>
         </div>
           </div>

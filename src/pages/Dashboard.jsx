@@ -57,9 +57,7 @@ function Dashboard() {
     priority: '',
     importance: '',
     status: STATUS.NEW,
-    isTask: false,
-    isList: false,
-    isIdea: false,
+    note_type: 'note',
     project_id: ''
   })
   const [quickNoteError, setQuickNoteError] = useState(null)
@@ -97,10 +95,10 @@ function Dashboard() {
 
   // Handle quick note input changes
   const handleQuickNoteChange = useCallback((e) => {
-    const { name, value, type, checked } = e.target
+    const { name, value } = e.target
     setQuickNote(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: value
     }))
   }, [])
 
@@ -145,9 +143,10 @@ function Dashboard() {
           priority: quickNote.priority || null,
           importance: quickNote.importance || null,
           status: quickNote.status || STATUS.NEW,
-          isTask: quickNote.isTask,
-          isList: quickNote.isList,
-          isIdea: quickNote.isIdea,
+          note_type: quickNote.note_type,
+          isTask: quickNote.note_type === 'task',
+          isList: quickNote.note_type === 'list',
+          isIdea: quickNote.note_type === 'idea',
           project_id: quickNote.project_id || null,
           user_id: user.data.user.id
         })
@@ -166,9 +165,7 @@ function Dashboard() {
         priority: '',
         importance: '',
         status: STATUS.NEW,
-        isTask: false,
-        isList: false,
-        isIdea: false,
+        note_type: 'note',
         project_id: ''
       })
 
@@ -536,41 +533,96 @@ function Dashboard() {
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.75rem', flexWrap: 'wrap', opacity: 0.6 }}>
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap', opacity: 0.6 }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <input
-                type="checkbox"
-                id="quickIsTask"
-                name="isTask"
-                checked={quickNote.isTask}
+                type="radio"
+                id="quickNoteTypeNote"
+                name="note_type"
+                value="note"
+                checked={quickNote.note_type === 'note'}
                 onChange={handleQuickNoteChange}
                 style={{ marginRight: '0.3rem' }}
               />
-              <label htmlFor="quickIsTask" style={{ fontSize: '0.85rem' }}>Task</label>
+              <label htmlFor="quickNoteTypeNote" style={{ fontSize: '0.85rem' }}>📝 Note</label>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <input
-                type="checkbox"
-                id="quickIsList"
-                name="isList"
-                checked={quickNote.isList}
+                type="radio"
+                id="quickNoteTypeTask"
+                name="note_type"
+                value="task"
+                checked={quickNote.note_type === 'task'}
                 onChange={handleQuickNoteChange}
                 style={{ marginRight: '0.3rem' }}
               />
-              <label htmlFor="quickIsList" style={{ fontSize: '0.85rem' }}>List</label>
+              <label htmlFor="quickNoteTypeTask" style={{ fontSize: '0.85rem' }}>✅ Task</label>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <input
-                type="checkbox"
-                id="quickIsIdea"
-                name="isIdea"
-                checked={quickNote.isIdea}
+                type="radio"
+                id="quickNoteTypeIdea"
+                name="note_type"
+                value="idea"
+                checked={quickNote.note_type === 'idea'}
                 onChange={handleQuickNoteChange}
                 style={{ marginRight: '0.3rem' }}
               />
-              <label htmlFor="quickIsIdea" style={{ fontSize: '0.85rem' }}>Idea</label>
+              <label htmlFor="quickNoteTypeIdea" style={{ fontSize: '0.85rem' }}>💡 Idea</label>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <input
+                type="radio"
+                id="quickNoteTypeList"
+                name="note_type"
+                value="list"
+                checked={quickNote.note_type === 'list'}
+                onChange={handleQuickNoteChange}
+                style={{ marginRight: '0.3rem' }}
+              />
+              <label htmlFor="quickNoteTypeList" style={{ fontSize: '0.85rem' }}>📋 List</label>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <input
+                type="radio"
+                id="quickNoteTypePrompt"
+                name="note_type"
+                value="prompt"
+                checked={quickNote.note_type === 'prompt'}
+                onChange={handleQuickNoteChange}
+                style={{ marginRight: '0.3rem' }}
+              />
+              <label htmlFor="quickNoteTypePrompt" style={{ fontSize: '0.85rem' }}>🤖 Prompt</label>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <input
+                type="radio"
+                id="quickNoteTypeQuestion"
+                name="note_type"
+                value="question"
+                checked={quickNote.note_type === 'question'}
+                onChange={handleQuickNoteChange}
+                style={{ marginRight: '0.3rem' }}
+              />
+              <label htmlFor="quickNoteTypeQuestion" style={{ fontSize: '0.85rem' }}>❓ Question</label>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <input
+                type="radio"
+                id="quickNoteTypeReflection"
+                name="note_type"
+                value="reflection"
+                checked={quickNote.note_type === 'reflection'}
+                onChange={handleQuickNoteChange}
+                style={{ marginRight: '0.3rem' }}
+              />
+              <label htmlFor="quickNoteTypeReflection" style={{ fontSize: '0.85rem' }}>💭 Reflection</label>
             </div>
           </div>
 
