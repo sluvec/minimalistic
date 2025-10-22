@@ -34,15 +34,15 @@ function NoteListItem({ note, onTagClick, onCategoryClick, onTypeClick, onDelete
       onClick={onClick}
       style={{
         display: 'inline-block',
-        padding: '0.15rem 0.5rem',
-        marginRight: '0.5rem',
-        fontSize: '0.75rem',
+        padding: '0.15rem 0.4rem',
+        fontSize: 'clamp(0.65rem, 1.8vw, 0.75rem)',
         borderRadius: '0.25rem',
         backgroundColor: bgColor,
         color: color,
         cursor: clickable ? 'pointer' : 'default',
         fontWeight: '500',
         transition: clickable ? 'opacity 0.2s' : 'none',
+        whiteSpace: 'nowrap'
       }}
       onMouseEnter={(e) => clickable && (e.currentTarget.style.opacity = '0.7')}
       onMouseLeave={(e) => clickable && (e.currentTarget.style.opacity = '1')}
@@ -73,21 +73,28 @@ function NoteListItem({ note, onTagClick, onCategoryClick, onTypeClick, onDelete
       {/* Line 1: Title + Content Preview */}
       <div style={{
         display: 'flex',
+        flexWrap: 'wrap',
         marginBottom: '0.4rem',
-        fontSize: '0.95rem',
+        fontSize: 'clamp(0.85rem, 2vw, 0.95rem)',
         lineHeight: '1.4',
-        overflow: 'hidden'
+        gap: '0.25rem'
       }}>
-        <span style={{ fontWeight: '600', color: '#2d3748', flexShrink: 0 }}>
+        <span style={{
+          fontWeight: '600',
+          color: '#2d3748',
+          wordBreak: 'break-word'
+        }}>
           {note.title || 'Untitled'}
         </span>
         {note.content && (
           <span style={{
             color: '#718096',
-            marginLeft: '0.5rem',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap'
+            display: '-webkit-box',
+            WebkitLineClamp: '1',
+            WebkitBoxOrient: 'vertical',
+            wordBreak: 'break-word'
           }}>
             — {getPreview(note.content)}
           </span>
@@ -189,7 +196,12 @@ function NoteListItem({ note, onTagClick, onCategoryClick, onTypeClick, onDelete
         )}
 
         {/* Actions on the right */}
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.5rem' }}>
+        <div style={{
+          marginLeft: 'auto',
+          display: 'flex',
+          gap: 'clamp(0.25rem, 1vw, 0.5rem)',
+          flexShrink: 0
+        }}>
           {isArchived ? (
             <>
               {onRestore && (
@@ -199,14 +211,15 @@ function NoteListItem({ note, onTagClick, onCategoryClick, onTypeClick, onDelete
                     onRestore(note.id)
                   }}
                   style={{
-                    padding: '0.25rem 0.5rem',
+                    padding: 'clamp(0.2rem, 1vw, 0.25rem) clamp(0.4rem, 2vw, 0.5rem)',
                     backgroundColor: '#48bb78',
                     color: 'white',
                     border: 'none',
                     borderRadius: '0.25rem',
                     cursor: 'pointer',
-                    fontSize: '0.75rem',
-                    fontWeight: '500'
+                    fontSize: 'clamp(0.65rem, 1.8vw, 0.75rem)',
+                    fontWeight: '500',
+                    whiteSpace: 'nowrap'
                   }}
                   aria-label={`Restore note: ${note.title || 'Untitled'}`}
                 >
@@ -220,14 +233,15 @@ function NoteListItem({ note, onTagClick, onCategoryClick, onTypeClick, onDelete
                     onDelete(note.id)
                   }}
                   style={{
-                    padding: '0.25rem 0.5rem',
+                    padding: 'clamp(0.2rem, 1vw, 0.25rem) clamp(0.4rem, 2vw, 0.5rem)',
                     backgroundColor: '#f56565',
                     color: 'white',
                     border: 'none',
                     borderRadius: '0.25rem',
                     cursor: 'pointer',
-                    fontSize: '0.75rem',
-                    fontWeight: '500'
+                    fontSize: 'clamp(0.65rem, 1.8vw, 0.75rem)',
+                    fontWeight: '500',
+                    whiteSpace: 'nowrap'
                   }}
                   aria-label={`Delete note: ${note.title || 'Untitled'}`}
                 >
@@ -244,14 +258,15 @@ function NoteListItem({ note, onTagClick, onCategoryClick, onTypeClick, onDelete
                     onArchive(note.id)
                   }}
                   style={{
-                    padding: '0.25rem 0.5rem',
+                    padding: 'clamp(0.2rem, 1vw, 0.25rem) clamp(0.4rem, 2vw, 0.5rem)',
                     backgroundColor: '#ed8936',
                     color: 'white',
                     border: 'none',
                     borderRadius: '0.25rem',
                     cursor: 'pointer',
-                    fontSize: '0.75rem',
-                    fontWeight: '500'
+                    fontSize: 'clamp(0.65rem, 1.8vw, 0.75rem)',
+                    fontWeight: '500',
+                    whiteSpace: 'nowrap'
                   }}
                   aria-label={`Archive note: ${note.title || 'Untitled'}`}
                 >
@@ -265,14 +280,15 @@ function NoteListItem({ note, onTagClick, onCategoryClick, onTypeClick, onDelete
                     onDelete(note.id)
                   }}
                   style={{
-                    padding: '0.25rem 0.5rem',
+                    padding: 'clamp(0.2rem, 1vw, 0.25rem) clamp(0.4rem, 2vw, 0.5rem)',
                     backgroundColor: '#f56565',
                     color: 'white',
                     border: 'none',
                     borderRadius: '0.25rem',
                     cursor: 'pointer',
-                    fontSize: '0.75rem',
-                    fontWeight: '500'
+                    fontSize: 'clamp(0.65rem, 1.8vw, 0.75rem)',
+                    fontWeight: '500',
+                    whiteSpace: 'nowrap'
                   }}
                   aria-label={`Delete note: ${note.title || 'Untitled'}`}
                 >

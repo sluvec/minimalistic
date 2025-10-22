@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
@@ -36,6 +36,18 @@ function Archive() {
 
   const { deleteNote, restoreNote } = useNotesCRUD()
 
+  // Mobile detection
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
+  const [showMobileFilters, setShowMobileFilters] = useState(false)
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   // Handle permanent deletion
   const handlePermanentDelete = useCallback(async (id) => {
     if (!window.confirm(CONFIRM_MESSAGES.DELETE_NOTE)) return
@@ -63,42 +75,76 @@ function Archive() {
   }, [restoreNote, removeNoteFromState])
 
   return (
-    <div style={{ display: 'flex', gap: '2rem' }}>
-      {/* Left Sidebar */}
-      <aside style={{
-        width: '300px',
-        flexShrink: 0,
-        position: 'sticky',
-        top: '1rem',
-        height: 'fit-content',
-        maxHeight: 'calc(100vh - 2rem)',
-        overflowY: 'auto'
-      }}>
-        {/* Filters in Sidebar */}
-        <div style={{ marginBottom: '1.5rem' }}>
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: '#2d3748' }}>Filters</h3>
-          <NoteFilters
-            filters={filters}
-            filterOptions={filterOptions}
-            onToggleFilter={toggleFilter}
-            onClearFilters={clearFilters}
-            hasActiveFilters={hasActiveFilters}
-            searchTerm={searchTerm}
-            onClearSearch={() => setSearchTerm('')}
-          />
-        </div>
+    <div style={{
+      display: 'flex',
+      flexDirection: isMobile ? 'column' : 'row',
+      gap: isMobile ? '1rem' : '2rem'
+    }}>
+      {/* Mobile: Filters Toggle Button */}
+      {isMobile && (
+        <button
+          onClick={() => setShowMobileFilters(!showMobileFilters)}
+          style={{
+            padding: '0.75rem',
+            backgroundColor: '#4299e1',
+            color: 'white',
+            border: 'none',
+            borderRadius: '0.5rem',
+            cursor: 'pointer',
+            fontSize: '0.95rem',
+            fontWeight: '500',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem'
+          }}
+        >
+          {showMobileFilters ? '✕ Hide Filters' : '☰ Show Filters'}
+        </button>
+      )}
 
-        {/* Sorting in Sidebar */}
-        <div>
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: '#2d3748' }}>Sort By</h3>
-          <NoteSorting
-            sorting={sorting}
-            onSortingChange={setSorting}
-            filters={filters}
-            onFiltersChange={setFilters}
-          />
-        </div>
-      </aside>
+      {/* Left Sidebar - Hidden on mobile unless toggled */}
+      {(!isMobile || showMobileFilters) && (
+        <aside style={{
+          width: isMobile ? '100%' : '300px',
+          flexShrink: 0,
+          position: isMobile ? 'relative' : 'sticky',
+          top: isMobile ? '0' : '1rem',
+          height: 'fit-content',
+          maxHeight: isMobile ? 'none' : 'calc(100vh - 2rem)',
+          overflowY: isMobile ? 'visible' : 'auto',
+          backgroundColor: isMobile ? 'white' : 'transparent',
+          borderRadius: isMobile ? '0.5rem' : '0',
+          boxShadow: isMobile ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
+          padding: isMobile ? '1rem' : '0',
+          marginBottom: isMobile ? '1rem' : '0'
+        }}>
+          {/* Filters in Sidebar */}
+          <div style={{ marginBottom: '1.5rem' }}>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: '#2d3748' }}>Filters</h3>
+            <NoteFilters
+              filters={filters}
+              filterOptions={filterOptions}
+              onToggleFilter={toggleFilter}
+              onClearFilters={clearFilters}
+              hasActiveFilters={hasActiveFilters}
+              searchTerm={searchTerm}
+              onClearSearch={() => setSearchTerm('')}
+            />
+          </div>
+
+          {/* Sorting in Sidebar */}
+          <div>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: '#2d3748' }}>Sort By</h3>
+            <NoteSorting
+              sorting={sorting}
+              onSortingChange={setSorting}
+              filters={filters}
+              onFiltersChange={setFilters}
+            />
+          </div>
+        </aside>
+      )}
 
       {/* Main Content */}
       <main style={{ flex: 1, minWidth: 0 }}>

@@ -62,6 +62,18 @@ function Dashboard() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showCalendar, setShowCalendar] = useState(true)
 
+  // Mobile detection
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
+  const [showMobileFilters, setShowMobileFilters] = useState(false)
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   // Handle quick note input changes
   const handleQuickNoteChange = useCallback((e) => {
     const { name, value, type, checked } = e.target
@@ -201,17 +213,50 @@ function Dashboard() {
   }, [filterOptions.datesWithNotes])
 
   return (
-    <div style={{ display: 'flex', gap: '2rem' }}>
-      {/* Left Sidebar */}
-      <aside style={{
-        width: '300px',
-        flexShrink: 0,
-        position: 'sticky',
-        top: '1rem',
-        height: 'fit-content',
-        maxHeight: 'calc(100vh - 2rem)',
-        overflowY: 'auto'
-      }}>
+    <div style={{
+      display: 'flex',
+      flexDirection: isMobile ? 'column' : 'row',
+      gap: isMobile ? '1rem' : '2rem'
+    }}>
+      {/* Mobile: Filters Toggle Button */}
+      {isMobile && (
+        <button
+          onClick={() => setShowMobileFilters(!showMobileFilters)}
+          style={{
+            padding: '0.75rem',
+            backgroundColor: '#4299e1',
+            color: 'white',
+            border: 'none',
+            borderRadius: '0.5rem',
+            cursor: 'pointer',
+            fontSize: '0.95rem',
+            fontWeight: '500',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem'
+          }}
+        >
+          {showMobileFilters ? '✕ Hide Filters' : '☰ Show Filters & Calendar'}
+        </button>
+      )}
+
+      {/* Left Sidebar - Hidden on mobile unless toggled */}
+      {(!isMobile || showMobileFilters) && (
+        <aside style={{
+          width: isMobile ? '100%' : '300px',
+          flexShrink: 0,
+          position: isMobile ? 'relative' : 'sticky',
+          top: isMobile ? '0' : '1rem',
+          height: 'fit-content',
+          maxHeight: isMobile ? 'none' : 'calc(100vh - 2rem)',
+          overflowY: isMobile ? 'visible' : 'auto',
+          backgroundColor: isMobile ? 'white' : 'transparent',
+          borderRadius: isMobile ? '0.5rem' : '0',
+          boxShadow: isMobile ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
+          padding: isMobile ? '1rem' : '0',
+          marginBottom: isMobile ? '1rem' : '0'
+        }}>
         {/* Calendar */}
         <div style={{ marginBottom: '1.5rem' }}>
           <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: '#2d3748' }}>Calendar</h3>
@@ -304,6 +349,7 @@ function Dashboard() {
           />
         </div>
       </aside>
+      )}
 
       {/* Main Content */}
       <main style={{ flex: 1, minWidth: 0 }}>
