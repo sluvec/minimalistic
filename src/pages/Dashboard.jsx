@@ -42,8 +42,9 @@ function Dashboard() {
 
   const { deleteNote, archiveNote } = useNotesCRUD()
 
-  // Projects state
+  // Projects and Spaces state
   const [projects, setProjects] = useState([])
+  const [spaces, setSpaces] = useState([])
 
   // Quick note form state
   const [quickNote, setQuickNote] = useState({
@@ -58,7 +59,8 @@ function Dashboard() {
     importance: '',
     status: STATUS.NEW,
     note_type: 'note',
-    project_id: ''
+    project_id: '',
+    space_id: ''
   })
   const [quickNoteError, setQuickNoteError] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -68,7 +70,7 @@ function Dashboard() {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
   const [showMobileFilters, setShowMobileFilters] = useState(false)
 
-  // Fetch projects on mount
+  // Fetch projects and spaces on mount
   useEffect(() => {
     const fetchProjects = async () => {
       const { data, error } = await supabase
@@ -82,7 +84,20 @@ function Dashboard() {
       }
     }
 
+    const fetchSpaces = async () => {
+      const { data, error } = await supabase
+        .from('spaces')
+        .select('id, name, icon, color')
+        .eq('archived', false)
+        .order('name')
+
+      if (!error && data) {
+        setSpaces(data)
+      }
+    }
+
     fetchProjects()
+    fetchSpaces()
   }, [])
 
   useEffect(() => {
@@ -148,6 +163,7 @@ function Dashboard() {
           isList: quickNote.note_type === 'list',
           isIdea: quickNote.note_type === 'idea',
           project_id: quickNote.project_id || null,
+          space_id: quickNote.space_id || null,
           user_id: user.data.user.id
         })
 
@@ -166,7 +182,8 @@ function Dashboard() {
         importance: '',
         status: STATUS.NEW,
         note_type: 'note',
-        project_id: ''
+        project_id: '',
+        space_id: ''
       })
 
       toast.success(SUCCESS_MESSAGES.NOTE_CREATED)
@@ -467,7 +484,7 @@ function Dashboard() {
           </div>
 
           <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap', opacity: 0.6 }}>
-            <div style={{ flex: '1 1 100%', minWidth: '120px' }}>
+            <div style={{ flex: '1 1 48%', minWidth: '120px' }}>
               <label htmlFor="quick-project" className="sr-only">Project</label>
               <select
                 id="quick-project"
@@ -481,6 +498,25 @@ function Dashboard() {
                 {projects.map(project => (
                   <option key={project.id} value={project.id}>
                     {project.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ flex: '1 1 48%', minWidth: '120px' }}>
+              <label htmlFor="quick-space" className="sr-only">Space</label>
+              <select
+                id="quick-space"
+                name="space_id"
+                value={quickNote.space_id}
+                onChange={handleQuickNoteChange}
+                aria-label="Note space"
+                style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
+              >
+                <option value="">No Space</option>
+                {spaces.map(space => (
+                  <option key={space.id} value={space.id}>
+                    {space.icon} {space.name}
                   </option>
                 ))}
               </select>

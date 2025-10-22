@@ -25,13 +25,15 @@ function EditNote() {
     note_type: 'note',
     estimated_hours: '',
     estimated_minutes: '',
-    project_id: ''
+    project_id: '',
+    space_id: ''
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [saveLoading, setSaveLoading] = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [projects, setProjects] = useState([])
+  const [spaces, setSpaces] = useState([])
 
   useEffect(() => {
     const fetchNote = async () => {
@@ -78,7 +80,8 @@ function EditNote() {
           note_type: noteType,
           estimated_hours: data.estimated_hours || '',
           estimated_minutes: data.estimated_minutes || '',
-          project_id: data.project_id || ''
+          project_id: data.project_id || '',
+          space_id: data.space_id || ''
         })
 
       } catch (error) {
@@ -104,8 +107,24 @@ function EditNote() {
       }
     }
 
+    const fetchSpaces = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('spaces')
+          .select('id, name, icon, color')
+          .eq('archived', false)
+          .order('name')
+
+        if (error) throw error
+        setSpaces(data || [])
+      } catch (error) {
+        console.error('Error fetching spaces:', error)
+      }
+    }
+
     fetchNote()
     fetchProjects()
+    fetchSpaces()
   }, [id])
   
   const handleChange = (e) => {
@@ -157,6 +176,7 @@ function EditNote() {
           estimated_hours: formData.estimated_hours ? parseInt(formData.estimated_hours) : null,
           estimated_minutes: formData.estimated_minutes ? parseInt(formData.estimated_minutes) : null,
           project_id: formData.project_id || null,
+          space_id: formData.space_id || null,
           updated_at: new Date().toISOString()
         })
         .eq('id', id)
@@ -302,6 +322,22 @@ function EditNote() {
                 {projects.map(project => (
                   <option key={project.id} value={project.id}>
                     {project.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Space</label>
+              <select
+                name="space_id"
+                value={formData.space_id}
+                onChange={handleChange}
+              >
+                <option value="">No Space</option>
+                {spaces.map(space => (
+                  <option key={space.id} value={space.id}>
+                    {space.icon} {space.name}
                   </option>
                 ))}
               </select>

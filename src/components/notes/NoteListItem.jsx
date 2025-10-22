@@ -217,6 +217,21 @@ function NoteListItem({ note, onTagClick, onCategoryClick, onTypeClick, onDelete
           </span>
         )}
 
+        {/* Space */}
+        {note.spaces && (
+          <span style={{
+            padding: '0.25rem 0.75rem',
+            borderRadius: '0.25rem',
+            fontSize: '0.875rem',
+            backgroundColor: note.spaces.color + '20',
+            color: note.spaces.color,
+            fontWeight: '500',
+            border: `1px solid ${note.spaces.color}`
+          }}>
+            {note.spaces.icon} {note.spaces.name}
+          </span>
+        )}
+
         {/* Actions on the right */}
         <div style={{
           marginLeft: 'auto',
@@ -349,6 +364,12 @@ NoteListItem.propTypes = {
     projects: PropTypes.shape({
       id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
       name: PropTypes.string,
+      color: PropTypes.string
+    }),
+    spaces: PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      name: PropTypes.string,
+      icon: PropTypes.string,
       color: PropTypes.string
     })
   }).isRequired,

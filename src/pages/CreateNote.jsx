@@ -21,15 +21,18 @@ function CreateNote() {
     note_type: 'note',
     estimated_hours: '',
     estimated_minutes: '',
-    project_id: projectIdFromUrl || ''
+    project_id: projectIdFromUrl || '',
+    space_id: ''
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [projects, setProjects] = useState([])
+  const [spaces, setSpaces] = useState([])
 
   useEffect(() => {
     fetchProjects()
+    fetchSpaces()
   }, [])
 
   const fetchProjects = async () => {
@@ -44,6 +47,21 @@ function CreateNote() {
       setProjects(data || [])
     } catch (error) {
       console.error('Error fetching projects:', error)
+    }
+  }
+
+  const fetchSpaces = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('spaces')
+        .select('id, name, icon, color')
+        .eq('archived', false)
+        .order('name')
+
+      if (error) throw error
+      setSpaces(data || [])
+    } catch (error) {
+      console.error('Error fetching spaces:', error)
     }
   }
   
@@ -98,6 +116,7 @@ function CreateNote() {
           estimated_hours: formData.estimated_hours ? parseInt(formData.estimated_hours) : null,
           estimated_minutes: formData.estimated_minutes ? parseInt(formData.estimated_minutes) : null,
           project_id: formData.project_id || null,
+          space_id: formData.space_id || null,
           user_id: user.data.user.id
         })
       
@@ -191,6 +210,22 @@ function CreateNote() {
                 {projects.map(project => (
                   <option key={project.id} value={project.id}>
                     {project.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Space</label>
+              <select
+                name="space_id"
+                value={formData.space_id}
+                onChange={handleChange}
+              >
+                <option value="">No Space</option>
+                {spaces.map(space => (
+                  <option key={space.id} value={space.id}>
+                    {space.icon} {space.name}
                   </option>
                 ))}
               </select>
