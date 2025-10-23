@@ -99,6 +99,24 @@ export const dimColors = {
   borderLight: '#e2e8f0',
 }
 
+// Dim2 mode colors (darker background, same surface as dim)
+export const dim2Colors = {
+  background: '#a0aec0',  // Much darker than dim
+  backgroundLight: '#cbd5e0',
+  backgroundDark: '#718096',
+
+  surface: '#edf2f7',  // Same as dim - keeps cards light
+  surfaceLight: '#f7fafc',
+  surfaceDark: '#e2e8f0',
+
+  textPrimary: '#1a202c',
+  textSecondary: '#2d3748',
+  textMuted: '#4a5568',
+
+  border: '#cbd5e0',
+  borderLight: '#e2e8f0',
+}
+
 // Spacing scale (8px base)
 export const spacing = {
   xxs: '0.25rem',  // 4px
@@ -243,6 +261,10 @@ export const badgeVariants = {
       bg: colors.gray300,
       color: colors.gray800,
     },
+    dim2: {
+      bg: colors.gray300,
+      color: colors.gray800,
+    },
     dark: {
       bg: colors.gray600,
       color: colors.gray100,
@@ -254,6 +276,10 @@ export const badgeVariants = {
       color: '#1a365d',
     },
     dim: {
+      bg: '#90cdf4',
+      color: '#1a365d',
+    },
+    dim2: {
       bg: '#90cdf4',
       color: '#1a365d',
     },
@@ -271,6 +297,10 @@ export const badgeVariants = {
       bg: '#9ae6b4',
       color: '#1c4532',
     },
+    dim2: {
+      bg: '#9ae6b4',
+      color: '#1c4532',
+    },
     dark: {
       bg: '#22543d',
       color: '#c6f6d5',
@@ -282,6 +312,10 @@ export const badgeVariants = {
       color: '#7c2d12',
     },
     dim: {
+      bg: '#fbd38d',
+      color: '#7c2d12',
+    },
+    dim2: {
       bg: '#fbd38d',
       color: '#7c2d12',
     },
@@ -299,6 +333,10 @@ export const badgeVariants = {
       bg: '#fc8181',
       color: '#7f1d1d',
     },
+    dim2: {
+      bg: '#fc8181',
+      color: '#7f1d1d',
+    },
     dark: {
       bg: '#c53030',
       color: '#fef2f2',
@@ -310,6 +348,10 @@ export const badgeVariants = {
       color: '#1e3a8a',
     },
     dim: {
+      bg: '#90cdf4',
+      color: '#1e3a8a',
+    },
+    dim2: {
       bg: '#90cdf4',
       color: '#1e3a8a',
     },
@@ -327,6 +369,10 @@ export const badgeVariants = {
       bg: '#d6bcfa',
       color: '#4c1d95',
     },
+    dim2: {
+      bg: '#d6bcfa',
+      color: '#4c1d95',
+    },
     dark: {
       bg: '#6b21a8',
       color: '#f3e8ff',
@@ -338,6 +384,10 @@ export const badgeVariants = {
       color: '#713f12',
     },
     dim: {
+      bg: '#fde68a',
+      color: '#713f12',
+    },
+    dim2: {
       bg: '#fde68a',
       color: '#713f12',
     },
@@ -359,6 +409,7 @@ export const getBadgeVariant = (variant, theme) => {
 
   // New theme-based approach
   if (theme === 'dark') return v.dark
+  if (theme === 'dim2') return v.dim2
   if (theme === 'dim') return v.dim
   return v.light
 }

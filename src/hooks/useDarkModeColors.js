@@ -1,36 +1,37 @@
 import { useDarkMode } from '../contexts/DarkModeContext'
-import { colors, darkColors, lightColors, dimColors, shadows } from '../styles/design-tokens'
+import { colors, darkColors, lightColors, dimColors, dim2Colors, shadows } from '../styles/design-tokens'
 
 /**
  * Hook providing color values based on theme mode
  * Returns an object with semantic color names that automatically switch based on theme
- * Supports light, dim, and dark modes
+ * Supports light, dim, dim2, and dark modes
  */
 export function useDarkModeColors() {
   const { theme, isDarkMode } = useDarkMode()
 
-  const getColor = (lightVal, dimVal, darkVal) => {
+  const getColor = (lightVal, dimVal, dim2Val, darkVal) => {
     if (theme === 'dark') return darkVal
+    if (theme === 'dim2') return dim2Val
     if (theme === 'dim') return dimVal
     return lightVal
   }
 
   return {
     // Backgrounds
-    background: getColor(lightColors.background, dimColors.background, darkColors.background),
-    cardBackground: getColor(lightColors.surface, dimColors.surface, darkColors.surface),
-    hoverBackground: getColor(lightColors.surfaceLight, dimColors.surfaceLight, darkColors.surfaceLight),
-    lightBackground: getColor(lightColors.backgroundLight, dimColors.backgroundLight, darkColors.backgroundLight),
-    darkerBackground: getColor(lightColors.backgroundDark, dimColors.backgroundDark, darkColors.backgroundDark),
+    background: getColor(lightColors.background, dimColors.background, dim2Colors.background, darkColors.background),
+    cardBackground: getColor(lightColors.surface, dimColors.surface, dim2Colors.surface, darkColors.surface),
+    hoverBackground: getColor(lightColors.surfaceLight, dimColors.surfaceLight, dim2Colors.surfaceLight, darkColors.surfaceLight),
+    lightBackground: getColor(lightColors.backgroundLight, dimColors.backgroundLight, dim2Colors.backgroundLight, darkColors.backgroundLight),
+    darkerBackground: getColor(lightColors.backgroundDark, dimColors.backgroundDark, dim2Colors.backgroundDark, darkColors.backgroundDark),
 
     // Text colors
-    textPrimary: getColor(lightColors.textPrimary, dimColors.textPrimary, darkColors.textPrimary),
-    textSecondary: getColor(lightColors.textSecondary, dimColors.textSecondary, darkColors.textSecondary),
-    textMuted: getColor(lightColors.textMuted, dimColors.textMuted, darkColors.textMuted),
+    textPrimary: getColor(lightColors.textPrimary, dimColors.textPrimary, dim2Colors.textPrimary, darkColors.textPrimary),
+    textSecondary: getColor(lightColors.textSecondary, dimColors.textSecondary, dim2Colors.textSecondary, darkColors.textSecondary),
+    textMuted: getColor(lightColors.textMuted, dimColors.textMuted, dim2Colors.textMuted, darkColors.textMuted),
 
     // Borders
-    border: getColor(lightColors.border, dimColors.border, darkColors.border),
-    borderLight: getColor(lightColors.borderLight, dimColors.borderLight, darkColors.borderLight),
+    border: getColor(lightColors.border, dimColors.border, dim2Colors.border, darkColors.border),
+    borderLight: getColor(lightColors.borderLight, dimColors.borderLight, dim2Colors.borderLight, darkColors.borderLight),
 
     // Interactive elements
     primary: isDarkMode ? colors.primaryLight : colors.primary,
@@ -40,24 +41,24 @@ export function useDarkModeColors() {
     danger: isDarkMode ? colors.dangerLight : colors.danger,
 
     // Badges and chips
-    chipBackground: getColor(colors.gray200, colors.gray300, colors.gray600),
+    chipBackground: getColor(colors.gray200, colors.gray300, colors.gray300, colors.gray600),
     chipBackgroundActive: isDarkMode ? colors.primaryLight : colors.primary,
-    chipText: getColor(colors.gray700, colors.gray800, colors.gray100),
+    chipText: getColor(colors.gray700, colors.gray800, colors.gray800, colors.gray100),
     chipTextActive: isDarkMode ? colors.gray900 : colors.white,
 
     // Table specific
-    tableHeaderBackground: getColor(colors.gray100, colors.gray200, darkColors.surface),
-    tableRowEven: getColor(colors.white, dimColors.surface, darkColors.surface),
-    tableRowOdd: getColor(colors.gray50, dimColors.surfaceLight, darkColors.surfaceLight),
-    tableRowHover: getColor(colors.gray100, dimColors.surfaceLight, darkColors.surfaceLight),
+    tableHeaderBackground: getColor(colors.gray100, colors.gray200, colors.gray200, darkColors.surface),
+    tableRowEven: getColor(colors.white, dimColors.surface, dim2Colors.surface, darkColors.surface),
+    tableRowOdd: getColor(colors.gray50, dimColors.surfaceLight, dim2Colors.surfaceLight, darkColors.surfaceLight),
+    tableRowHover: getColor(colors.gray100, dimColors.surfaceLight, dim2Colors.surfaceLight, darkColors.surfaceLight),
 
     // Input fields
-    inputBackground: getColor(colors.white, dimColors.surface, darkColors.surface),
-    inputBorder: getColor(lightColors.border, dimColors.border, darkColors.border),
+    inputBackground: getColor(colors.white, dimColors.surface, dim2Colors.surface, darkColors.surface),
+    inputBorder: getColor(lightColors.border, dimColors.border, dim2Colors.border, darkColors.border),
     inputFocus: isDarkMode ? colors.primaryLight : colors.primary,
 
     // Shadows
-    shadow: theme === 'dark' ? '0 2px 4px rgba(0, 0, 0, 0.3)' : theme === 'dim' ? '0 1px 3px rgba(0, 0, 0, 0.15)' : shadows.base,
-    shadowLarge: theme === 'dark' ? '0 4px 8px rgba(0, 0, 0, 0.4)' : theme === 'dim' ? '0 4px 6px rgba(0, 0, 0, 0.2)' : shadows.lg,
+    shadow: theme === 'dark' ? '0 2px 4px rgba(0, 0, 0, 0.3)' : (theme === 'dim' || theme === 'dim2') ? '0 1px 3px rgba(0, 0, 0, 0.15)' : shadows.base,
+    shadowLarge: theme === 'dark' ? '0 4px 8px rgba(0, 0, 0, 0.4)' : (theme === 'dim' || theme === 'dim2') ? '0 4px 6px rgba(0, 0, 0, 0.2)' : shadows.lg,
   }
 }

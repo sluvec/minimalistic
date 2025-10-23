@@ -126,10 +126,10 @@ function UserMenu() {
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
             <span style={{ fontSize: '1.25rem' }}>
-              {theme === 'light' ? '☀️' : theme === 'dim' ? '🌤️' : '🌙'}
+              {theme === 'light' ? '☀️' : theme === 'dim' ? '🌤️' : theme === 'dim2' ? '⛅' : '🌙'}
             </span>
             <span>
-              {theme === 'light' ? 'Light Mode' : theme === 'dim' ? 'Dim Mode' : 'Dark Mode'}
+              {theme === 'light' ? 'Light Mode' : theme === 'dim' ? 'Dim Mode' : theme === 'dim2' ? 'Dim 2 Mode' : 'Dark Mode'}
             </span>
           </button>
 
