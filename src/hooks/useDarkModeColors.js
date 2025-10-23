@@ -1,30 +1,36 @@
 import { useDarkMode } from '../contexts/DarkModeContext'
-import { colors, darkColors, lightColors, shadows } from '../styles/design-tokens'
+import { colors, darkColors, lightColors, dimColors, shadows } from '../styles/design-tokens'
 
 /**
- * Hook providing color values based on dark mode state
+ * Hook providing color values based on theme mode
  * Returns an object with semantic color names that automatically switch based on theme
- * Now uses design tokens for consistency
+ * Supports light, dim, and dark modes
  */
 export function useDarkModeColors() {
-  const { isDarkMode } = useDarkMode()
+  const { theme, isDarkMode } = useDarkMode()
+
+  const getColor = (lightVal, dimVal, darkVal) => {
+    if (theme === 'dark') return darkVal
+    if (theme === 'dim') return dimVal
+    return lightVal
+  }
 
   return {
     // Backgrounds
-    background: isDarkMode ? darkColors.background : lightColors.background,
-    cardBackground: isDarkMode ? darkColors.surface : lightColors.surface,
-    hoverBackground: isDarkMode ? darkColors.surfaceLight : lightColors.surfaceLight,
-    lightBackground: isDarkMode ? darkColors.backgroundLight : lightColors.backgroundLight,
-    darkerBackground: isDarkMode ? darkColors.backgroundDark : lightColors.backgroundDark,
+    background: getColor(lightColors.background, dimColors.background, darkColors.background),
+    cardBackground: getColor(lightColors.surface, dimColors.surface, darkColors.surface),
+    hoverBackground: getColor(lightColors.surfaceLight, dimColors.surfaceLight, darkColors.surfaceLight),
+    lightBackground: getColor(lightColors.backgroundLight, dimColors.backgroundLight, darkColors.backgroundLight),
+    darkerBackground: getColor(lightColors.backgroundDark, dimColors.backgroundDark, darkColors.backgroundDark),
 
     // Text colors
-    textPrimary: isDarkMode ? darkColors.textPrimary : lightColors.textPrimary,
-    textSecondary: isDarkMode ? darkColors.textSecondary : lightColors.textSecondary,
-    textMuted: isDarkMode ? darkColors.textMuted : lightColors.textMuted,
+    textPrimary: getColor(lightColors.textPrimary, dimColors.textPrimary, darkColors.textPrimary),
+    textSecondary: getColor(lightColors.textSecondary, dimColors.textSecondary, darkColors.textSecondary),
+    textMuted: getColor(lightColors.textMuted, dimColors.textMuted, darkColors.textMuted),
 
     // Borders
-    border: isDarkMode ? darkColors.border : lightColors.border,
-    borderLight: isDarkMode ? darkColors.borderLight : lightColors.borderLight,
+    border: getColor(lightColors.border, dimColors.border, darkColors.border),
+    borderLight: getColor(lightColors.borderLight, dimColors.borderLight, darkColors.borderLight),
 
     // Interactive elements
     primary: isDarkMode ? colors.primaryLight : colors.primary,
@@ -34,24 +40,24 @@ export function useDarkModeColors() {
     danger: isDarkMode ? colors.dangerLight : colors.danger,
 
     // Badges and chips
-    chipBackground: isDarkMode ? colors.gray600 : colors.gray200,
+    chipBackground: getColor(colors.gray200, colors.gray300, colors.gray600),
     chipBackgroundActive: isDarkMode ? colors.primaryLight : colors.primary,
-    chipText: isDarkMode ? colors.gray100 : colors.gray700,
+    chipText: getColor(colors.gray700, colors.gray800, colors.gray100),
     chipTextActive: isDarkMode ? colors.gray900 : colors.white,
 
     // Table specific
-    tableHeaderBackground: isDarkMode ? darkColors.surface : colors.gray100,
-    tableRowEven: isDarkMode ? darkColors.surface : colors.white,
-    tableRowOdd: isDarkMode ? darkColors.surfaceLight : colors.gray50,
-    tableRowHover: isDarkMode ? darkColors.surfaceLight : colors.gray100,
+    tableHeaderBackground: getColor(colors.gray100, colors.gray200, darkColors.surface),
+    tableRowEven: getColor(colors.white, dimColors.surface, darkColors.surface),
+    tableRowOdd: getColor(colors.gray50, dimColors.surfaceLight, darkColors.surfaceLight),
+    tableRowHover: getColor(colors.gray100, dimColors.surfaceLight, darkColors.surfaceLight),
 
     // Input fields
-    inputBackground: isDarkMode ? darkColors.surface : colors.white,
-    inputBorder: isDarkMode ? darkColors.border : lightColors.border,
+    inputBackground: getColor(colors.white, dimColors.surface, darkColors.surface),
+    inputBorder: getColor(lightColors.border, dimColors.border, darkColors.border),
     inputFocus: isDarkMode ? colors.primaryLight : colors.primary,
 
     // Shadows
-    shadow: isDarkMode ? '0 2px 4px rgba(0, 0, 0, 0.3)' : shadows.base,
-    shadowLarge: isDarkMode ? '0 4px 8px rgba(0, 0, 0, 0.4)' : shadows.lg,
+    shadow: theme === 'dark' ? '0 2px 4px rgba(0, 0, 0, 0.3)' : theme === 'dim' ? '0 1px 3px rgba(0, 0, 0, 0.15)' : shadows.base,
+    shadowLarge: theme === 'dark' ? '0 4px 8px rgba(0, 0, 0, 0.4)' : theme === 'dim' ? '0 4px 6px rgba(0, 0, 0, 0.2)' : shadows.lg,
   }
 }

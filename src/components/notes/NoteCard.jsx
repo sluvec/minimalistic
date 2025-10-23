@@ -21,7 +21,7 @@ function NoteCard({
 }) {
   const navigate = useNavigate()
   const colors = useDarkModeColors()
-  const { isDarkMode } = useDarkMode()
+  const { theme } = useDarkMode()
 
   const handleCardClick = () => {
     navigate(`/edit/${note.id}`)
@@ -69,7 +69,7 @@ function NoteCard({
         {note.tags && note.tags.length > 0 && (
           <div className="note-tags" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.75rem' }}>
             {note.tags.map(tag => {
-              const tagVariant = getBadgeVariant('default', isDarkMode)
+              const tagVariant = getBadgeVariant('default', theme)
               return (
                 <span
                   key={tag}
@@ -100,7 +100,7 @@ function NoteCard({
         {/* Metadata badges */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.75rem' }}>
           {note.category && (() => {
-            const categoryVariant = getBadgeVariant('primary', isDarkMode)
+            const categoryVariant = getBadgeVariant('primary', theme)
             return (
               <span
                 className="category"
@@ -126,7 +126,7 @@ function NoteCard({
           })()}
 
           {note.type && (() => {
-            const typeVariant = getBadgeVariant('purple', isDarkMode)
+            const typeVariant = getBadgeVariant('purple', theme)
             return (
               <span
                 style={{
@@ -151,7 +151,7 @@ function NoteCard({
           })()}
 
           {note.priority && (() => {
-            const priorityVariant = getBadgeVariant('yellow', isDarkMode)
+            const priorityVariant = getBadgeVariant('yellow', theme)
             return (
               <span style={{
                 backgroundColor: priorityVariant.bg,
@@ -166,7 +166,7 @@ function NoteCard({
           })()}
 
           {note.importance && (() => {
-            const importanceVariant = getBadgeVariant('info', isDarkMode)
+            const importanceVariant = getBadgeVariant('info', theme)
             return (
               <span style={{
                 backgroundColor: importanceVariant.bg,
@@ -181,7 +181,7 @@ function NoteCard({
           })()}
 
           {note.status && (() => {
-            const statusVariant = getBadgeVariant('success', isDarkMode)
+            const statusVariant = getBadgeVariant('success', theme)
             return (
               <span style={{
                 backgroundColor: statusVariant.bg,
@@ -196,7 +196,7 @@ function NoteCard({
           })()}
 
           {note.isTask && (() => {
-            const taskVariant = getBadgeVariant('warning', isDarkMode)
+            const taskVariant = getBadgeVariant('warning', theme)
             return (
               <span style={{
                 backgroundColor: taskVariant.bg,
@@ -211,7 +211,7 @@ function NoteCard({
           })()}
 
           {note.isList && (() => {
-            const listVariant = getBadgeVariant('success', isDarkMode)
+            const listVariant = getBadgeVariant('success', theme)
             return (
               <span style={{
                 backgroundColor: listVariant.bg,
@@ -226,7 +226,7 @@ function NoteCard({
           })()}
 
           {note.isIdea && (() => {
-            const ideaVariant = getBadgeVariant('yellow', isDarkMode)
+            const ideaVariant = getBadgeVariant('yellow', theme)
             return (
               <span style={{
                 backgroundColor: ideaVariant.bg,
@@ -243,7 +243,7 @@ function NoteCard({
 
         {/* Due date */}
         {note.due_date && (() => {
-          const dueDateVariant = getBadgeVariant('danger', isDarkMode)
+          const dueDateVariant = getBadgeVariant('danger', theme)
           return (
             <div style={{
               display: 'flex',

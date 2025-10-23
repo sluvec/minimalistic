@@ -81,6 +81,24 @@ export const lightColors = {
   borderLight: '#edf2f7',
 }
 
+// Dim mode colors (darker light mode - between light and dark)
+export const dimColors = {
+  background: '#e2e8f0',
+  backgroundLight: '#edf2f7',
+  backgroundDark: '#cbd5e0',
+
+  surface: '#edf2f7',
+  surfaceLight: '#f7fafc',
+  surfaceDark: '#e2e8f0',
+
+  textPrimary: '#1a202c',
+  textSecondary: '#2d3748',
+  textMuted: '#4a5568',
+
+  border: '#cbd5e0',
+  borderLight: '#e2e8f0',
+}
+
 // Spacing scale (8px base)
 export const spacing = {
   xxs: '0.25rem',  // 4px
@@ -219,7 +237,11 @@ export const badgeVariants = {
   default: {
     light: {
       bg: colors.gray200,
-      color: colors.gray800, // Increased contrast from gray700
+      color: colors.gray800,
+    },
+    dim: {
+      bg: colors.gray300,
+      color: colors.gray800,
     },
     dark: {
       bg: colors.gray600,
@@ -229,7 +251,11 @@ export const badgeVariants = {
   primary: {
     light: {
       bg: '#bee3f8',
-      color: '#1a365d', // Darker for better contrast
+      color: '#1a365d',
+    },
+    dim: {
+      bg: '#90cdf4',
+      color: '#1a365d',
     },
     dark: {
       bg: '#2c5282',
@@ -239,7 +265,11 @@ export const badgeVariants = {
   success: {
     light: {
       bg: '#c6f6d5',
-      color: '#1c4532', // Darker for better contrast
+      color: '#1c4532',
+    },
+    dim: {
+      bg: '#9ae6b4',
+      color: '#1c4532',
     },
     dark: {
       bg: '#22543d',
@@ -249,7 +279,11 @@ export const badgeVariants = {
   warning: {
     light: {
       bg: '#feebc8',
-      color: '#7c2d12', // Darker for better contrast
+      color: '#7c2d12',
+    },
+    dim: {
+      bg: '#fbd38d',
+      color: '#7c2d12',
     },
     dark: {
       bg: '#c05621',
@@ -259,7 +293,11 @@ export const badgeVariants = {
   danger: {
     light: {
       bg: '#fed7d7',
-      color: '#7f1d1d', // Darker for better contrast
+      color: '#7f1d1d',
+    },
+    dim: {
+      bg: '#fc8181',
+      color: '#7f1d1d',
     },
     dark: {
       bg: '#c53030',
@@ -269,7 +307,11 @@ export const badgeVariants = {
   info: {
     light: {
       bg: '#bee3f8',
-      color: '#1e3a8a', // Darker for better contrast
+      color: '#1e3a8a',
+    },
+    dim: {
+      bg: '#90cdf4',
+      color: '#1e3a8a',
     },
     dark: {
       bg: '#2563eb',
@@ -279,7 +321,11 @@ export const badgeVariants = {
   purple: {
     light: {
       bg: '#e9d8fd',
-      color: '#4c1d95', // Darker for better contrast
+      color: '#4c1d95',
+    },
+    dim: {
+      bg: '#d6bcfa',
+      color: '#4c1d95',
     },
     dark: {
       bg: '#6b21a8',
@@ -289,7 +335,11 @@ export const badgeVariants = {
   yellow: {
     light: {
       bg: '#fef3c7',
-      color: '#713f12', // Darker for better contrast
+      color: '#713f12',
+    },
+    dim: {
+      bg: '#fde68a',
+      color: '#713f12',
     },
     dark: {
       bg: '#a16207',
@@ -298,8 +348,17 @@ export const badgeVariants = {
   },
 }
 
-// Helper function to get badge variant based on dark mode
-export const getBadgeVariant = (variant, isDarkMode) => {
+// Helper function to get badge variant based on theme mode
+export const getBadgeVariant = (variant, theme) => {
   const v = badgeVariants[variant] || badgeVariants.default
-  return isDarkMode ? v.dark : v.light
+
+  // Support both old isDarkMode boolean and new theme string
+  if (typeof theme === 'boolean') {
+    return theme ? v.dark : v.light
+  }
+
+  // New theme-based approach
+  if (theme === 'dark') return v.dark
+  if (theme === 'dim') return v.dim
+  return v.light
 }

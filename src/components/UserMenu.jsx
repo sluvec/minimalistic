@@ -7,7 +7,7 @@ import { useDarkModeColors } from '../hooks/useDarkModeColors'
 
 function UserMenu() {
   const navigate = useNavigate()
-  const { isDarkMode, toggleDarkMode } = useDarkMode()
+  const { theme, cycleTheme } = useDarkMode()
   const colors = useDarkModeColors()
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef(null)
@@ -114,19 +114,23 @@ function UserMenu() {
             animation: 'fadeIn 0.15s ease-in-out',
           }}
         >
-          {/* Dark Mode Toggle */}
+          {/* Theme Toggle */}
           <button
             role="menuitem"
             onClick={() => {
-              toggleDarkMode()
+              cycleTheme()
               setIsOpen(false)
             }}
             style={menuItemStyle}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colors.hoverBackground}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
           >
-            <span style={{ fontSize: '1.25rem' }}>{isDarkMode ? '☀️' : '🌙'}</span>
-            <span>{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
+            <span style={{ fontSize: '1.25rem' }}>
+              {theme === 'light' ? '☀️' : theme === 'dim' ? '🌤️' : '🌙'}
+            </span>
+            <span>
+              {theme === 'light' ? 'Light Mode' : theme === 'dim' ? 'Dim Mode' : 'Dark Mode'}
+            </span>
           </button>
 
           <div style={{ height: '1px', backgroundColor: colors.border, margin: '0.25rem 0' }} />

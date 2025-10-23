@@ -8,7 +8,7 @@ import { useDarkMode } from '../../contexts/DarkModeContext'
 function NoteListItem({ note, onTagClick, onCategoryClick, onTypeClick, onDelete, onArchive, onRestore, isArchived }) {
   const navigate = useNavigate()
   const colors = useDarkModeColors()
-  const { isDarkMode } = useDarkMode()
+  const { theme } = useDarkMode()
 
   const handleRowClick = (e) => {
     // Don't navigate if clicking on buttons or metadata badges
@@ -34,7 +34,7 @@ function NoteListItem({ note, onTagClick, onCategoryClick, onTypeClick, onDelete
 
   // Metadata badge component for consistency
   const MetadataBadge = ({ children, variant = 'default', onClick, clickable = false }) => {
-    const badgeColors = getBadgeVariant(variant, isDarkMode)
+    const badgeColors = getBadgeVariant(variant, theme)
     return (
       <span
         className="metadata-badge"

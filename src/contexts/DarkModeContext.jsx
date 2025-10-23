@@ -11,34 +11,40 @@ export function useDarkMode() {
 }
 
 export function DarkModeProvider({ children }) {
-  const [isDarkMode, setIsDarkMode] = useState(() => {
+  // Theme modes: 'light', 'dim', 'dark'
+  const [theme, setTheme] = useState(() => {
     // Check localStorage first
-    const saved = localStorage.getItem('darkMode')
-    if (saved !== null) {
-      return saved === 'true'
+    const saved = localStorage.getItem('theme')
+    if (saved && ['light', 'dim', 'dark'].includes(saved)) {
+      return saved
     }
     // Check system preference
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   })
 
   useEffect(() => {
     // Save to localStorage
-    localStorage.setItem('darkMode', isDarkMode)
+    localStorage.setItem('theme', theme)
 
     // Apply to document
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark-mode')
-    } else {
-      document.documentElement.classList.remove('dark-mode')
-    }
-  }, [isDarkMode])
+    document.documentElement.classList.remove('light-mode', 'dim-mode', 'dark-mode')
+    document.documentElement.classList.add(`${theme}-mode`)
+  }, [theme])
 
-  const toggleDarkMode = () => {
-    setIsDarkMode(prev => !prev)
+  const cycleTheme = () => {
+    setTheme(prev => {
+      if (prev === 'light') return 'dim'
+      if (prev === 'dim') return 'dark'
+      return 'light'
+    })
   }
 
+  // Backwards compatibility
+  const isDarkMode = theme === 'dark'
+  const toggleDarkMode = cycleTheme
+
   return (
-    <DarkModeContext.Provider value={{ isDarkMode, toggleDarkMode }}>
+    <DarkModeContext.Provider value={{ theme, isDarkMode, cycleTheme, toggleDarkMode }}>
       {children}
     </DarkModeContext.Provider>
   )
