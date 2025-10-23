@@ -292,7 +292,7 @@ function EditNote() {
             cursor: 'pointer',
             fontSize: '0.95rem',
             fontWeight: '500',
-            color: colors.textSecondary,
+            color: colors.textPrimary,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',

@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { colors } from '../styles/design-tokens'
 
 class ErrorBoundary extends React.Component {
   constructor(props) {

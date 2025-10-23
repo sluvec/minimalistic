@@ -1,9 +1,14 @@
 import { useNavigate } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { formatDateForDisplay } from '../../utils/dateHelpers'
+import { useDarkModeColors } from '../../hooks/useDarkModeColors'
+import { getBadgeVariant } from '../../styles/design-tokens'
+import { useDarkMode } from '../../contexts/DarkModeContext'
 
 function NoteListItem({ note, onTagClick, onCategoryClick, onTypeClick, onDelete, onArchive, onRestore, isArchived }) {
   const navigate = useNavigate()
+  const colors = useDarkModeColors()
+  const { isDarkMode } = useDarkMode()
 
   const handleRowClick = (e) => {
     // Don't navigate if clicking on buttons or metadata badges
@@ -28,28 +33,31 @@ function NoteListItem({ note, onTagClick, onCategoryClick, onTypeClick, onDelete
   }
 
   // Metadata badge component for consistency
-  const MetadataBadge = ({ children, color = '#4a5568', bgColor = '#edf2f7', onClick, clickable = false }) => (
-    <span
-      className="metadata-badge"
-      onClick={onClick}
-      style={{
-        display: 'inline-block',
-        padding: '0.15rem 0.4rem',
-        fontSize: 'clamp(0.65rem, 1.8vw, 0.75rem)',
-        borderRadius: '0.25rem',
-        backgroundColor: bgColor,
-        color: color,
-        cursor: clickable ? 'pointer' : 'default',
-        fontWeight: '500',
-        transition: clickable ? 'opacity 0.2s' : 'none',
-        whiteSpace: 'nowrap'
-      }}
-      onMouseEnter={(e) => clickable && (e.currentTarget.style.opacity = '0.7')}
-      onMouseLeave={(e) => clickable && (e.currentTarget.style.opacity = '1')}
-    >
-      {children}
-    </span>
-  )
+  const MetadataBadge = ({ children, variant = 'default', onClick, clickable = false }) => {
+    const badgeColors = getBadgeVariant(variant, isDarkMode)
+    return (
+      <span
+        className="metadata-badge"
+        onClick={onClick}
+        style={{
+          display: 'inline-block',
+          padding: '0.15rem 0.4rem',
+          fontSize: 'clamp(0.65rem, 1.8vw, 0.75rem)',
+          borderRadius: '0.25rem',
+          backgroundColor: badgeColors.bg,
+          color: badgeColors.color,
+          cursor: clickable ? 'pointer' : 'default',
+          fontWeight: '500',
+          transition: clickable ? 'opacity 0.2s' : 'none',
+          whiteSpace: 'nowrap'
+        }}
+        onMouseEnter={(e) => clickable && (e.currentTarget.style.opacity = '0.7')}
+        onMouseLeave={(e) => clickable && (e.currentTarget.style.opacity = '1')}
+      >
+        {children}
+      </span>
+    )
+  }
 
   return (
     <div
@@ -62,13 +70,13 @@ function NoteListItem({ note, onTagClick, onCategoryClick, onTypeClick, onDelete
         display: 'flex',
         flexDirection: 'column',
         padding: '0.75rem 1rem',
-        backgroundColor: 'white',
-        borderBottom: '1px solid #e2e8f0',
+        backgroundColor: colors.cardBackground,
+        borderBottom: `1px solid ${colors.border}`,
         cursor: 'pointer',
         transition: 'background-color 0.2s',
       }}
-      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f7fafc'}
-      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
+      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colors.hoverBackground}
+      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colors.cardBackground}
     >
       {/* Line 1: Title + Content Preview */}
       <div style={{
@@ -81,14 +89,14 @@ function NoteListItem({ note, onTagClick, onCategoryClick, onTypeClick, onDelete
       }}>
         <span style={{
           fontWeight: '600',
-          color: '#2d3748',
+          color: colors.textPrimary,
           wordBreak: 'break-word'
         }}>
           {note.title || 'Untitled'}
         </span>
         {note.content && (
           <span style={{
-            color: '#718096',
+            color: colors.textMuted,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             display: '-webkit-box',
@@ -126,8 +134,7 @@ function NoteListItem({ note, onTagClick, onCategoryClick, onTypeClick, onDelete
         {note.category && (
           <MetadataBadge
             clickable
-            color="#2c5282"
-            bgColor="#bee3f8"
+            variant="primary"
             onClick={(e) => {
               e.stopPropagation()
               if (onCategoryClick) onCategoryClick(note.category)
@@ -141,8 +148,7 @@ function NoteListItem({ note, onTagClick, onCategoryClick, onTypeClick, onDelete
         {note.type && (
           <MetadataBadge
             clickable
-            color="#22543d"
-            bgColor="#c6f6d5"
+            variant="purple"
             onClick={(e) => {
               e.stopPropagation()
               if (onTypeClick) onTypeClick(note.type)
@@ -155,8 +161,7 @@ function NoteListItem({ note, onTagClick, onCategoryClick, onTypeClick, onDelete
         {/* Status */}
         {note.status && (
           <MetadataBadge
-            color={note.status === 'Done' ? '#22543d' : note.status === 'In Progress' ? '#742a2a' : '#4a5568'}
-            bgColor={note.status === 'Done' ? '#c6f6d5' : note.status === 'In Progress' ? '#fed7d7' : '#e2e8f0'}
+            variant={note.status === 'Done' ? 'success' : note.status === 'In Progress' ? 'danger' : 'default'}
           >
             {note.status}
           </MetadataBadge>
@@ -164,40 +169,40 @@ function NoteListItem({ note, onTagClick, onCategoryClick, onTypeClick, onDelete
 
         {/* Priority */}
         {note.priority && (
-          <MetadataBadge color="#742a2a" bgColor="#feb2b2">
+          <MetadataBadge variant="danger">
             ⚡ {note.priority}
           </MetadataBadge>
         )}
 
         {/* Importance */}
         {note.importance && (
-          <MetadataBadge color="#744210" bgColor="#fbd38d">
+          <MetadataBadge variant="warning">
             ⭐ {note.importance}
           </MetadataBadge>
         )}
 
         {/* Due Date */}
         {note.due_date && (
-          <MetadataBadge color="#744210" bgColor="#fefcbf">
+          <MetadataBadge variant="yellow">
             📅 {formatDateForDisplay(note.due_date)}
           </MetadataBadge>
         )}
 
         {/* Estimated Duration */}
         {(note.estimated_hours || note.estimated_minutes) && (
-          <MetadataBadge color="#553c9a" bgColor="#e9d8fd">
+          <MetadataBadge variant="purple">
             ⏱️ {note.estimated_hours ? `${note.estimated_hours}h` : ''}{note.estimated_hours && note.estimated_minutes ? ' ' : ''}{note.estimated_minutes ? `${note.estimated_minutes}m` : ''}
           </MetadataBadge>
         )}
 
         {/* Boolean flags */}
-        {note.isTask && <MetadataBadge color="#2d3748" bgColor="#cbd5e0">✓ Task</MetadataBadge>}
-        {note.isList && <MetadataBadge color="#2d3748" bgColor="#cbd5e0">📋 List</MetadataBadge>}
-        {note.isIdea && <MetadataBadge color="#2d3748" bgColor="#cbd5e0">💡 Idea</MetadataBadge>}
+        {note.isTask && <MetadataBadge variant="default">✓ Task</MetadataBadge>}
+        {note.isList && <MetadataBadge variant="default">📋 List</MetadataBadge>}
+        {note.isIdea && <MetadataBadge variant="default">💡 Idea</MetadataBadge>}
 
         {/* URL indicator */}
         {note.url && (
-          <MetadataBadge color="#2c5282" bgColor="#bee3f8">
+          <MetadataBadge variant="info">
             🔗 Link
           </MetadataBadge>
         )}
@@ -209,7 +214,7 @@ function NoteListItem({ note, onTagClick, onCategoryClick, onTypeClick, onDelete
             borderRadius: '0.25rem',
             fontSize: '0.875rem',
             backgroundColor: note.projects.color + '20',
-            color: note.projects.color,
+            color: colors.textPrimary,
             fontWeight: '500',
             border: `1px solid ${note.projects.color}`
           }}>
@@ -224,7 +229,7 @@ function NoteListItem({ note, onTagClick, onCategoryClick, onTypeClick, onDelete
             borderRadius: '0.25rem',
             fontSize: '0.875rem',
             backgroundColor: note.spaces.color + '20',
-            color: note.spaces.color,
+            color: colors.textPrimary,
             fontWeight: '500',
             border: `1px solid ${note.spaces.color}`
           }}>

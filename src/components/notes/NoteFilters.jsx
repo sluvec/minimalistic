@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { useDarkModeColors } from '../../hooks/useDarkModeColors'
 
 /**
  * Comprehensive filter component for notes
@@ -12,8 +13,10 @@ function NoteFilters({
   onClearFilters,
   hasActiveFilters,
   searchTerm,
-  onClearSearch
+  onClearSearch,
+  notes = [] // Add notes prop to calculate counts
 }) {
+  const colors = useDarkModeColors()
   const {
     allTags = [],
     allCategories = [],
@@ -22,6 +25,30 @@ function NoteFilters({
     allImportances = [],
     allStatuses = []
   } = filterOptions
+
+  // Calculate count for each filter option
+  const getFilterCount = (filterType, value) => {
+    if (!notes || notes.length === 0) return 0
+
+    return notes.filter(note => {
+      switch (filterType) {
+        case 'tags':
+          return note.tags && note.tags.includes(value)
+        case 'categories':
+          return note.category === value
+        case 'types':
+          return note.type === value
+        case 'priorities':
+          return note.priority === value
+        case 'importances':
+          return note.importance === value
+        case 'statuses':
+          return note.status === value
+        default:
+          return false
+      }
+    }).length
+  }
 
   const handleBooleanFilterChange = (filterName, value) => {
     onToggleFilter(filterName, value === filters[filterName] ? null : value)
@@ -35,77 +62,77 @@ function NoteFilters({
           <h4 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>Active Filters:</h4>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
             {searchTerm && (
-              <span className="active-filter" style={{ backgroundColor: '#e2e8f0', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              <span className="active-filter" style={{ backgroundColor: colors.cardBackground, padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                 Search: {searchTerm}
                 <button onClick={onClearSearch} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '0', marginLeft: '0.25rem', fontWeight: 'bold' }}>×</button>
               </span>
             )}
 
             {filters.tags.map(tag => (
-              <span key={tag} className="active-filter" style={{ backgroundColor: '#e2e8f0', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              <span key={tag} className="active-filter" style={{ backgroundColor: colors.cardBackground, padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                 #{tag}
                 <button onClick={() => onToggleFilter('tags', tag)} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '0', marginLeft: '0.25rem', fontWeight: 'bold' }}>×</button>
               </span>
             ))}
 
             {filters.categories.map(category => (
-              <span key={category} className="active-filter" style={{ backgroundColor: '#e2e8f0', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              <span key={category} className="active-filter" style={{ backgroundColor: colors.cardBackground, padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                 Category: {category}
                 <button onClick={() => onToggleFilter('categories', category)} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '0', marginLeft: '0.25rem', fontWeight: 'bold' }}>×</button>
               </span>
             ))}
 
             {filters.types.map(type => (
-              <span key={type} className="active-filter" style={{ backgroundColor: '#e2e8f0', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              <span key={type} className="active-filter" style={{ backgroundColor: colors.cardBackground, padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                 Type: {type}
                 <button onClick={() => onToggleFilter('types', type)} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '0', marginLeft: '0.25rem', fontWeight: 'bold' }}>×</button>
               </span>
             ))}
 
             {filters.priorities.map(priority => (
-              <span key={priority} className="active-filter" style={{ backgroundColor: '#e2e8f0', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              <span key={priority} className="active-filter" style={{ backgroundColor: colors.cardBackground, padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                 Priority: {priority}
                 <button onClick={() => onToggleFilter('priorities', priority)} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '0', marginLeft: '0.25rem', fontWeight: 'bold' }}>×</button>
               </span>
             ))}
 
             {filters.importances.map(importance => (
-              <span key={importance} className="active-filter" style={{ backgroundColor: '#e2e8f0', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              <span key={importance} className="active-filter" style={{ backgroundColor: colors.cardBackground, padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                 Importance: {importance}
                 <button onClick={() => onToggleFilter('importances', importance)} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '0', marginLeft: '0.25rem', fontWeight: 'bold' }}>×</button>
               </span>
             ))}
 
             {filters.statuses.map(status => (
-              <span key={status} className="active-filter" style={{ backgroundColor: '#e2e8f0', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              <span key={status} className="active-filter" style={{ backgroundColor: colors.cardBackground, padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                 Status: {status}
                 <button onClick={() => onToggleFilter('statuses', status)} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '0', marginLeft: '0.25rem', fontWeight: 'bold' }}>×</button>
               </span>
             ))}
 
             {filters.isTask !== null && (
-              <span className="active-filter" style={{ backgroundColor: '#e2e8f0', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              <span className="active-filter" style={{ backgroundColor: colors.cardBackground, padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                 Task: {filters.isTask ? 'Yes' : 'No'}
                 <button onClick={() => onToggleFilter('isTask', null)} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '0', marginLeft: '0.25rem', fontWeight: 'bold' }}>×</button>
               </span>
             )}
 
             {filters.isList !== null && (
-              <span className="active-filter" style={{ backgroundColor: '#e2e8f0', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              <span className="active-filter" style={{ backgroundColor: colors.cardBackground, padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                 List: {filters.isList ? 'Yes' : 'No'}
                 <button onClick={() => onToggleFilter('isList', null)} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '0', marginLeft: '0.25rem', fontWeight: 'bold' }}>×</button>
               </span>
             )}
 
             {filters.isIdea !== null && (
-              <span className="active-filter" style={{ backgroundColor: '#e2e8f0', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              <span className="active-filter" style={{ backgroundColor: colors.cardBackground, padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                 Idea: {filters.isIdea ? 'Yes' : 'No'}
                 <button onClick={() => onToggleFilter('isIdea', null)} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '0', marginLeft: '0.25rem', fontWeight: 'bold' }}>×</button>
               </span>
             )}
 
             {filters.date && (
-              <span className="active-filter" style={{ backgroundColor: '#e2e8f0', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              <span className="active-filter" style={{ backgroundColor: colors.cardBackground, padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                 Date: {filters.date.toLocaleDateString()}
                 <button onClick={() => onToggleFilter('date', null)} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: '0', marginLeft: '0.25rem', fontWeight: 'bold' }}>×</button>
               </span>
@@ -114,7 +141,7 @@ function NoteFilters({
             <button
               onClick={onClearFilters}
               style={{
-                backgroundColor: '#f56565',
+                backgroundColor: colors.danger,
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',
@@ -134,24 +161,37 @@ function NoteFilters({
         <div style={{ marginBottom: '1rem' }}>
           <h4 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>Tags:</h4>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-            {allTags.map(tag => (
-              <button
-                key={tag}
-                onClick={() => onToggleFilter('tags', tag)}
-                style={{
-                  cursor: 'pointer',
-                  backgroundColor: filters.tags.includes(tag) ? '#4299e1' : '#e2e8f0',
-                  color: filters.tags.includes(tag) ? 'white' : '#4a5568',
-                  border: 'none',
-                  borderRadius: '4px',
-                  padding: '0.2rem 0.5rem',
-                  fontSize: '0.8rem',
-                  transition: 'all 0.2s'
-                }}
-              >
-                #{tag}
-              </button>
-            ))}
+            {allTags.map(tag => {
+              const count = getFilterCount('tags', tag)
+              return (
+                <button
+                  key={tag}
+                  onClick={() => onToggleFilter('tags', tag)}
+                  style={{
+                    cursor: 'pointer',
+                    backgroundColor: filters.tags.includes(tag) ? colors.primary : colors.cardBackground,
+                    color: filters.tags.includes(tag) ? 'white' : colors.textPrimary,
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '0.2rem 0.5rem',
+                    fontSize: '0.8rem',
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem'
+                  }}
+                >
+                  <span>#{tag}</span>
+                  <span style={{
+                    fontSize: '0.7rem',
+                    opacity: 0.8,
+                    fontWeight: 600
+                  }}>
+                    ({count})
+                  </span>
+                </button>
+              )
+            })}
           </div>
         </div>
       )}
@@ -167,8 +207,8 @@ function NoteFilters({
                 onClick={() => onToggleFilter('categories', category)}
                 style={{
                   cursor: 'pointer',
-                  backgroundColor: filters.categories.includes(category) ? '#4299e1' : '#e2e8f0',
-                  color: filters.categories.includes(category) ? 'white' : '#4a5568',
+                  backgroundColor: filters.categories.includes(category) ? colors.primary : colors.cardBackground,
+                  color: filters.categories.includes(category) ? 'white' : colors.textPrimary,
                   border: 'none',
                   borderRadius: '4px',
                   padding: '0.2rem 0.5rem',
@@ -194,8 +234,8 @@ function NoteFilters({
                 onClick={() => onToggleFilter('types', type)}
                 style={{
                   cursor: 'pointer',
-                  backgroundColor: filters.types.includes(type) ? '#4299e1' : '#e2e8f0',
-                  color: filters.types.includes(type) ? 'white' : '#4a5568',
+                  backgroundColor: filters.types.includes(type) ? colors.primary : colors.cardBackground,
+                  color: filters.types.includes(type) ? 'white' : colors.textPrimary,
                   border: 'none',
                   borderRadius: '4px',
                   padding: '0.2rem 0.5rem',
@@ -221,8 +261,8 @@ function NoteFilters({
                 onClick={() => onToggleFilter('priorities', priority)}
                 style={{
                   cursor: 'pointer',
-                  backgroundColor: filters.priorities.includes(priority) ? '#4299e1' : '#e2e8f0',
-                  color: filters.priorities.includes(priority) ? 'white' : '#4a5568',
+                  backgroundColor: filters.priorities.includes(priority) ? colors.primary : colors.cardBackground,
+                  color: filters.priorities.includes(priority) ? 'white' : colors.textPrimary,
                   border: 'none',
                   borderRadius: '4px',
                   padding: '0.2rem 0.5rem',
@@ -248,8 +288,8 @@ function NoteFilters({
                 onClick={() => onToggleFilter('importances', importance)}
                 style={{
                   cursor: 'pointer',
-                  backgroundColor: filters.importances.includes(importance) ? '#4299e1' : '#e2e8f0',
-                  color: filters.importances.includes(importance) ? 'white' : '#4a5568',
+                  backgroundColor: filters.importances.includes(importance) ? colors.primary : colors.cardBackground,
+                  color: filters.importances.includes(importance) ? 'white' : colors.textPrimary,
                   border: 'none',
                   borderRadius: '4px',
                   padding: '0.2rem 0.5rem',
@@ -275,8 +315,8 @@ function NoteFilters({
                 onClick={() => onToggleFilter('statuses', status)}
                 style={{
                   cursor: 'pointer',
-                  backgroundColor: filters.statuses.includes(status) ? '#4299e1' : '#e2e8f0',
-                  color: filters.statuses.includes(status) ? 'white' : '#4a5568',
+                  backgroundColor: filters.statuses.includes(status) ? colors.primary : colors.cardBackground,
+                  color: filters.statuses.includes(status) ? 'white' : colors.textPrimary,
                   border: 'none',
                   borderRadius: '4px',
                   padding: '0.2rem 0.5rem',
@@ -296,14 +336,14 @@ function NoteFilters({
         <h4 style={{ fontSize: '1rem', marginBottom: '0.5rem' }}>Note Type Filters:</h4>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
           <div style={{ marginBottom: '0.5rem' }}>
-            <div style={{ marginBottom: '0.3rem', fontWeight: '500' }}>Task:</div>
+            <div style={{ marginBottom: '0.3rem', fontWeight: '500', color: colors.textPrimary }}>Task:</div>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button
                 onClick={() => handleBooleanFilterChange('isTask', true)}
                 style={{
                   cursor: 'pointer',
-                  backgroundColor: filters.isTask === true ? '#4299e1' : '#e2e8f0',
-                  color: filters.isTask === true ? 'white' : '#4a5568',
+                  backgroundColor: filters.isTask === true ? colors.primary : colors.cardBackground,
+                  color: filters.isTask === true ? 'white' : colors.textPrimary,
                   border: 'none',
                   borderRadius: '4px',
                   padding: '0.2rem 0.5rem',
@@ -317,8 +357,8 @@ function NoteFilters({
                 onClick={() => handleBooleanFilterChange('isTask', false)}
                 style={{
                   cursor: 'pointer',
-                  backgroundColor: filters.isTask === false ? '#4299e1' : '#e2e8f0',
-                  color: filters.isTask === false ? 'white' : '#4a5568',
+                  backgroundColor: filters.isTask === false ? colors.primary : colors.cardBackground,
+                  color: filters.isTask === false ? 'white' : colors.textPrimary,
                   border: 'none',
                   borderRadius: '4px',
                   padding: '0.2rem 0.5rem',
@@ -333,7 +373,7 @@ function NoteFilters({
                   onClick={() => onToggleFilter('isTask', null)}
                   style={{
                     cursor: 'pointer',
-                    backgroundColor: '#f56565',
+                    backgroundColor: colors.danger,
                     color: 'white',
                     border: 'none',
                     borderRadius: '4px',
@@ -348,14 +388,14 @@ function NoteFilters({
           </div>
 
           <div style={{ marginBottom: '0.5rem' }}>
-            <div style={{ marginBottom: '0.3rem', fontWeight: '500' }}>List:</div>
+            <div style={{ marginBottom: '0.3rem', fontWeight: '500', color: colors.textPrimary }}>List:</div>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button
                 onClick={() => handleBooleanFilterChange('isList', true)}
                 style={{
                   cursor: 'pointer',
-                  backgroundColor: filters.isList === true ? '#4299e1' : '#e2e8f0',
-                  color: filters.isList === true ? 'white' : '#4a5568',
+                  backgroundColor: filters.isList === true ? colors.primary : colors.cardBackground,
+                  color: filters.isList === true ? 'white' : colors.textPrimary,
                   border: 'none',
                   borderRadius: '4px',
                   padding: '0.2rem 0.5rem',
@@ -369,8 +409,8 @@ function NoteFilters({
                 onClick={() => handleBooleanFilterChange('isList', false)}
                 style={{
                   cursor: 'pointer',
-                  backgroundColor: filters.isList === false ? '#4299e1' : '#e2e8f0',
-                  color: filters.isList === false ? 'white' : '#4a5568',
+                  backgroundColor: filters.isList === false ? colors.primary : colors.cardBackground,
+                  color: filters.isList === false ? 'white' : colors.textPrimary,
                   border: 'none',
                   borderRadius: '4px',
                   padding: '0.2rem 0.5rem',
@@ -385,7 +425,7 @@ function NoteFilters({
                   onClick={() => onToggleFilter('isList', null)}
                   style={{
                     cursor: 'pointer',
-                    backgroundColor: '#f56565',
+                    backgroundColor: colors.danger,
                     color: 'white',
                     border: 'none',
                     borderRadius: '4px',
@@ -400,14 +440,14 @@ function NoteFilters({
           </div>
 
           <div style={{ marginBottom: '0.5rem' }}>
-            <div style={{ marginBottom: '0.3rem', fontWeight: '500' }}>Idea:</div>
+            <div style={{ marginBottom: '0.3rem', fontWeight: '500', color: colors.textPrimary }}>Idea:</div>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button
                 onClick={() => handleBooleanFilterChange('isIdea', true)}
                 style={{
                   cursor: 'pointer',
-                  backgroundColor: filters.isIdea === true ? '#4299e1' : '#e2e8f0',
-                  color: filters.isIdea === true ? 'white' : '#4a5568',
+                  backgroundColor: filters.isIdea === true ? colors.primary : colors.cardBackground,
+                  color: filters.isIdea === true ? 'white' : colors.textPrimary,
                   border: 'none',
                   borderRadius: '4px',
                   padding: '0.2rem 0.5rem',
@@ -421,8 +461,8 @@ function NoteFilters({
                 onClick={() => handleBooleanFilterChange('isIdea', false)}
                 style={{
                   cursor: 'pointer',
-                  backgroundColor: filters.isIdea === false ? '#4299e1' : '#e2e8f0',
-                  color: filters.isIdea === false ? 'white' : '#4a5568',
+                  backgroundColor: filters.isIdea === false ? colors.primary : colors.cardBackground,
+                  color: filters.isIdea === false ? 'white' : colors.textPrimary,
                   border: 'none',
                   borderRadius: '4px',
                   padding: '0.2rem 0.5rem',
@@ -437,7 +477,7 @@ function NoteFilters({
                   onClick={() => onToggleFilter('isIdea', null)}
                   style={{
                     cursor: 'pointer',
-                    backgroundColor: '#f56565',
+                    backgroundColor: colors.danger,
                     color: 'white',
                     border: 'none',
                     borderRadius: '4px',
@@ -480,7 +520,8 @@ NoteFilters.propTypes = {
   onClearFilters: PropTypes.func.isRequired,
   hasActiveFilters: PropTypes.bool.isRequired,
   searchTerm: PropTypes.string,
-  onClearSearch: PropTypes.func
+  onClearSearch: PropTypes.func,
+  notes: PropTypes.array
 }
 
 export default React.memo(NoteFilters)

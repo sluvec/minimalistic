@@ -211,10 +211,11 @@ function Spaces() {
     },
     badge: (color) => ({
       backgroundColor: color + '20',
-      color: color,
+      color: colors.textPrimary,
       padding: '0.25rem 0.75rem',
       borderRadius: '9999px',
       fontSize: '0.75rem',
+      border: `1px solid ${color}`,
       fontWeight: '500'
     }),
     emptyState: {

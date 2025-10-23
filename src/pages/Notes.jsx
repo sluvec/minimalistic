@@ -4,11 +4,15 @@ import { useNotesData } from '../hooks/useNotesData'
 import { supabase } from '../lib/supabaseClient'
 import { format } from 'date-fns'
 import { useDarkModeColors } from '../hooks/useDarkModeColors'
+import EmptyState from '../components/EmptyState'
+import Skeleton from '../components/Skeleton'
+import NoteCardMobile from '../components/notes/NoteCardMobile'
 
 function Notes() {
   const navigate = useNavigate()
   const colors = useDarkModeColors()
   const { notes, loading, error: fetchError } = useNotesData(false)
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
   const [searchTerm, setSearchTerm] = useState('')
   const [sortConfig, setSortConfig] = useState({
     key: 'updated_at',
@@ -22,7 +26,6 @@ function Notes() {
   const [projects, setProjects] = useState([])
   const [spaces, setSpaces] = useState([])
   const [showMobileFilters, setShowMobileFilters] = useState(false)
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
 
   // Note types
   const noteTypes = [
@@ -68,6 +71,11 @@ function Notes() {
     const handleResize = () => setIsMobile(window.innerWidth <= 768)
     window.addEventListener('resize', handleResize)
     return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  // Update existing mobile state management
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 768)
   }, [])
 
   // Helper function to get note type
@@ -478,14 +486,38 @@ function Notes() {
       {fetchError && <div className="error" role="alert">{fetchError}</div>}
 
       {loading ? (
-        <div className="loading" style={{ textAlign: 'center', padding: '2rem' }}>
-          Loading notes...
+        <div style={styles.tableContainer}>
+          <div style={{ padding: '2rem' }}>
+            <Skeleton height="40px" marginBottom="1rem" />
+            <Skeleton height="60px" marginBottom="0.5rem" />
+            <Skeleton height="60px" marginBottom="0.5rem" />
+            <Skeleton height="60px" marginBottom="0.5rem" />
+            <Skeleton height="60px" marginBottom="0.5rem" />
+            <Skeleton height="60px" />
+          </div>
         </div>
       ) : filteredAndSortedNotes.length === 0 ? (
-        <div style={styles.emptyState}>
-          {hasActiveFilters ? 'No notes match your filters. Try adjusting your selection.' : 'No notes yet.'}
+        <EmptyState
+          icon={hasActiveFilters ? '🔍' : '📝'}
+          title={hasActiveFilters ? 'No matching notes' : 'No notes yet'}
+          description={
+            hasActiveFilters
+              ? 'Try adjusting your filters to find what you\'re looking for.'
+              : 'Start creating notes to see them here.'
+          }
+          actionLabel={hasActiveFilters ? 'Clear all filters' : 'Create your first note'}
+          actionLink={hasActiveFilters ? null : '/create'}
+          actionOnClick={hasActiveFilters ? clearAllFilters : null}
+        />
+      ) : isMobile ? (
+        /* Mobile: Card View */
+        <div style={{ padding: '0.5rem' }}>
+          {filteredAndSortedNotes.map((note) => (
+            <NoteCardMobile key={note.id} note={note} />
+          ))}
         </div>
       ) : (
+        /* Desktop: Table View */
         <div style={styles.tableContainer}>
           <table style={styles.table}>
             <thead>
