@@ -692,6 +692,32 @@ function Dashboard() {
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <input
                 type="radio"
+                id="quickNoteTypeEvent"
+                name="note_type"
+                value="event"
+                checked={quickNote.note_type === 'event'}
+                onChange={handleQuickNoteChange}
+                style={{ marginRight: '0.3rem' }}
+              />
+              <label htmlFor="quickNoteTypeEvent" style={{ fontSize: '0.85rem' }}>📅 Event</label>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <input
+                type="radio"
+                id="quickNoteTypeLink"
+                name="note_type"
+                value="link"
+                checked={quickNote.note_type === 'link'}
+                onChange={handleQuickNoteChange}
+                style={{ marginRight: '0.3rem' }}
+              />
+              <label htmlFor="quickNoteTypeLink" style={{ fontSize: '0.85rem' }}>🔗 Link</label>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <input
+                type="radio"
                 id="quickNoteTypeList"
                 name="note_type"
                 value="list"

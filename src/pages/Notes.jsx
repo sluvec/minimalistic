@@ -244,8 +244,9 @@ function Notes() {
 
   const styles = {
     container: {
-      maxWidth: '100%',
-      padding: '1.5rem',
+      maxWidth: 'none',
+      width: '100%',
+      padding: '1rem',
       margin: '0 auto'
     },
     header: {
@@ -344,7 +345,7 @@ function Notes() {
       position: 'sticky',
       top: 0,
       backgroundColor: colors.tableHeaderBackground,
-      padding: '1rem 0.75rem',
+      padding: '0.75rem 0.5rem',
       textAlign: 'left',
       fontWeight: '600',
       color: colors.textPrimary,
@@ -352,12 +353,14 @@ function Notes() {
       cursor: 'pointer',
       userSelect: 'none',
       whiteSpace: 'nowrap',
-      zIndex: 10
+      zIndex: 10,
+      fontSize: '0.8rem'
     },
     td: {
-      padding: '0.75rem',
+      padding: '0.75rem 0.5rem',
       borderBottom: `1px solid ${colors.border}`,
-      verticalAlign: 'top'
+      verticalAlign: 'top',
+      fontSize: '0.8rem'
     },
     tr: {
       cursor: 'pointer',
@@ -365,16 +368,16 @@ function Notes() {
     },
     titleCell: {
       fontWeight: '500',
-      minWidth: '120px',
-      maxWidth: '200px',
+      minWidth: '100px',
+      maxWidth: '180px',
       whiteSpace: 'nowrap',
       overflow: 'hidden',
       textOverflow: 'ellipsis'
     },
     previewCell: {
       color: colors.textMuted,
-      minWidth: '200px',
-      maxWidth: '300px',
+      minWidth: '150px',
+      maxWidth: '250px',
       lineHeight: '1.5',
       whiteSpace: 'nowrap',
       overflow: 'hidden',
