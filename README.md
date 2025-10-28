@@ -92,25 +92,35 @@ CREATE INDEX notes_user_id_idx ON notes (user_id);
 
 ### 4. Run Database Migrations
 
-**Using Supabase CLI (Recommended - Automated):**
+**✅ Automated Method (Recommended):**
 
-See [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) for detailed instructions.
+The project is configured for automatic migrations. Simply run:
 
-Quick start:
 ```bash
-# One-time setup (3 commands)
-supabase login
-supabase link --project-ref YOUR_PROJECT_REF_ID
-
-# Run migrations
 npm run db:push
+```
+
+This will automatically:
+- Connect to your Supabase database
+- Apply all pending migrations from `supabase/migrations/`
+- Update database schema
+
+**📚 For detailed migration documentation, see [MIGRATIONS.md](./MIGRATIONS.md)**
+
+Available database commands:
+```bash
+npm run db:push      # Push new migrations to database
+npm run db:pull      # Pull schema from remote database
+npm run db:list      # List all migrations (local & remote)
+npm run db:new name  # Create new migration file
 ```
 
 **Manual Method (Alternative):**
 
-Run the following migrations in your Supabase SQL editor:
-- `production_migration.sql` - Adds archive feature
-- `supabase/migrations/20241022_add_estimated_duration.sql` - Adds estimated duration fields
+If automated push fails, you can manually execute migrations in Supabase SQL Editor:
+1. Go to: https://supabase.com/dashboard/project/YOUR_PROJECT/sql
+2. Copy SQL from files in `supabase/migrations/`
+3. Execute in order by timestamp
 
 ### 5. Run the Application
 

@@ -15,7 +15,10 @@
     "lint:fix": "eslint . --ext js,jsx --fix",
     "format": "prettier --write \"src/**/*.{js,jsx,json,css,md}\"",
     "format:check": "prettier --check \"src/**/*.{js,jsx,json,css,md}\"",
-    "db:push": "supabase db push --linked",
+    "db:push": "SUPABASE_ACCESS_TOKEN=sbp_19cf52856f7e2c721815e31f7206c3e4d5ff9bbb supabase db push --password '2i_VGp@FqDzj42$'",
+    "db:pull": "SUPABASE_ACCESS_TOKEN=sbp_19cf52856f7e2c721815e31f7206c3e4d5ff9bbb supabase db pull --password '2i_VGp@FqDzj42$'",
+    "db:list": "SUPABASE_ACCESS_TOKEN=sbp_19cf52856f7e2c721815e31f7206c3e4d5ff9bbb supabase migration list --password '2i_VGp@FqDzj42$'",
+    "db:new": "supabase migration new",
     "db:reset": "supabase db reset --linked"
   },
   "dependencies": {
