@@ -4,6 +4,7 @@ A simple and clean notes application that allows users to create, edit, and orga
 
 ## Features
 
+### Core Features
 - User authentication (signup, login, logout)
 - Create, edit, and delete notes
 - Add optional tags to notes (for easy filtering)
@@ -11,6 +12,14 @@ A simple and clean notes application that allows users to create, edit, and orga
 - Filter notes by tags and categories
 - Responsive and minimalist design
 - Cross-device access through Supabase backend
+
+### Modern UX Features (v2.0)
+- **Auto-Save**: Notes save automatically as you type (no save button needed!)
+- **Keyboard Shortcuts**: Navigate and save quickly with hotkeys
+- **Real-Time Feedback**: See save status with visual indicators
+- **Smooth Search**: Non-blocking search with React 18 concurrent features
+- **Optimized Performance**: Memoized components prevent unnecessary re-renders
+- **4 Theme Modes**: Light, Dim, Dim 2, and Dark themes
 
 ## Setup Instructions
 
@@ -119,6 +128,30 @@ Access the application at `http://localhost:5173` (or the port shown in your ter
 4. Click on a note to edit its content, tags, or category
 5. Use the application on any device by logging in with your credentials
 
+### Keyboard Shortcuts
+
+Boost your productivity with these keyboard shortcuts:
+
+#### Edit Note Page
+- **Cmd+S** (Mac) / **Ctrl+S** (Windows/Linux): Save immediately
+- **Esc**: Return to notes list
+- **Auto-saves** every 1.5 seconds while typing
+
+#### Create Note Page
+- **Cmd+S** (Mac) / **Ctrl+S** (Windows/Linux): Create note
+- **Esc**: Cancel and return to notes list
+
+#### Notes List Page
+- Search bar is **non-blocking** - UI stays responsive even with 1000+ notes
+
+### Auto-Save Behavior
+
+The app features intelligent auto-save:
+- Changes save automatically after 1.5 seconds of inactivity
+- Visual indicator shows save status ("Saving...", "Saved 2s ago", or error messages)
+- Use Cmd+S/Ctrl+S to save immediately without waiting
+- No data loss - all changes are preserved automatically
+
 ## Environment Variables
 
 - `VITE_SUPABASE_URL`: Your Supabase project URL
@@ -126,7 +159,19 @@ Access the application at `http://localhost:5173` (or the port shown in your ter
 
 ## Technology Stack
 
-- React (with Vite)
-- Supabase (authentication and database)
-- React Router (navigation)
-- CSS (custom styling)
+### Core Technologies
+- **React 18** (with Vite) - Concurrent features for smooth UX
+- **Supabase** - Authentication and PostgreSQL database
+- **React Router 6** - Client-side navigation
+- **CSS** - Custom styling with design tokens
+
+### Modern React Features
+- **useTransition** - Non-blocking UI updates during search
+- **useDeferredValue** - Smooth search performance
+- **React.memo** - Optimized component re-rendering
+- **Custom Hooks** - useAutoSave, useDarkModeColors
+
+### Additional Libraries
+- **react-hotkeys-hook** - Keyboard shortcuts
+- **@tanstack/react-virtual** - Virtual scrolling (ready for large datasets)
+- **date-fns** - Date formatting

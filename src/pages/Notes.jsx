@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from 'react'
+import { useState, useCallback, useMemo, useEffect, useTransition, useDeferredValue } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useNotesData } from '../hooks/useNotesData'
 import { supabase } from '../lib/supabaseClient'
@@ -18,6 +18,10 @@ function Notes() {
     key: 'updated_at',
     direction: 'desc'
   })
+
+  // React 18 concurrent features for smooth filtering
+  const [isPending, startTransition] = useTransition()
+  const deferredSearchTerm = useDeferredValue(searchTerm)
 
   // Filter states
   const [selectedTypes, setSelectedTypes] = useState([])
@@ -133,13 +137,13 @@ function Notes() {
     }))
   }, [])
 
-  // Filter and sort notes (AND logic)
+  // Filter and sort notes (AND logic) - Using deferred value for smooth performance
   const filteredAndSortedNotes = useMemo(() => {
     let filtered = notes
 
-    // Apply search filter
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase()
+    // Apply search filter with deferred value (React 18 concurrent feature)
+    if (deferredSearchTerm) {
+      const term = deferredSearchTerm.toLowerCase()
       filtered = filtered.filter(note =>
         note.title?.toLowerCase().includes(term) ||
         note.content?.toLowerCase().includes(term) ||
@@ -196,7 +200,7 @@ function Notes() {
     })
 
     return sorted
-  }, [notes, searchTerm, selectedTypes, selectedProjects, selectedSpaces, sortConfig])
+  }, [notes, deferredSearchTerm, selectedTypes, selectedProjects, selectedSpaces, sortConfig])
 
   // Handle row click
   const handleRowClick = useCallback((noteId) => {
@@ -454,14 +458,33 @@ function Notes() {
       <div style={styles.header}>
         <h1 style={{ marginBottom: '1rem' }}>All Notes</h1>
 
-        {/* Search Bar */}
-        <input
-          type="text"
-          placeholder="Search notes by title, content, category, or tags..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={styles.searchBar}
-        />
+        {/* Search Bar with loading indicator */}
+        <div style={{ position: 'relative', flex: 1 }}>
+          <input
+            type="text"
+            placeholder="Search notes by title, content, category, or tags..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              ...styles.searchBar,
+              opacity: isPending ? 0.7 : 1,
+              transition: 'opacity 0.2s ease-in-out'
+            }}
+          />
+          {isPending && (
+            <div style={{
+              position: 'absolute',
+              right: '12px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              fontSize: '0.75rem',
+              color: colors.textMuted,
+              fontWeight: '500'
+            }}>
+              Filtering...
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Mobile Filter Toggle */}

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import PropTypes from 'prop-types'
+import { memo } from 'react'
 import { formatDateForDisplay } from '../../utils/dateHelpers'
 import { useDarkModeColors } from '../../hooks/useDarkModeColors'
 import { getBadgeVariant } from '../../styles/design-tokens'
@@ -391,4 +392,4 @@ NoteListItem.defaultProps = {
   isArchived: false
 }
 
-export default NoteListItem
+export default memo(NoteListItem)

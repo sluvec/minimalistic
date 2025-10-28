@@ -90,6 +90,46 @@ export const STATUS_OPTIONS = [
   { value: STATUS.NA, label: 'N/A' }
 ]
 
+// Triage Status values (for review workflow)
+export const TRIAGE_STATUS = {
+  NEW: 'New',
+  ACTIVE: 'Active',
+  DONE: 'Done'
+}
+
+// Triage status options array for dropdowns
+export const TRIAGE_STATUS_OPTIONS = [
+  { value: TRIAGE_STATUS.NEW, label: 'New' },
+  { value: TRIAGE_STATUS.ACTIVE, label: 'Active' },
+  { value: TRIAGE_STATUS.DONE, label: 'Done' }
+]
+
+// Note types
+export const NOTE_TYPES = {
+  NOTE: 'note',
+  TASK: 'task',
+  IDEA: 'idea',
+  LIST: 'list',
+  PROMPT: 'prompt',
+  QUESTION: 'question',
+  REFLECTION: 'reflection',
+  EVENT: 'event',
+  LINK: 'link'
+}
+
+// Note type options for dropdowns
+export const NOTE_TYPE_OPTIONS = [
+  { value: NOTE_TYPES.NOTE, label: 'Note' },
+  { value: NOTE_TYPES.TASK, label: 'Task' },
+  { value: NOTE_TYPES.IDEA, label: 'Idea' },
+  { value: NOTE_TYPES.EVENT, label: 'Event' },
+  { value: NOTE_TYPES.LINK, label: 'Link' },
+  { value: NOTE_TYPES.LIST, label: 'List' },
+  { value: NOTE_TYPES.PROMPT, label: 'Prompt' },
+  { value: NOTE_TYPES.QUESTION, label: 'Question' },
+  { value: NOTE_TYPES.REFLECTION, label: 'Reflection' }
+]
+
 // Priority values
 export const PRIORITY = {
   HIGH: 'High',

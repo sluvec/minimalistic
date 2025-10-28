@@ -1,10 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useHotkeys } from 'react-hotkeys-hook'
 import { supabase } from '../lib/supabaseClient'
 import { useDarkModeColors } from '../hooks/useDarkModeColors'
+import { useAutoSave } from '../hooks/useAutoSave'
+import SaveStatusIndicator from '../components/SaveStatusIndicator'
 
 // Constants and utilities
-import { STATUS, STATUS_OPTIONS, ERROR_MESSAGES } from '../constants'
+import { STATUS, STATUS_OPTIONS, TRIAGE_STATUS_OPTIONS, ERROR_MESSAGES, NOTE_TYPE_OPTIONS } from '../constants'
 import { parseTags, tagsToString } from '../utils/tagHelpers'
 import { validateNote } from '../utils/validation'
 
@@ -25,17 +28,21 @@ function EditNote() {
     importance: '',
     status: STATUS.NEW,
     note_type: 'note',
+    triage_status: 'New',
     estimated_hours: '',
     estimated_minutes: '',
     project_id: '',
-    space_id: ''
+    space_id: '',
+    checklist_id: '',
+    is_checkable: false,
+    is_checked: false
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [saveLoading, setSaveLoading] = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(true)
   const [projects, setProjects] = useState([])
   const [spaces, setSpaces] = useState([])
+  const [checklists, setChecklists] = useState([])
 
   useEffect(() => {
     const fetchNote = async () => {
@@ -80,10 +87,14 @@ function EditNote() {
           importance: data.importance || 'NA',
           status: data.status || STATUS.NEW,
           note_type: noteType,
+          triage_status: data.triage_status || 'New',
           estimated_hours: data.estimated_hours || '',
           estimated_minutes: data.estimated_minutes || '',
           project_id: data.project_id || '',
-          space_id: data.space_id || ''
+          space_id: data.space_id || '',
+          checklist_id: data.checklist_id || '',
+          is_checkable: data.is_checkable || false,
+          is_checked: data.is_checked || false
         })
 
       } catch (error) {
@@ -124,78 +135,101 @@ function EditNote() {
       }
     }
 
+    const fetchChecklists = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('checklists')
+          .select('id, name, color')
+          .eq('archived', false)
+          .order('name')
+
+        if (error) {
+          // Table might not exist yet, silently fail
+          console.log('Checklists table not ready yet')
+          return
+        }
+        setChecklists(data || [])
+      } catch (error) {
+        console.log('Error fetching checklists:', error)
+      }
+    }
+
     fetchNote()
     fetchProjects()
     fetchSpaces()
+    fetchChecklists()
   }, [id])
   
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData({
-      ...formData,
-      [name]: value
-    })
+    const { name, value, type, checked } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }))
   }
-  
-  const handleSubmit = async (e) => {
-    e.preventDefault()
 
-    // Prevent double submission
-    if (saveLoading) return
-
-    setSaveLoading(true)
-    setError(null)
-
-    try {
-      // Validate note using utility
-      const validation = validateNote(formData)
-      if (!validation.valid) {
-        const firstError = Object.values(validation.errors)[0]
-        throw new Error(firstError)
-      }
-
-      // Process tags using utility
-      const processedTags = parseTags(formData.tags)
-
-      // Update the note
-      const { error } = await supabase
-        .from('notes')
-        .update({
-          title: formData.title,
-          content: formData.content,
-          category: formData.category || null,
-          type: formData.type || null,
-          tags: processedTags,
-          due_date: formData.due_date || null,
-          url: formData.url || null,
-          priority: formData.priority || null,
-          importance: formData.importance || null,
-          status: formData.status || STATUS.NEW,
-          note_type: formData.note_type,
-          isTask: formData.note_type === 'task',
-          isList: formData.note_type === 'list',
-          isIdea: formData.note_type === 'idea',
-          estimated_hours: formData.estimated_hours ? parseInt(formData.estimated_hours) : null,
-          estimated_minutes: formData.estimated_minutes ? parseInt(formData.estimated_minutes) : null,
-          project_id: formData.project_id || null,
-          space_id: formData.space_id || null,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', id)
-      
-      if (error) throw error
-      
-      // Navigate back to dashboard
-      navigate('/')
-      
-    } catch (error) {
-      console.error('Error updating note:', error)
-      setError(error.message || 'Failed to update note')
-    } finally {
-      setSaveLoading(false)
+  // Modern auto-save function (no form submission needed!)
+  const saveNote = useCallback(async (data) => {
+    // Validate note using utility
+    const validation = validateNote(data)
+    if (!validation.valid) {
+      const firstError = Object.values(validation.errors)[0]
+      throw new Error(firstError)
     }
-  }
-  
+
+    // Process tags using utility
+    const processedTags = parseTags(data.tags)
+
+    // Update the note
+    const { error } = await supabase
+      .from('notes')
+      .update({
+        title: data.title,
+        content: data.content,
+        category: data.category || null,
+        type: data.type || null,
+        tags: processedTags,
+        due_date: data.due_date || null,
+        url: data.url || null,
+        priority: data.priority || null,
+        importance: data.importance || null,
+        status: data.status || STATUS.NEW,
+        triage_status: data.triage_status || 'New',
+        note_type: data.note_type,
+        isTask: data.note_type === 'task',
+        isList: data.note_type === 'list',
+        isIdea: data.note_type === 'idea',
+        estimated_hours: data.estimated_hours ? parseInt(data.estimated_hours) : null,
+        estimated_minutes: data.estimated_minutes ? parseInt(data.estimated_minutes) : null,
+        project_id: data.project_id || null,
+        space_id: data.space_id || null,
+        checklist_id: data.checklist_id || null,
+        is_checkable: data.is_checkable || false,
+        is_checked: data.is_checked || false,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+
+    if (error) throw error
+  }, [id])
+
+  // Auto-save hook - saves automatically after 1.5s of inactivity
+  const { isSaving, lastSaved, saveNow, error: saveError } = useAutoSave(
+    saveNote,
+    formData,
+    { delay: 1500, enabled: !loading }
+  )
+
+  // Keyboard shortcuts for power users
+  useHotkeys('cmd+s, ctrl+s', (e) => {
+    e.preventDefault()
+    saveNow() // Immediate save on Cmd+S
+  }, [saveNow])
+
+  useHotkeys('esc', () => {
+    navigate('/') // Quick exit with Esc
+  }, [navigate])
+
   const handleDelete = async () => {
     if (!window.confirm('Are you sure you want to delete this note? This action cannot be undone.')) {
       return
@@ -248,24 +282,41 @@ function EditNote() {
   
   return (
     <div className="edit-note">
-      <h1>Edit Note</h1>
-      
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '1.5rem'
+      }}>
+        <h1 style={{ margin: 0 }}>Edit Note</h1>
+
+        {/* Modern save status indicator */}
+        <SaveStatusIndicator
+          isSaving={isSaving}
+          lastSaved={lastSaved}
+          error={saveError}
+        />
+      </div>
+
       {error && (
         <div className="error">{error}</div>
       )}
-      
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Title</label>
-          <input
-            type="text"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            placeholder="Title (optional)"
-          />
-        </div>
 
+      {/* Keyboard shortcut hints */}
+      <div style={{
+        fontSize: '0.75rem',
+        color: colors.textMuted,
+        marginBottom: '1rem',
+        display: 'flex',
+        gap: '1rem',
+        flexWrap: 'wrap'
+      }}>
+        <span>💡 <strong>Cmd+S</strong> to save</span>
+        <span>💡 <strong>Esc</strong> to go back</span>
+        <span>✨ <strong>Auto-saves</strong> while you type</span>
+      </div>
+
+      <form>
         <div className="form-group">
           <label>Content*</label>
           <textarea
@@ -275,6 +326,28 @@ function EditNote() {
             placeholder="Enter note content"
             rows={10}
             required
+          />
+        </div>
+
+        <div className="form-group">
+          <label>URL</label>
+          <input
+            type="url"
+            name="url"
+            value={formData.url}
+            onChange={handleChange}
+            placeholder="URL (optional)"
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Title</label>
+          <input
+            type="text"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            placeholder="Title (optional)"
           />
         </div>
 
@@ -307,271 +380,358 @@ function EditNote() {
 
         {showAdvanced && (
           <div style={{
-            padding: '1rem',
+            padding: '1.5rem',
             backgroundColor: colors.background,
             borderRadius: '0.5rem',
             marginBottom: '1rem',
             border: `1px solid ${colors.border}`
           }}>
-            <div className="form-group">
-              <label>Project</label>
-              <select
-                name="project_id"
-                value={formData.project_id}
-                onChange={handleChange}
-              >
-                <option value="">No Project</option>
-                {projects.map(project => (
-                  <option key={project.id} value={project.id}>
-                    {project.name}
-                  </option>
-                ))}
-              </select>
+            {/* Note Type Selection */}
+            <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+              <label style={{ marginBottom: '0.75rem', display: 'block', fontWeight: '600' }}>Note Type</label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type="radio"
+                    id="note_type_note"
+                    name="note_type"
+                    value="note"
+                    checked={formData.note_type === 'note'}
+                    onChange={handleChange}
+                    style={{ marginRight: '0.5rem' }}
+                  />
+                  <label htmlFor="note_type_note">📝 Note</label>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type="radio"
+                    id="note_type_task"
+                    name="note_type"
+                    value="task"
+                    checked={formData.note_type === 'task'}
+                    onChange={handleChange}
+                    style={{ marginRight: '0.5rem' }}
+                  />
+                  <label htmlFor="note_type_task">✅ Task</label>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type="radio"
+                    id="note_type_idea"
+                    name="note_type"
+                    value="idea"
+                    checked={formData.note_type === 'idea'}
+                    onChange={handleChange}
+                    style={{ marginRight: '0.5rem' }}
+                  />
+                  <label htmlFor="note_type_idea">💡 Idea</label>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type="radio"
+                    id="note_type_event"
+                    name="note_type"
+                    value="event"
+                    checked={formData.note_type === 'event'}
+                    onChange={handleChange}
+                    style={{ marginRight: '0.5rem' }}
+                  />
+                  <label htmlFor="note_type_event">📅 Event</label>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type="radio"
+                    id="note_type_link"
+                    name="note_type"
+                    value="link"
+                    checked={formData.note_type === 'link'}
+                    onChange={handleChange}
+                    style={{ marginRight: '0.5rem' }}
+                  />
+                  <label htmlFor="note_type_link">🔗 Link</label>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type="radio"
+                    id="note_type_list"
+                    name="note_type"
+                    value="list"
+                    checked={formData.note_type === 'list'}
+                    onChange={handleChange}
+                    style={{ marginRight: '0.5rem' }}
+                  />
+                  <label htmlFor="note_type_list">📋 List</label>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type="radio"
+                    id="note_type_prompt"
+                    name="note_type"
+                    value="prompt"
+                    checked={formData.note_type === 'prompt'}
+                    onChange={handleChange}
+                    style={{ marginRight: '0.5rem' }}
+                  />
+                  <label htmlFor="note_type_prompt">🤖 Prompt</label>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type="radio"
+                    id="note_type_question"
+                    name="note_type"
+                    value="question"
+                    checked={formData.note_type === 'question'}
+                    onChange={handleChange}
+                    style={{ marginRight: '0.5rem' }}
+                  />
+                  <label htmlFor="note_type_question">❓ Question</label>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <input
+                    type="radio"
+                    id="note_type_reflection"
+                    name="note_type"
+                    value="reflection"
+                    checked={formData.note_type === 'reflection'}
+                    onChange={handleChange}
+                    style={{ marginRight: '0.5rem' }}
+                  />
+                  <label htmlFor="note_type_reflection">💭 Reflection</label>
+                </div>
+              </div>
             </div>
 
-            <div className="form-group">
-              <label>Space</label>
-              <select
-                name="space_id"
-                value={formData.space_id}
-                onChange={handleChange}
-              >
-                <option value="">No Space</option>
-                {spaces.map(space => (
-                  <option key={space.id} value={space.id}>
-                    {space.icon} {space.name}
-                  </option>
-                ))}
-              </select>
+            {/* 3-Column Layout for other fields */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+              {/* Column 1 - Organization */}
+              <div>
+                <div className="form-group">
+                  <label>Project</label>
+                  <select
+                    name="project_id"
+                    value={formData.project_id}
+                    onChange={handleChange}
+                  >
+                    <option value="">No Project</option>
+                    {projects.map(project => (
+                      <option key={project.id} value={project.id}>
+                        {project.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Space</label>
+                  <select
+                    name="space_id"
+                    value={formData.space_id}
+                    onChange={handleChange}
+                  >
+                    <option value="">No Space</option>
+                    {spaces.map(space => (
+                      <option key={space.id} value={space.id}>
+                        {space.icon} {space.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Check-list</label>
+                  <select
+                    name="checklist_id"
+                    value={formData.checklist_id}
+                    onChange={handleChange}
+                  >
+                    <option value="">No Check-list</option>
+                    {checklists.map(checklist => (
+                      <option key={checklist.id} value={checklist.id}>
+                        {checklist.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <input
+                      type="checkbox"
+                      name="is_checkable"
+                      checked={formData.is_checkable}
+                      onChange={handleChange}
+                    />
+                    Checkable item
+                  </label>
+                </div>
+
+                {formData.is_checkable && (
+                  <div className="form-group">
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <input
+                        type="checkbox"
+                        name="is_checked"
+                        checked={formData.is_checked}
+                        onChange={handleChange}
+                      />
+                      Checked
+                    </label>
+                  </div>
+                )}
+              </div>
+
+              {/* Column 2 - Categorization */}
+              <div>
+                <div className="form-group">
+                  <label>Category</label>
+                  <input
+                    type="text"
+                    name="category"
+                    value={formData.category}
+                    onChange={handleChange}
+                    placeholder="Category"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Type</label>
+                  <input
+                    type="text"
+                    name="type"
+                    value={formData.type}
+                    onChange={handleChange}
+                    placeholder="Type"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Tags</label>
+                  <input
+                    type="text"
+                    name="tags"
+                    value={formData.tags}
+                    onChange={handleChange}
+                    placeholder="Comma separated"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Due Date</label>
+                  <input
+                    type="date"
+                    name="due_date"
+                    value={formData.due_date}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
+              {/* Column 3 - Priority & Status */}
+              <div>
+                <div className="form-group">
+                  <label>Triage Status</label>
+                  <select
+                    name="triage_status"
+                    value={formData.triage_status}
+                    onChange={handleChange}
+                  >
+                    {TRIAGE_STATUS_OPTIONS.map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Status</label>
+                  <select
+                    name="status"
+                    value={formData.status}
+                    onChange={handleChange}
+                  >
+                    {STATUS_OPTIONS.map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Priority</label>
+                  <select
+                    name="priority"
+                    value={formData.priority}
+                    onChange={handleChange}
+                  >
+                    <option value="NA">NA</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Importance</label>
+                  <select
+                    name="importance"
+                    value={formData.importance}
+                    onChange={handleChange}
+                  >
+                    <option value="NA">NA</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                  </select>
+                </div>
+              </div>
             </div>
 
-            <div className="form-group">
-              <label>Category</label>
-              <input
-                type="text"
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                placeholder="Category (optional)"
-              />
+            {/* Estimated Duration - Full Width */}
+            <div className="form-group" style={{ marginTop: '1rem' }}>
+              <label>Estimated Duration</label>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <input
+                    type="number"
+                    name="estimated_hours"
+                    value={formData.estimated_hours}
+                    onChange={handleChange}
+                    placeholder="0"
+                    min="0"
+                    max="999"
+                    style={{ width: '80px' }}
+                  />
+                  <span>hours</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <input
+                    type="number"
+                    name="estimated_minutes"
+                    value={formData.estimated_minutes}
+                    onChange={handleChange}
+                    placeholder="0"
+                    min="0"
+                    max="59"
+                    style={{ width: '80px' }}
+                  />
+                  <span>minutes</span>
+                </div>
+              </div>
             </div>
-        
-        <div className="form-group">
-          <label>Type</label>
-          <input
-            type="text"
-            name="type"
-            value={formData.type}
-            onChange={handleChange}
-            placeholder="Type (optional)"
-          />
-        </div>
-        
-        <div className="form-group">
-          <label>Tags</label>
-          <input
-            type="text"
-            name="tags"
-            value={formData.tags}
-            onChange={handleChange}
-            placeholder="Tags (comma separated)"
-          />
-        </div>
-        
-        <div className="form-group">
-          <label>Due Date</label>
-          <input
-            type="date"
-            name="due_date"
-            value={formData.due_date}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Estimated Duration (optional)</label>
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <input
-                type="number"
-                name="estimated_hours"
-                value={formData.estimated_hours}
-                onChange={handleChange}
-                placeholder="0"
-                min="0"
-                max="999"
-                style={{ width: '80px' }}
-              />
-              <span>hours</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <input
-                type="number"
-                name="estimated_minutes"
-                value={formData.estimated_minutes}
-                onChange={handleChange}
-                placeholder="0"
-                min="0"
-                max="59"
-                style={{ width: '80px' }}
-              />
-              <span>minutes</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label>URL</label>
-          <input
-            type="url"
-            name="url"
-            value={formData.url}
-            onChange={handleChange}
-            placeholder="URL (optional)"
-          />
-        </div>
-        
-        <div className="form-group">
-          <label>Priority</label>
-          <select
-            name="priority"
-            value={formData.priority}
-            onChange={handleChange}
-          >
-            <option value="NA">NA</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-          </select>
-        </div>
-
-        <div className="form-group">
-          <label>Importance</label>
-          <select
-            name="importance"
-            value={formData.importance}
-            onChange={handleChange}
-          >
-            <option value="NA">NA</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-          </select>
-        </div>
-        
-        <div className="form-group">
-          <label>Status</label>
-          <select
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-          >
-            {STATUS_OPTIONS.map(option => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        
-        <div className="form-group">
-          <label>Note Type</label>
-          <div style={{ display: 'flex', flexDirection: 'row', gap: '1rem', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <input
-                type="radio"
-                id="note_type_note"
-                name="note_type"
-                value="note"
-                checked={formData.note_type === 'note'}
-                onChange={handleChange}
-                style={{ marginRight: '0.5rem' }}
-              />
-              <label htmlFor="note_type_note">📝 Note</label>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <input
-                type="radio"
-                id="note_type_task"
-                name="note_type"
-                value="task"
-                checked={formData.note_type === 'task'}
-                onChange={handleChange}
-                style={{ marginRight: '0.5rem' }}
-              />
-              <label htmlFor="note_type_task">✅ Task</label>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <input
-                type="radio"
-                id="note_type_idea"
-                name="note_type"
-                value="idea"
-                checked={formData.note_type === 'idea'}
-                onChange={handleChange}
-                style={{ marginRight: '0.5rem' }}
-              />
-              <label htmlFor="note_type_idea">💡 Idea</label>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <input
-                type="radio"
-                id="note_type_list"
-                name="note_type"
-                value="list"
-                checked={formData.note_type === 'list'}
-                onChange={handleChange}
-                style={{ marginRight: '0.5rem' }}
-              />
-              <label htmlFor="note_type_list">📋 List</label>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <input
-                type="radio"
-                id="note_type_prompt"
-                name="note_type"
-                value="prompt"
-                checked={formData.note_type === 'prompt'}
-                onChange={handleChange}
-                style={{ marginRight: '0.5rem' }}
-              />
-              <label htmlFor="note_type_prompt">🤖 Prompt</label>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <input
-                type="radio"
-                id="note_type_question"
-                name="note_type"
-                value="question"
-                checked={formData.note_type === 'question'}
-                onChange={handleChange}
-                style={{ marginRight: '0.5rem' }}
-              />
-              <label htmlFor="note_type_question">❓ Question</label>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <input
-                type="radio"
-                id="note_type_reflection"
-                name="note_type"
-                value="reflection"
-                checked={formData.note_type === 'reflection'}
-                onChange={handleChange}
-                style={{ marginRight: '0.5rem' }}
-              />
-              <label htmlFor="note_type_reflection">💭 Reflection</label>
-            </div>
-          </div>
-        </div>
           </div>
         )}
 
+        {/* Action buttons - no save button needed thanks to auto-save! */}
         <div className="form-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '2rem' }}>
           <div style={{ display: 'flex', gap: '1rem' }}>
             <button
@@ -585,8 +745,11 @@ function EditNote() {
                 border: 'none',
                 color: 'white',
                 fontWeight: '500',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'opacity 0.2s ease-in-out'
               }}
+              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.85'}
+              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
             >
               Delete Note
             </button>
@@ -601,46 +764,34 @@ function EditNote() {
                 border: 'none',
                 color: 'white',
                 fontWeight: '500',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'opacity 0.2s ease-in-out'
               }}
+              onMouseEnter={(e) => e.currentTarget.style.opacity = '0.85'}
+              onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
             >
               Archive Note
             </button>
           </div>
-          <div style={{ display: 'flex', gap: '1.5rem' }}>
-            <button
-              type="button"
-              onClick={() => navigate('/')}
-              className="btn secondary"
-              style={{
-                padding: '0.5rem 1.25rem',
-                borderRadius: '0.375rem',
-                border: `1px solid ${colors.border}`,
-                backgroundColor: colors.darkerBackground,
-                color: colors.textSecondary,
-                fontWeight: '500',
-                cursor: 'pointer'
-              }}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="btn primary"
-              disabled={saveLoading}
-              style={{
-                backgroundColor: colors.success,
-                padding: '0.5rem 1.25rem',
-                borderRadius: '0.375rem',
-                border: 'none',
-                color: 'white',
-                fontWeight: '500',
-                cursor: 'pointer'
-              }}
-            >
-              {saveLoading ? 'Saving...' : 'Save Changes'}
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            className="btn primary"
+            style={{
+              backgroundColor: colors.primary,
+              padding: '0.5rem 1.5rem',
+              borderRadius: '0.375rem',
+              border: 'none',
+              color: 'white',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s ease-in-out'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = colors.primaryHover}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = colors.primary}
+          >
+            Done
+          </button>
         </div>
       </form>
     </div>

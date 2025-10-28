@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types'
 import { useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
+import { memo } from 'react'
 import { useDarkModeColors } from '../../hooks/useDarkModeColors'
 
 /**
@@ -182,4 +183,4 @@ NoteCardMobile.propTypes = {
   }).isRequired,
 }
 
-export default NoteCardMobile
+export default memo(NoteCardMobile)
