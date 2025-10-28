@@ -229,16 +229,26 @@ function Spaces() {
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <h1 style={{ fontSize: '1.875rem', fontWeight: '600', color: colors.textPrimary }}>Spaces Management</h1>
-        <button
-          onClick={() => {
-            setShowSpaceForm(!showSpaceForm)
-            setEditingSpace(null)
-            setSpaceForm({ name: '', description: '', color: '#6366f1', icon: '📁' })
-          }}
-          style={{ ...styles.button, ...styles.buttonPrimary }}
-        >
-          {showSpaceForm ? 'Cancel' : '+ New Space'}
-        </button>
+        {showSpaceForm ? (
+          <button
+            type="submit"
+            form="space-form"
+            style={{ ...styles.button, ...styles.buttonPrimary, fontWeight: '600' }}
+          >
+            Save
+          </button>
+        ) : (
+          <button
+            onClick={() => {
+              setShowSpaceForm(true)
+              setEditingSpace(null)
+              setSpaceForm({ name: '', description: '', color: '#6366f1', icon: '📁' })
+            }}
+            style={{ ...styles.button, ...styles.buttonPrimary }}
+          >
+            + New Space
+          </button>
+        )}
       </div>
 
       {showSpaceForm && (
@@ -246,7 +256,7 @@ function Spaces() {
           <h3 style={{ marginBottom: '1rem', fontSize: '1.125rem', fontWeight: '600', color: colors.textPrimary }}>
             {editingSpace ? 'Edit Space' : 'Create New Space'}
           </h3>
-          <form onSubmit={handleSpaceSubmit}>
+          <form id="space-form" onSubmit={handleSpaceSubmit}>
             <label style={styles.label}>
               Name *
               <input
@@ -296,10 +306,7 @@ function Spaces() {
               </label>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-              <button type="submit" style={{ ...styles.button, ...styles.buttonPrimary }} disabled={loading}>
-                {editingSpace ? 'Update Space' : 'Create Space'}
-              </button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '2rem', marginTop: '2rem' }}>
               <button
                 type="button"
                 onClick={() => {
@@ -310,6 +317,9 @@ function Spaces() {
                 style={{ ...styles.button, ...styles.buttonSecondary }}
               >
                 Cancel
+              </button>
+              <button type="submit" style={{ ...styles.button, ...styles.buttonPrimary, fontWeight: '600', minWidth: '200px' }} disabled={loading}>
+                {editingSpace ? 'Update' : 'Save'}
               </button>
             </div>
           </form>

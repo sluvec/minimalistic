@@ -226,20 +226,38 @@ function Projects() {
     <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h1 style={{ color: colors.textPrimary }}>Projects</h1>
-        <button
-          onClick={() => setShowCreateForm(!showCreateForm)}
-          style={{
-            padding: '0.75rem 1.5rem',
-            backgroundColor: '#48bb78',
-            color: 'white',
-            border: 'none',
-            borderRadius: '0.375rem',
-            cursor: 'pointer',
-            fontWeight: '500'
-          }}
-        >
-          {showCreateForm ? 'Cancel' : '+ New Project'}
-        </button>
+        {showCreateForm ? (
+          <button
+            type="submit"
+            form="project-form"
+            style={{
+              padding: '0.75rem 1.5rem',
+              backgroundColor: '#48bb78',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.375rem',
+              cursor: 'pointer',
+              fontWeight: '600'
+            }}
+          >
+            Save
+          </button>
+        ) : (
+          <button
+            onClick={() => setShowCreateForm(true)}
+            style={{
+              padding: '0.75rem 1.5rem',
+              backgroundColor: '#48bb78',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.375rem',
+              cursor: 'pointer',
+              fontWeight: '500'
+            }}
+          >
+            + New Project
+          </button>
+        )}
       </div>
 
       {error && (
@@ -264,7 +282,7 @@ function Projects() {
           border: `1px solid ${colors.border}`
         }}>
           <h2 style={{ color: colors.textPrimary }}>{editingProject ? 'Edit Project' : 'Create New Project'}</h2>
-          <form onSubmit={handleSubmit}>
+          <form id="project-form" onSubmit={handleSubmit}>
             <div style={{ marginBottom: '1rem' }}>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500', color: colors.textPrimary }}>
                 Project Name*
@@ -441,21 +459,7 @@ function Projects() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <button
-                type="submit"
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  backgroundColor: '#48bb78',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '0.375rem',
-                  cursor: 'pointer',
-                  fontWeight: '500'
-                }}
-              >
-                {editingProject ? 'Update Project' : 'Create Project'}
-              </button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '2rem', marginTop: '2rem' }}>
               <button
                 type="button"
                 onClick={cancelEdit}
@@ -470,6 +474,21 @@ function Projects() {
                 }}
               >
                 Cancel
+              </button>
+              <button
+                type="submit"
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  backgroundColor: '#48bb78',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  minWidth: '200px'
+                }}
+              >
+                {editingProject ? 'Update Project' : 'Save'}
               </button>
             </div>
           </form>
