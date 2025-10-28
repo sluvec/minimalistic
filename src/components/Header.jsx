@@ -154,6 +154,20 @@ function Header({ session }) {
                     </li>
                     <li>
                       <Link
+                        to="/checklists"
+                        style={navLinkStyle(isActive('/checklists'))}
+                        onMouseEnter={(e) => {
+                          if (!isActive('/checklists')) e.currentTarget.style.backgroundColor = colors.hoverBackground
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent'
+                        }}
+                      >
+                        Check Lists
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
                         to="/spaces"
                         style={navLinkStyle(isActive('/spaces'))}
                         onMouseEnter={(e) => {

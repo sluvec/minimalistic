@@ -237,6 +237,20 @@ function MobileMenu({ session }) {
           </Link>
 
           <Link
+            to="/checklists"
+            style={navLinkStyle(isActive('/checklists'))}
+            onMouseEnter={(e) => {
+              if (!isActive('/checklists')) e.currentTarget.style.backgroundColor = colors.hoverBackground
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent'
+            }}
+          >
+            <span style={{ fontSize: '1.25rem' }}>✅</span>
+            <span>Check Lists</span>
+          </Link>
+
+          <Link
             to="/spaces"
             style={navLinkStyle(isActive('/spaces'))}
             onMouseEnter={(e) => {

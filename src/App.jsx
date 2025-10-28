@@ -30,6 +30,7 @@ const EditNote = lazy(() => import('./pages/EditNote'))
 const Archive = lazy(() => import('./pages/Archive'))
 const Projects = lazy(() => import('./pages/Projects'))
 const ProjectDetail = lazy(() => import('./pages/ProjectDetail'))
+const Checklists = lazy(() => import('./pages/Checklists'))
 const Analytics = lazy(() => import('./pages/Analytics'))
 const Settings = lazy(() => import('./pages/Settings'))
 const NotFound = lazy(() => import('./pages/NotFound'))
@@ -159,6 +160,10 @@ function App() {
                   <Route
                     path="/project/:id"
                     element={session ? <ProjectDetail /> : <Navigate to="/login" />}
+                  />
+                  <Route
+                    path="/checklists"
+                    element={session ? <Checklists /> : <Navigate to="/login" />}
                   />
                   <Route
                     path="/analytics"
