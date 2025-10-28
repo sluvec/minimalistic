@@ -17,6 +17,8 @@ function CreateNote() {
     category: '',
     type: 'Note',
     tags: '',
+    start_date: '',
+    end_date: '',
     due_date: '',
     url: '',
     priority: 'NA',
@@ -164,6 +166,8 @@ function CreateNote() {
           category: formData.category || null,
           type: formData.type || null,
           tags: processedTags,
+          start_date: formData.start_date || null,
+          end_date: formData.end_date || null,
           due_date: formData.due_date || null,
           url: formData.url || null,
           priority: formData.priority || null,
@@ -507,6 +511,26 @@ function CreateNote() {
                     value={formData.tags}
                     onChange={handleChange}
                     placeholder="Comma separated"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Start Date</label>
+                  <input
+                    type="date"
+                    name="start_date"
+                    value={formData.start_date}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>End Date</label>
+                  <input
+                    type="date"
+                    name="end_date"
+                    value={formData.end_date}
+                    onChange={handleChange}
                   />
                 </div>
 

@@ -22,6 +22,8 @@ function EditNote() {
     category: '',
     type: '',
     tags: '',
+    start_date: '',
+    end_date: '',
     due_date: '',
     url: '',
     priority: '',
@@ -81,6 +83,8 @@ function EditNote() {
           category: data.category || '',
           type: data.type || '',
           tags: tagsString,
+          start_date: data.start_date || '',
+          end_date: data.end_date || '',
           due_date: data.due_date || '',
           url: data.url || '',
           priority: data.priority || 'NA',
@@ -189,6 +193,8 @@ function EditNote() {
         category: data.category || null,
         type: data.type || null,
         tags: processedTags,
+        start_date: data.start_date || null,
+        end_date: data.end_date || null,
         due_date: data.due_date || null,
         url: data.url || null,
         priority: data.priority || null,
@@ -620,6 +626,26 @@ function EditNote() {
                     value={formData.tags}
                     onChange={handleChange}
                     placeholder="Comma separated"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Start Date</label>
+                  <input
+                    type="date"
+                    name="start_date"
+                    value={formData.start_date}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>End Date</label>
+                  <input
+                    type="date"
+                    name="end_date"
+                    value={formData.end_date}
+                    onChange={handleChange}
                   />
                 </div>
 

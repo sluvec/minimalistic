@@ -27,6 +27,7 @@ function Notes() {
   const [selectedTypes, setSelectedTypes] = useState([])
   const [selectedProjects, setSelectedProjects] = useState([])
   const [selectedSpaces, setSelectedSpaces] = useState([])
+  const [selectedTriageStatuses, setSelectedTriageStatuses] = useState([])
   const [projects, setProjects] = useState([])
   const [spaces, setSpaces] = useState([])
   const [showMobileFilters, setShowMobileFilters] = useState(false)
@@ -40,6 +41,13 @@ function Notes() {
     { value: 'prompt', label: 'Prompt', icon: '🤖' },
     { value: 'question', label: 'Question', icon: '❓' },
     { value: 'reflection', label: 'Reflection', icon: '💭' }
+  ]
+
+  // Triage statuses
+  const triageStatuses = [
+    { value: 'New', label: 'New', color: '#94a3b8' },
+    { value: 'Active', label: 'Active', color: '#10b981' },
+    { value: 'Done', label: 'Done', color: '#6366f1' }
   ]
 
   // Fetch projects and spaces
@@ -118,16 +126,23 @@ function Notes() {
     )
   }
 
+  const toggleTriageFilter = (status) => {
+    setSelectedTriageStatuses(prev =>
+      prev.includes(status) ? prev.filter(s => s !== status) : [...prev, status]
+    )
+  }
+
   // Clear all filters
   const clearAllFilters = () => {
     setSelectedTypes([])
     setSelectedProjects([])
     setSelectedSpaces([])
+    setSelectedTriageStatuses([])
     setSearchTerm('')
   }
 
   // Check if any filters are active
-  const hasActiveFilters = selectedTypes.length > 0 || selectedProjects.length > 0 || selectedSpaces.length > 0 || searchTerm.length > 0
+  const hasActiveFilters = selectedTypes.length > 0 || selectedProjects.length > 0 || selectedSpaces.length > 0 || selectedTriageStatuses.length > 0 || searchTerm.length > 0
 
   // Sorting logic
   const handleSort = useCallback((key) => {
@@ -174,6 +189,14 @@ function Notes() {
       )
     }
 
+    // Apply triage status filter (AND logic - must match selected statuses)
+    if (selectedTriageStatuses.length > 0) {
+      filtered = filtered.filter(note => {
+        const triageStatus = note.triage_status || 'New'
+        return selectedTriageStatuses.includes(triageStatus)
+      })
+    }
+
     // Apply sorting
     const sorted = [...filtered].sort((a, b) => {
       const aVal = a[sortConfig.key]
@@ -200,7 +223,7 @@ function Notes() {
     })
 
     return sorted
-  }, [notes, deferredSearchTerm, selectedTypes, selectedProjects, selectedSpaces, sortConfig])
+  }, [notes, deferredSearchTerm, selectedTypes, selectedProjects, selectedSpaces, selectedTriageStatuses, sortConfig])
 
   // Handle row click
   const handleRowClick = useCallback((noteId) => {
@@ -442,6 +465,31 @@ function Notes() {
         </div>
       </div>
 
+      {/* Triage Status Filter */}
+      <div style={styles.filterRow}>
+        <label style={styles.filterLabel}>Triage Status</label>
+        <div style={styles.filterChips}>
+          {triageStatuses.map(status => (
+            <button
+              key={status.value}
+              onClick={() => toggleTriageFilter(status.value)}
+              style={styles.chip(selectedTriageStatuses.includes(status.value))}
+            >
+              <span
+                style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: status.color,
+                  display: 'inline-block'
+                }}
+              />
+              <span>{status.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Clear Filters Button */}
       {hasActiveFilters && (
         <div style={{ marginTop: '1rem', textAlign: 'right' }}>
@@ -559,6 +607,9 @@ function Notes() {
                 <th style={styles.th} onClick={() => handleSort('space_id')}>
                   Space <SortIcon columnKey="space_id" />
                 </th>
+                <th style={styles.th} onClick={() => handleSort('triage_status')}>
+                  Triage <SortIcon columnKey="triage_status" />
+                </th>
                 <th style={styles.th} onClick={() => handleSort('updated_at')}>
                   Updated <SortIcon columnKey="updated_at" />
                 </th>
@@ -608,6 +659,25 @@ function Notes() {
                   </td>
                   <td style={styles.td}>
                     {note.spaces?.name ? `${note.spaces.icon || '📁'} ${note.spaces.name}` : '-'}
+                  </td>
+                  <td style={styles.td}>
+                    <span style={{
+                      display: 'inline-block',
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.75rem',
+                      fontWeight: '600',
+                      backgroundColor:
+                        note.triage_status === 'Active' ? '#10b98140' :
+                        note.triage_status === 'Done' ? '#6366f140' :
+                        '#94a3b840',
+                      color:
+                        note.triage_status === 'Active' ? '#059669' :
+                        note.triage_status === 'Done' ? '#4f46e5' :
+                        '#475569'
+                    }}>
+                      {note.triage_status || 'New'}
+                    </span>
                   </td>
                   <td style={styles.td}>
                     {note.updated_at ? format(new Date(note.updated_at), 'MMM d, yyyy') : '-'}

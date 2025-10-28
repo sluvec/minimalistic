@@ -1004,30 +1004,88 @@ function Settings() {
         </div>
       )}
 
-      <div style={styles.card}>
-        {spaces.length === 0 ? (
+{spaces.length === 0 ? (
+        <div style={styles.card}>
           <div style={styles.emptyState}>
             <p>No spaces yet. Create your first space to organize your projects and notes.</p>
           </div>
-        ) : (
-          spaces.map(space => (
-            <div key={space.id} style={styles.listItem}>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                  <span style={{ fontSize: '1.5rem' }}>{space.icon}</span>
-                  <span style={{ fontWeight: '600', fontSize: '1.125rem', color: colors.textPrimary }}>{space.name}</span>
-                  <span style={styles.badge(space.color)}>{space.projectCount} projects</span>
-                  <span style={styles.badge(space.color)}>{space.noteCount} notes</span>
+        </div>
+      ) : (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+          gap: '1rem'
+        }}>
+          {spaces.map(space => (
+            <div
+              key={space.id}
+              style={{
+                backgroundColor: colors.cardBackground,
+                borderRadius: '0.5rem',
+                padding: '1.5rem',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                border: `2px solid ${space.color}20`,
+                transition: 'all 0.2s',
+                cursor: 'pointer'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = space.color
+                e.currentTarget.style.boxShadow = `0 4px 12px ${space.color}20`
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = `${space.color}20`
+                e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+              }}
+            >
+              <div style={{ marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                  <span style={{ fontSize: '2rem' }}>{space.icon}</span>
+                  <span style={{ fontWeight: '600', fontSize: '1.25rem', color: colors.textPrimary, flex: 1 }}>
+                    {space.name}
+                  </span>
                 </div>
                 {space.description && (
-                  <p style={{ color: colors.textMuted, fontSize: '0.875rem', marginLeft: '2rem' }}>
+                  <p style={{ color: colors.textMuted, fontSize: '0.875rem', lineHeight: '1.4', marginBottom: '1rem' }}>
                     {space.description}
                   </p>
                 )}
               </div>
+
+              <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
+                <div style={{
+                  flex: 1,
+                  textAlign: 'center',
+                  padding: '0.5rem',
+                  backgroundColor: colors.background,
+                  borderRadius: '0.375rem'
+                }}>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '600', color: space.color }}>
+                    {space.projectCount}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: colors.textMuted, marginTop: '0.25rem' }}>
+                    Projects
+                  </div>
+                </div>
+                <div style={{
+                  flex: 1,
+                  textAlign: 'center',
+                  padding: '0.5rem',
+                  backgroundColor: colors.background,
+                  borderRadius: '0.375rem'
+                }}>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '600', color: space.color }}>
+                    {space.noteCount}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: colors.textMuted, marginTop: '0.25rem' }}>
+                    Notes
+                  </div>
+                </div>
+              </div>
+
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation()
                     setEditingSpace(space)
                     setSpaceForm({
                       name: space.name,
@@ -1037,21 +1095,32 @@ function Settings() {
                     })
                     setShowSpaceForm(true)
                   }}
-                  style={{ ...styles.button, ...styles.buttonSecondary }}
+                  style={{
+                    ...styles.button,
+                    ...styles.buttonSecondary,
+                    flex: 1
+                  }}
                 >
                   Edit
                 </button>
                 <button
-                  onClick={() => handleSpaceDelete(space.id)}
-                  style={{ ...styles.button, ...styles.buttonDanger }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleSpaceDelete(space.id)
+                  }}
+                  style={{
+                    ...styles.button,
+                    ...styles.buttonDanger,
+                    flex: 1
+                  }}
                 >
                   Archive
                 </button>
               </div>
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 
