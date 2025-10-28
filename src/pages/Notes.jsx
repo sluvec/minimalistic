@@ -327,13 +327,16 @@ function Notes() {
       marginBottom: '1rem'
     },
     tableContainer: {
+      width: '100%',
       overflowX: 'auto',
       backgroundColor: colors.cardBackground,
       borderRadius: '0.5rem',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+      WebkitOverflowScrolling: 'touch'
     },
     table: {
-      width: '100%',
+      width: 'max-content',
+      minWidth: '100%',
       borderCollapse: 'collapse',
       fontSize: '0.875rem'
     },
@@ -362,14 +365,20 @@ function Notes() {
     },
     titleCell: {
       fontWeight: '500',
-      minWidth: '150px',
-      maxWidth: '250px'
+      minWidth: '120px',
+      maxWidth: '200px',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
     },
     previewCell: {
       color: colors.textMuted,
-      minWidth: '300px',
-      maxWidth: '400px',
-      lineHeight: '1.5'
+      minWidth: '200px',
+      maxWidth: '300px',
+      lineHeight: '1.5',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
     },
     tagBadge: {
       display: 'inline-block',

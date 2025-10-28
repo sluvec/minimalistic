@@ -56,6 +56,8 @@ function Dashboard() {
     category: '',
     type: '',
     tags: '',
+    start_date: '',
+    end_date: '',
     due_date: '',
     url: '',
     priority: '',
@@ -63,7 +65,8 @@ function Dashboard() {
     status: STATUS.NEW,
     note_type: 'note',
     project_id: '',
-    space_id: ''
+    space_id: '',
+    triage_status: 'New'
   })
   const [quickNoteError, setQuickNoteError] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -156,11 +159,14 @@ function Dashboard() {
           category: quickNote.category || null,
           type: quickNote.type || null,
           tags: processedTags,
+          start_date: quickNote.start_date || null,
+          end_date: quickNote.end_date || null,
           due_date: quickNote.due_date || null,
           url: quickNote.url || null,
           priority: quickNote.priority || null,
           importance: quickNote.importance || null,
           status: quickNote.status || STATUS.NEW,
+          triage_status: quickNote.triage_status || 'New',
           note_type: quickNote.note_type,
           isTask: quickNote.note_type === 'task',
           isList: quickNote.note_type === 'list',
@@ -179,6 +185,8 @@ function Dashboard() {
         category: '',
         type: '',
         tags: '',
+        start_date: '',
+        end_date: '',
         due_date: '',
         url: '',
         priority: '',
@@ -186,7 +194,8 @@ function Dashboard() {
         status: STATUS.NEW,
         note_type: 'note',
         project_id: '',
-        space_id: ''
+        space_id: '',
+        triage_status: 'New'
       })
 
       toast.success(SUCCESS_MESSAGES.NOTE_CREATED)
@@ -472,20 +481,6 @@ function Dashboard() {
               />
             </div>
 
-            <div style={{ flex: '1 1 20%', minWidth: '120px' }}>
-              <label htmlFor="quick-due-date" className="sr-only">Due Date</label>
-              <input
-                id="quick-due-date"
-                type="date"
-                name="due_date"
-                placeholder="Due Date"
-                value={quickNote.due_date}
-                onChange={handleQuickNoteChange}
-                aria-label="Note due date"
-                style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
-              />
-            </div>
-
             <div style={{ flex: '1 1 40%', minWidth: '120px' }}>
               <label htmlFor="quick-tags" className="sr-only">Tags</label>
               <input
@@ -496,6 +491,50 @@ function Dashboard() {
                 value={quickNote.tags}
                 onChange={handleQuickNoteChange}
                 aria-label="Note tags, comma separated"
+                style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap', opacity: 0.6 }}>
+            <div style={{ flex: '1 1 30%', minWidth: '120px' }}>
+              <label htmlFor="quick-start-date" className="sr-only">Start Date</label>
+              <input
+                id="quick-start-date"
+                type="date"
+                name="start_date"
+                placeholder="Start Date"
+                value={quickNote.start_date}
+                onChange={handleQuickNoteChange}
+                aria-label="Note start date"
+                style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
+              />
+            </div>
+
+            <div style={{ flex: '1 1 30%', minWidth: '120px' }}>
+              <label htmlFor="quick-end-date" className="sr-only">End Date</label>
+              <input
+                id="quick-end-date"
+                type="date"
+                name="end_date"
+                placeholder="End Date"
+                value={quickNote.end_date}
+                onChange={handleQuickNoteChange}
+                aria-label="Note end date"
+                style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
+              />
+            </div>
+
+            <div style={{ flex: '1 1 30%', minWidth: '120px' }}>
+              <label htmlFor="quick-due-date" className="sr-only">Due Date</label>
+              <input
+                id="quick-due-date"
+                type="date"
+                name="due_date"
+                placeholder="Due Date"
+                value={quickNote.due_date}
+                onChange={handleQuickNoteChange}
+                aria-label="Note due date"
                 style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
               />
             </div>
@@ -542,40 +581,20 @@ function Dashboard() {
           </div>
 
           <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap', opacity: 0.6 }}>
-            <div style={{ flex: '1 1 25%', minWidth: '120px' }}>
-              <input
-                type="text"
-                name="priority"
-                placeholder="Priority"
-                value={quickNote.priority}
+            <div style={{ flex: '1 1 20%', minWidth: '120px' }}>
+              <select
+                name="triage_status"
+                value={quickNote.triage_status}
                 onChange={handleQuickNoteChange}
                 style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
-              />
+              >
+                <option value="New">New</option>
+                <option value="Active">Active</option>
+                <option value="Done">Done</option>
+              </select>
             </div>
 
-            <div style={{ flex: '1 1 25%', minWidth: '120px' }}>
-              <input
-                type="text"
-                name="importance"
-                placeholder="Importance"
-                value={quickNote.importance}
-                onChange={handleQuickNoteChange}
-                style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
-              />
-            </div>
-
-            <div style={{ flex: '1 1 25%', minWidth: '120px' }}>
-              <input
-                type="url"
-                name="url"
-                placeholder="URL"
-                value={quickNote.url}
-                onChange={handleQuickNoteChange}
-                style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
-              />
-            </div>
-
-            <div style={{ flex: '1 1 25%', minWidth: '120px' }}>
+            <div style={{ flex: '1 1 20%', minWidth: '120px' }}>
               <select
                 name="status"
                 value={quickNote.status}
@@ -588,6 +607,45 @@ function Dashboard() {
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div style={{ flex: '1 1 20%', minWidth: '120px' }}>
+              <select
+                name="priority"
+                value={quickNote.priority}
+                onChange={handleQuickNoteChange}
+                style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
+              >
+                <option value="">Priority</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+
+            <div style={{ flex: '1 1 20%', minWidth: '120px' }}>
+              <select
+                name="importance"
+                value={quickNote.importance}
+                onChange={handleQuickNoteChange}
+                style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
+              >
+                <option value="">Importance</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+
+            <div style={{ flex: '1 1 20%', minWidth: '120px' }}>
+              <input
+                type="url"
+                name="url"
+                placeholder="URL"
+                value={quickNote.url}
+                onChange={handleQuickNoteChange}
+                style={{ width: '100%', fontSize: '0.85rem', padding: '0.4rem' }}
+              />
             </div>
           </div>
 
