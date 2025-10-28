@@ -513,36 +513,6 @@ function CreateNote() {
                     placeholder="Comma separated"
                   />
                 </div>
-
-                <div className="form-group">
-                  <label>Start Date</label>
-                  <input
-                    type="date"
-                    name="start_date"
-                    value={formData.start_date}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>End Date</label>
-                  <input
-                    type="date"
-                    name="end_date"
-                    value={formData.end_date}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Due Date</label>
-                  <input
-                    type="date"
-                    name="due_date"
-                    value={formData.due_date}
-                    onChange={handleChange}
-                  />
-                </div>
               </div>
 
               {/* Column 3 - Priority & Status */}
@@ -603,6 +573,43 @@ function CreateNote() {
                     <option value="Medium">Medium</option>
                     <option value="Low">Low</option>
                   </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Date Fields - Full Width */}
+            <div className="form-group" style={{ marginTop: '1.5rem' }}>
+              <label style={{ marginBottom: '1rem', display: 'block', fontWeight: '600', fontSize: '0.95rem' }}>📅 Date Information</label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+                <div>
+                  <label style={{ fontSize: '0.875rem' }}>Start Date</label>
+                  <input
+                    type="date"
+                    name="start_date"
+                    value={formData.start_date}
+                    onChange={handleChange}
+                    style={{ width: '100%' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.875rem' }}>End Date</label>
+                  <input
+                    type="date"
+                    name="end_date"
+                    value={formData.end_date}
+                    onChange={handleChange}
+                    style={{ width: '100%' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.875rem' }}>Due Date</label>
+                  <input
+                    type="date"
+                    name="due_date"
+                    value={formData.due_date}
+                    onChange={handleChange}
+                    style={{ width: '100%' }}
+                  />
                 </div>
               </div>
             </div>
